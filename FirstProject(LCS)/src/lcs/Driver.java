@@ -1,6 +1,7 @@
 /**
- * @author: Ameer Eleyan
- * ID: 1191076
+ *      @author: Ameer Eleyan
+ *      ID: 1191076
+ *      At: 10/29/2021   1:48 AM
  */
 package lcs;
 
@@ -76,6 +77,7 @@ public class Driver implements Initializable {
         this.returnControlsDefault();
     }
 
+    // Handle Combo box
     public void handleComboBox() {
         if (comboBox.getValue().equals("Manual")) {
             this.HBoxSet.setDisable(false);
@@ -87,14 +89,17 @@ public class Driver implements Initializable {
         }
     }
 
+    // Handle set button
     public void handleBtSet() {
-        if (this.txtDataSize.getText().trim().isEmpty()) { // get the data size
+        if (this.txtDataSize.getText().trim().isEmpty()) { // To check the text Field if contains value
             Message.displayMessage("Warning", "Please Enter the data size");
             this.txtDataSize.clear();
-        } else if (isNumber(this.txtDataSize.getText().trim())) {
+        } else if (isNumber(this.txtDataSize.getText().trim())) {// To check value if it is a number
+
             // Creating matrix with a size that was entered
             this.size = Integer.parseInt(this.txtDataSize.getText().trim());
             this.LEDs = new int[this.size];
+
             this.textAreaForData.setText("Data size is: " + this.size + ", and they are:\n");
             this.HBoxSet.setDisable(true);
             this.comboBox.setDisable(true);
@@ -105,16 +110,21 @@ public class Driver implements Initializable {
         }
     }
 
+    // Handle add button
     public void handleBtAdd() {
-        if (this.txtData.getText().trim().isEmpty()) { // get the data
+        String data = this.txtData.getText().trim();
+        if (data.isEmpty()) { // To check the text Field if contains value
             Message.displayMessage("Warning", "Please Enter the data");
             this.txtData.clear();
             return;
-        } else if (isNumber(this.txtData.getText().trim())) {
-            if (Integer.parseInt(this.txtData.getText().trim()) <= this.size) {
-                this.LEDs[this.index] = Integer.parseInt(this.txtData.getText().trim());
+        } else if (isNumber(data)) { // To check value if it is a number
+
+            if (Integer.parseInt(data) <= this.size) { // To validate value
+
+                this.LEDs[this.index] = Integer.parseInt(data);
                 this.textAreaForData.appendText(" \nLed # " + this.LEDs[this.index] + "\t\tPower- " + (this.index + 1) + "\n");
                 this.index++;
+
             } else
                 Message.displayMessage("Warning", "The value must be less than or equal" + this.size);
 
@@ -124,63 +134,51 @@ public class Driver implements Initializable {
 
         this.txtData.clear(); // te receive another value
 
-        if (this.index == this.size) {
+        if (this.index == this.size) { // All data was entered
             this.HBoxAdd.setDisable(true);
             this.btFind.setDisable(false);
         }
     }
 
+    // Handle upload data button
     public void handleUploadData() {
         this.uploadFiles();
-    }
-
-    public void handleFind() {
-        longestCommonSubsequence();
-        this.btTryAnotherData.setDisable(false);
-        this.btFind.setDisable(true);
-    }
-
-    public void handleBtTryAnotherData() {
-        this.returnControlsDefault();
     }
 
     // upload files using a browser
     private void uploadFiles() {
 
         // File Chooser
-        FileChooser fileChooser = new FileChooser();
-        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Files", "*.txt");
-        fileChooser.getExtensionFilters().add(extFilter);
-        File file = fileChooser.showOpenDialog(GUI.window.getScene().getWindow());
+        FileChooser fileChooser = new FileChooser(); //File to upload
+        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Files", "*.txt"); // Specifying the extension of the files
+        fileChooser.getExtensionFilters().add(extFilter); // Appends the specified element to the end of this list
+        File file = fileChooser.showOpenDialog(GUI.window.getScene().getWindow()); // Browsing one file as .txt
 
-        if (file != null) {
-            readDataFromFile(file);
+        if (file != null) { // To check if the user select the file or close the window without selecting
+            this.readDataFromFile(file);
         }
     }
 
-    /**
-     * Methode to read data from file iteratively
-     */
+    // Methode to read data from file
     private void readDataFromFile(File fileName) {
         try {
             Scanner input = new Scanner(fileName); // instance of scanner for read data from file
-            if (fileName.length() == 0) {
-                // no data in file
+            if (fileName.length() == 0) {// no data in file
                 Message.displayMessage("Warning", "  There are no data in the file " + fileName + " ");
-                this.comboBox.setDisable(false);
-            } else {
-                boolean temp = true; // represent line on the file to display in which line has problem If that happens
-                while (input.hasNext()) {
 
-                    if (input.hasNextInt()) {
-                        if (temp) {
+            } else {
+                boolean firstValue = true; // represent the size of the data
+                while (input.hasNext()) { // Read file value by value
+
+                    if (input.hasNextInt()) { // File have contains a data
+                        if (firstValue) { // To check the size of the data if it is specified or not
                             this.size = input.nextInt();
                             this.LEDs = new int[this.size];
                             this.textAreaForData.setText("Data size is: " + this.size + ", and they are:\n");
-                            temp = false;
-                        } else {
+                            firstValue = false;
+                        } else { // The size of the data was specified, thus starting read them
                             int data = input.nextInt();
-                            if (data <= this.size) {
+                            if (data <= this.size) { // To validate value
                                 this.LEDs[this.index] = data;
                                 this.textAreaForData.appendText(" \nLed #" + this.LEDs[this.index] + "\t\tPower-" + (this.index + 1) + "\n");
                                 this.index++;
@@ -204,21 +202,31 @@ public class Driver implements Initializable {
         }
     }
 
-    /**
-     * To check the value of the entered numberOfShares if contain only digits or not
-     */
+    // Handle find pairs button
+    public void handleFind() {
+        this.longestCommonSubsequence();
+        this.btTryAnotherData.setDisable(false);
+        this.btFind.setDisable(true);
+    }
+
+    // Handle try another data button
+    public void handleBtTryAnotherData() {
+        this.returnControlsDefault();
+    }
+
+    // To check the value of the entered numberOfShares if contain only digits or not
     public static boolean isNumber(String number) {
         /* To check the entered number of shares, that it consists of
            only digits
          */
         try {
-            int temp = Integer.parseInt(number);
-            return number.matches("\\d+") && temp > 0;
+            return number.matches("\\d+") && Integer.parseInt(number) > 0;
         } catch (NumberFormatException e) {
             return false;
         }
     }
 
+    // Handle try another data button
     private void returnControlsDefault() {
         this.comboBox.setDisable(false);
         this.HBoxSet.setDisable(true);
@@ -234,17 +242,34 @@ public class Driver implements Initializable {
         this.btTryAnotherData.setDisable(true);
     }
 
+    /**
+     * Find the longest common subsequence between two sequences
+     * using  Dynamic programming approach which takes the O (N * M) time complexity,
+     * the following relation represent the code. Then Display the result
+     *
+     *                     ________
+     *                    |
+     *                    |  0                                                        if ( i = 0 ) OR ( j = 0 )
+     * costForLCS[i.j]  = |
+     *                    |  costForLCS [ i-1, j-1 ] + 1                              if xi = yj
+     *                    |
+     *                    |  max ( costForLCS [ i-1, j ], costForLCS [ i , j-1 ] )    if xi ≠ yj
+     *                    |________
+     **/
     public void longestCommonSubsequence() {
 
         int[][] costForLCS = new int[this.size + 1][this.size + 1];
         byte[][] tempArrayForDisplayResult = new byte[this.size + 1][this.size + 1];
 
         for (int i = 1; i <= this.size; i++) {
+
             for (int j = 1; j <= this.size; j++) {
-                if (i == this.LEDs[j - 1]) {
+
+                if (i == this.LEDs[j - 1]) { // Second case from the above relation
                     costForLCS[i][j] = costForLCS[i - 1][j - 1] + 1;
                     tempArrayForDisplayResult[i][j] = 1;
-                } else {
+
+                } else {// Third case from the above relation
                     if (costForLCS[i][j - 1] > costForLCS[i - 1][j]) {
                         costForLCS[i][j] = costForLCS[i][j - 1];
                         tempArrayForDisplayResult[i][j] = 0;
@@ -255,26 +280,37 @@ public class Driver implements Initializable {
                 }
             }
         }
-        // view details of the results
+
+        // View details of the results
         this.textAreaDetails.appendText("\t");
         for (int i = 0; i < this.size + 1; i++) {
+
             for (int j = 0; j < this.size + 1; j++) {
+
+                /* The first row and first column which was zero value will be skipped
+                    and instead of them will be filled with Led word in the row,
+                    and Power word in the column
+                */
                 if (i == 0 && j < this.size)
                     textAreaDetails.appendText("\t\t" + "Led-" + this.LEDs[j]);//this.size => Led7 print
                 else if (j == 0) textAreaDetails.appendText("Power-" + i + "\t\t");
-                if ((j > 0) && (i > 0))
-                    textAreaDetails.appendText(" " + costForLCS[i][j] + " \t  \t  \t"); // first row and first column that was zero will be skipped
+
+
+                if ((j > 0) && (i > 0)) // Display values after fill first row and first column
+                    textAreaDetails.appendText(" " + costForLCS[i][j] + " \t  \t  \t");
             }
+
             this.textAreaDetails.appendText("\n");
         }
-        displaySolution(tempArrayForDisplayResult, this.size, this.size, costForLCS);
+        displayAllLCS(tempArrayForDisplayResult, this.size, this.size, costForLCS);
 
     }
 
-    public void displaySolution(byte[][] b, int i, int j, int[][] costForLCS) {
+    // Display all longest common subsequence
+    public void displayAllLCS(byte[][] b, int i, int j, int[][] costForLCS) {
 
-        int row = i; // to looping for all row have the LCS number
-        int column = j;// to looping for all column have the LCS number
+        int row = i; // to looping for all row have the LCS number(costForLCS[size][size])
+        int column = j;// to looping for all column have the LCS number(costForLCS[size][size])
 
         String[] allLCS = new String[i]; // To store all unique LCS pairs
         int Index_For_All_LCS_Matrix = 0;
@@ -303,11 +339,11 @@ public class Driver implements Initializable {
                     else tempRow--;
                 }
 
-                if (column == j) { // first solution
+                if (column == j) { // first LCS
                     allLCS[Index_For_All_LCS_Matrix] = pairs;
                 }
 
-                // other solutions but unique
+                // other LCS but unique
                 boolean notFound = true;
 
                 // To check if current LCS is already exist
