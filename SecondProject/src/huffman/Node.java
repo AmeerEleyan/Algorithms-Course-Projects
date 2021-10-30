@@ -1,15 +1,15 @@
 /**
- *      @author: Ameer Eleyan
- *      ID: 1191076
- *      At: 10/30/2021      4:57 AM
+ * @author: Ameer Eleyan
+ * ID: 1191076
+ * At: 10/30/2021      4:57 AM
  */
 package huffman;
 
 public class Node implements Comparable<Node> {
     private byte bytes;
     private int frequency;
-    Node leftChild;
-    Node rightChild;
+    private Node leftChild;
+    private Node rightChild;
 
     public Node() {
 

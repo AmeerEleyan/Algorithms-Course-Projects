@@ -3,18 +3,17 @@ package huffman;
 public class StatisticsTable {
     private byte ASCII;
     private int frequency;
-    private String huffman;
-    private int length;
+    private String variableLength;
+
 
     public StatisticsTable(){
 
     }
 
-    public StatisticsTable(byte ASCII, int frequency, String huffman, int length) {
+    public StatisticsTable(byte ASCII, int frequency, String variableLength) {
         this.ASCII = ASCII;
         this.frequency = frequency;
-        this.huffman = huffman;
-        this.length = length;
+        this.variableLength = variableLength;
     }
 
     public byte getASCII() {
@@ -33,29 +32,22 @@ public class StatisticsTable {
         this.frequency = frequency;
     }
 
-    public String getHuffman() {
-        return this.huffman;
+    public String getVariableLength() {
+        return this.variableLength;
     }
 
-    public void setHuffman(String huffman) {
-        this.huffman = huffman;
+    public void setVariableLength(String variableLength) {
+        this.variableLength = variableLength;
     }
 
-    public int getLength() {
-        return this.length;
-    }
 
-    public void setLength(int length) {
-        this.length = length;
-    }
 
     @Override
     public String toString() {
         return "StatisticsTable{" +
                 "ASCII=" + ASCII +
                 ", frequency=" + frequency +
-                ", huffman='" + huffman + '\'' +
-                ", length=" + length +
+                ", huffman='" + variableLength + '\'' +
                 '}';
     }
 }

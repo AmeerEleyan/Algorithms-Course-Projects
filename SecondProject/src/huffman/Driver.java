@@ -66,8 +66,8 @@ public class Driver implements Initializable {
         if (file != null) { // To check if the user select the file or close the window without selecting
             if (file.length() == 0) {
                 Message.displayMessage("Warning", "There are no data in the " + file.getName());
-            }else{
-                Huffman.buildHuffmanTree(file);
+            } else {
+                Huffman.compress(file);
                 this.comboBox.setDisable(true);
                 this.btSave.setDisable(false);
                 this.btAnotherFile.setDisable(false);
@@ -84,7 +84,7 @@ public class Driver implements Initializable {
         File file = fileChooser.showSaveDialog(GUI.window.getScene().getWindow()); // Browsing one file as .txt
 
         if (file != null) { // To check if the user select the file or close the window without selecting
-            //  this.readDataFromFile(file);
+            Huffman.update(file);
             this.btBrowse.setDisable(true);
             this.btSave.setDisable(true);
         }
