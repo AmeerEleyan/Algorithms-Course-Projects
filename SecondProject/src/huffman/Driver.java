@@ -3,6 +3,7 @@ package huffman;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.FileChooser;
 
 import java.io.File;
@@ -47,6 +48,10 @@ public class Driver implements Initializable {
         this.comboBox.getItems().add("Compress File");
         this.comboBox.getItems().add("Decompress File");
         this.returnControlsDefault();
+        this.cmASCII.setCellValueFactory(new PropertyValueFactory<>("ASCII"));
+        this.cmFrequency.setCellValueFactory(new PropertyValueFactory<>("frequency"));
+        this.cmHuffman.setCellValueFactory(new PropertyValueFactory<>("huffmanCode"));
+        this.cmLength.setCellValueFactory(new PropertyValueFactory<>("huffmanLength"));
     }
 
     public void handleComboBox() {
@@ -69,6 +74,7 @@ public class Driver implements Initializable {
             } else {
                 Huffman.compress(file);
                 this.comboBox.setDisable(true);
+                this.fillStatisticsTable();
                 this.btSave.setDisable(false);
                 this.btAnotherFile.setDisable(false);
             }
@@ -102,5 +108,11 @@ public class Driver implements Initializable {
         this.txtHeader.clear();
         this.tableView.getItems().clear();
 
+    }
+
+    private void fillStatisticsTable() {
+        for (int i = 0; i < Huffman.huffmanTable.length; i++) {
+             this.tableView.getItems().add(Huffman.huffmanTable[i]);
+        }
     }
 }
