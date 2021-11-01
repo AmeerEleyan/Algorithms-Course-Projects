@@ -1,26 +1,46 @@
 package huffman;
 
 import java.io.*;
-import java.nio.file.Files;
 import java.util.PriorityQueue;
 
 public class Huffman {
     private static final int ALPHABET_SIZE = 256;
     public static final StatisticsTable[] huffmanTable = new StatisticsTable[ALPHABET_SIZE];
-    private static byte[] bytes;
+
 
     public static void compress(File file) {
-        int[] frequencies = buildFrequenciesOfTheBytes(file);
-        buildHuffmanTree(frequencies);
+        buildHuffmanTree(buildFrequenciesOfTheBytes(file));
+        try {
+            PrintWriter writer = new PrintWriter(file);
+
+            String binaryRepresentation = "";
+//            for (int j = 0; j < bytes.length; j++) {
+//                if (huffmanTable[bytes[j] + 128] != null && huffmanTable[bytes[j] + 128].getFrequency() > 0) {
+//                    writer.print(huffmanTable[bytes[j] + 128].getHuffmanCode());
+//                   /* binaryRepresentation += huffmanTable[bytes[j] + 128].getHuffmanCode();
+//                    if (binaryRepresentation.length() >= 8) {
+//                        writer.print(Integer.parseInt(binaryRepresentation, 2) + " ");
+//                        binaryRepresentation = "";
+//                    }*/
+//                }
+//
+//            }
+            writer.close();
+        } catch (IOException exception) {
+            Message.displayMessage("Warning", exception.getMessage());
+        }
     }
 
     public static int[] buildFrequenciesOfTheBytes(final File file) {
+
         try {
-            // Files.readAllBytes: an array of the required size cannot be allocated, for example the file is larger that 2GB
-            bytes = Files.readAllBytes(file.toPath());
+            BufferedReader br = new BufferedReader(new FileReader(file));
             int[] frequencies = new int[ALPHABET_SIZE];
-            for (int frequency : bytes) {
-                frequencies[frequency + 128]++;
+            while (true) {
+                String line = br.readLine();
+                if (line == null) break;
+                byte[] bytes = line.getBytes();
+                for(byte b: bytes)  frequencies[b+128]++;
             }
             return frequencies;
         } catch (IOException e) {
@@ -64,19 +84,19 @@ public class Huffman {
     }
 
     public static void update(File file) {
-        try {
-            PrintWriter writer = new PrintWriter(file);
-            for (StatisticsTable statisticsTable : huffmanTable) {
-                if (statisticsTable != null && statisticsTable.getFrequency() > 0) {
-                    writer.println(statisticsTable.getHuffmanCode() + " " + statisticsTable.getFrequency());
-
-                } else writer.println(0);
-
-            }
+//        try {
+//            PrintWriter writer = new PrintWriter(file);
+//            /*for (StatisticsTable statisticsTable : huffmanTable) {
+//                if (statisticsTable != null && statisticsTable.getFrequency() > 0) {
+//                    writer.println(statisticsTable.getHuffmanCode() + " " + statisticsTable.getFrequency());
+//
+//                } else writer.println(0);
+//
+//            }*/
 //            String binaryRepresentation = "";
 //            for (int j = 0; j < bytes.length; j++) {
 //                if (huffmanTable[bytes[j] + 128] != null && huffmanTable[bytes[j] + 128].getFrequency() > 0) {
-//                    writer.print(huffmanTable[bytes[j] + 128].getHuffmanCode() + " ");
+//                    writer.print(huffmanTable[bytes[j] + 128].getHuffmanCode());
 //                   /* binaryRepresentation += huffmanTable[bytes[j] + 128].getHuffmanCode();
 //                    if (binaryRepresentation.length() >= 8) {
 //                        writer.print(Integer.parseInt(binaryRepresentation, 2) + " ");
@@ -85,10 +105,10 @@ public class Huffman {
 //                }
 //
 //            }
-            writer.close();
-        } catch (IOException exception) {
-            Message.displayMessage("Warning", exception.getMessage());
-        }
+//            writer.close();
+//        } catch (IOException exception) {
+//            Message.displayMessage("Warning", exception.getMessage());
+//        }
     }
 
 }

@@ -112,7 +112,8 @@ public class Driver implements Initializable {
 
     private void fillStatisticsTable() {
         for (int i = 0; i < Huffman.huffmanTable.length; i++) {
-             this.tableView.getItems().add(Huffman.huffmanTable[i]);
+            if (Huffman.huffmanTable[i] != null && Huffman.huffmanTable[i].getFrequency() > 0)
+                this.tableView.getItems().add(Huffman.huffmanTable[i]);
         }
     }
 }
