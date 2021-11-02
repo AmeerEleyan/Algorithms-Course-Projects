@@ -44,7 +44,7 @@ public abstract class Message {
         lbl.setAlignment(Pos.CENTER);
 
         // icon
-        ImageView imgWarning = new ImageView(new Image("lcs/warning.png"));
+        ImageView imgWarning = new ImageView(new Image("huffman/warning.png"));
         imgWarning.setFitWidth(32);
         imgWarning.setFitHeight(32);
 

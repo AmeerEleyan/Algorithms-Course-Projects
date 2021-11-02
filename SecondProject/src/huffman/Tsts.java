@@ -1,9 +1,7 @@
 package huffman;
 
-import java.io.BufferedReader;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Files;
 import java.util.Arrays;
 
 public class Tsts {
@@ -16,27 +14,50 @@ public class Tsts {
      //   System.gc();
 
 
+//
+//        try {
+//            FileOutputStream fos = new FileOutputStream("amm.txt");
+//            byte x = -128;
+//            fos.write(x);
+//            x = 120;
+//            fos.write(x);
+//            x = 97;
+//            fos.write(x);
+//            x = 15;
+//            fos.write(x);
+//           /* System.out.println(x);
+//            long startTime = System.currentTimeMillis();
+//            BufferedReader br = new BufferedReader(new FileReader("amm.txt"));
+//            while (true){
+//                int line= br.read();
+//                if(line==-1) break;
+//                byte result = (byte)line;
+//                System.out.println(~result);
+//            }
+//
+//            long end = System.currentTimeMillis();
+//            System.out.println(end-startTime);*/
+//            byte []bytes = Files.readAllBytes(new File("amm.txt").toPath());
+//            System.out.println(Arrays.toString(bytes));
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
-        try {
-            FileOutputStream fos = new FileOutputStream("amm.txt");
-            byte x = (byte)-127;
-            fos.write(x);
-            long startTime = System.currentTimeMillis();
-            BufferedReader br = new BufferedReader(new FileReader("amm.txt"));
-            StringBuilder sb;
 
-
-            while (true){
-                String line= br.readLine();
-                if(line== null) break;
-                byte[] result = line.getBytes();
-                System.out.println(Arrays.toString(result));
+        FileInputStream fileInputStream = null;
+        byte[] bFile = new byte[265];
+        try
+        {
+            //convert file into array of bytes
+            fileInputStream = new FileInputStream("amm.txt");
+            fileInputStream.read(bFile);
+            fileInputStream.close();
+            for (byte b : bFile) {
+                System.out.print(b+" ");
             }
-
-
-            long end = System.currentTimeMillis();
-            System.out.println(end-startTime);
-        } catch (IOException e) {
+        }
+        catch (Exception e)
+        {
             e.printStackTrace();
         }
 

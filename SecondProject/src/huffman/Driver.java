@@ -42,6 +42,7 @@ public class Driver implements Initializable {
     @FXML // fx:id="txtHeader"
     private TextArea txtHeader; // Value injected by FXMLLoader
 
+    private File sourceFile;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -66,15 +67,21 @@ public class Driver implements Initializable {
             FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Files", "*.huf"); // Specifying the extension of the files
             fileChooser.getExtensionFilters().add(extFilter); // Appends the specified element to the end of this list
         }
-        File file = fileChooser.showOpenDialog(GUI.window.getScene().getWindow()); // Browsing one file as .txt
+        this.sourceFile = fileChooser.showOpenDialog(GUI.window.getScene().getWindow()); // Browsing one file as .txt
 
-        if (file != null) { // To check if the user select the file or close the window without selecting
-            if (file.length() == 0) {
-                Message.displayMessage("Warning", "There are no data in the " + file.getName());
+        if (this.sourceFile != null) { // To check if the user select the file or close the window without selecting
+            if (this.sourceFile.length() == 0) {
+                Message.displayMessage("Warning", "There are no data in the " + this.sourceFile.getName());
             } else {
-                Huffman.compress(file);
-                this.comboBox.setDisable(true);
+                if (this.comboBox.getValue().equals("Compress File")) {
+                    Huffman.encoding(this.sourceFile);
+                    Message.displayMessage("Successfully", this.sourceFile.getName() + " was compressed successfully, you can save it");
+                } else {
+                    Huffman.decoding(this.sourceFile);
+                    Message.displayMessage("Successfully", this.sourceFile.getName() + " was decompressed successfully, you can save it");
+                }
                 this.fillStatisticsTable();
+                this.comboBox.setDisable(true);
                 this.btSave.setDisable(false);
                 this.btAnotherFile.setDisable(false);
             }
@@ -87,10 +94,10 @@ public class Driver implements Initializable {
         FileChooser fileChooser = new FileChooser(); //File to upload
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Files", "*.huf"); // Specifying the extension of the files
         fileChooser.getExtensionFilters().add(extFilter); // Appends the specified element to the end of this list
-        File file = fileChooser.showSaveDialog(GUI.window.getScene().getWindow()); // Browsing one file as .txt
+        File destinationFile = fileChooser.showSaveDialog(GUI.window.getScene().getWindow()); // Browsing one file as .txt
 
-        if (file != null) { // To check if the user select the file or close the window without selecting
-            Huffman.update(file);
+        if (destinationFile != null) { // To check if the user select the file or close the window without selecting
+            Huffman.compress(destinationFile, this.sourceFile);
             this.btBrowse.setDisable(true);
             this.btSave.setDisable(true);
         }
