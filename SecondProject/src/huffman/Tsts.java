@@ -6,6 +6,12 @@ import java.util.Arrays;
 
 public class Tsts {
     public static void main(String[] args) {
+
+        String str = "abcdef1";
+        byte[]bytes = str.getBytes();
+        System.out.println(Arrays.toString(bytes));
+
+    }
 //        byte bb = 0b00000000;
 //        // byte cc = 0b10000000;
 //
@@ -44,22 +50,22 @@ public class Tsts {
 //        }
 
 
-        FileInputStream fileInputStream = null;
-        byte[] bFile = new byte[265];
-        try
-        {
-            //convert file into array of bytes
-            fileInputStream = new FileInputStream("amm.txt");
-            fileInputStream.read(bFile);
-            fileInputStream.close();
-            for (byte b : bFile) {
-                System.out.print(b+" ");
-            }
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-
-    }
+//        FileInputStream fileInputStream = null;
+//        byte[] bFile = new byte[265];
+//        try
+//        {
+//            //convert file into array of bytes
+//            fileInputStream = new FileInputStream("amm.txt");
+//            fileInputStream.read(bFile);
+//            fileInputStream.close();
+//            for (byte b : bFile) {
+//                System.out.print(b+" ");
+//            }
+//        }
+//        catch (Exception e)
+//        {
+//            e.printStackTrace();
+//        }
+//
+//    }
 }

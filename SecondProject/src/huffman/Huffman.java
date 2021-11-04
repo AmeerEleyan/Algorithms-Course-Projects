@@ -1,19 +1,25 @@
 package huffman;
 
 import java.io.*;
-import java.util.LinkedList;
 import java.util.PriorityQueue;
-import java.util.Queue;
+import java.util.Stack;
 
 public class Huffman {
     private static final int ALPHABET_SIZE = 256;
     public static final StatisticsTable[] huffmanTable = new StatisticsTable[ALPHABET_SIZE];
-
+    private static Node root;
 
     public static void encoding(final File sourceFile) {
-        Node root = buildHuffmanTree(buildFrequenciesOfTheBytes(sourceFile));
+        root = buildHuffmanTree(buildFrequenciesOfTheBytes(sourceFile));
         assert root != null;
         getHuffmanCode(root, "");
+
+//        iterativePreorder(root);
+//        byte[] pre = {0, 97, 0, 0, 0, 100, 102, 98, 0, 99, 101};
+//        char[] preL = {'N', 'L', 'N', 'N', 'N', 'L', 'L', 'L', 'N', 'L', 'N'};
+//        Node d = constructTree(pre.length, pre, preL);
+
+
     }
 
     public static void decoding(final File sourceFile) {
@@ -78,16 +84,97 @@ public class Huffman {
         }
     }
 
-    public static void compress(File fileSource, File fileDestination) {
-//        try {
-//            PrintWriter writer = new PrintWriter(file);
-//            /*for (StatisticsTable statisticsTable : huffmanTable) {
-//                if (statisticsTable != null && statisticsTable.getFrequency() > 0) {
-//                    writer.println(statisticsTable.getHuffmanCode() + " " + statisticsTable.getFrequency());
-//
-//                } else writer.println(0);
-//
-//            }*/
+    public static Node constructTree(int n, byte pre[], char preLN[]) {
+
+        // Code here
+        Stack<Node> s = new Stack<>();
+        Node root = new Node(pre[0]);
+        s.push(root);
+        int i = 1;
+        while (i < n) {
+            Node curr = s.peek();
+            if (curr.getLeftChild() == null) {
+                curr.setLeftChild(new Node(pre[i]));
+                if (preLN[i] == 'N') {
+                    s.push(curr.getLeftChild());
+                }
+                i++;
+            } else if (curr.getRightChild() == null) {
+                curr.setRightChild(new Node(pre[i]));
+                if (preLN[i] == 'N') {
+                    s.push(curr.getRightChild());
+                }
+                i++;
+            } else {
+                s.pop();
+            }
+        }
+        return root;
+    }
+
+
+    //O(N)
+    private static void iterativePreorder(Node node) {
+
+        try {
+            // Base Case
+            if (node == null) {
+                return;
+            }
+
+            // Create an empty stack and push root to it
+            Stack<Node> nodeStack = new Stack<Node>();
+            nodeStack.push(node);
+            PrintWriter writer = new PrintWriter("newPreorder.txt");
+
+        /* Pop all items one by one. Do following for every popped item
+         a) print it
+         b) push its right child
+         c) push its left child
+         Note that right child is pushed first so that left is processed first */
+            while (!nodeStack.empty()) {
+
+                // Pop the top item from stack and print it
+                Node current = nodeStack.peek();
+                //  writer.println(current.getBytes());
+                nodeStack.pop();
+
+                // Push right and left children of the popped node to stack
+                if (current.getRightChild() != null) {
+                    nodeStack.push(current.getRightChild());
+                }
+                if (current.getLeftChild() != null) {
+                    nodeStack.push(current.getLeftChild());
+                }
+            }
+            writer.close();
+        } catch (IOException e) {
+            Message.displayMessage("Warning", e.getMessage());
+        }
+
+    }
+
+    public static void compress(final File fileSource, final File destinationFile) {
+
+        try {
+            int indexOfDot = fileSource.getName().lastIndexOf('.');
+            String fileExtension = fileSource.getName().substring(0, indexOfDot);
+            printHeader(destinationFile, fileExtension);
+            PrintWriter writer = new PrintWriter(destinationFile);
+            byte[] bytes = getBytesFromFile(fileSource);
+            FileOutputStream fos = new FileOutputStream(destinationFile);
+        } catch (IOException e) {
+            Message.displayMessage("Warinig", e.getMessage());
+        }
+
+        //writer.append()
+            /*for (StatisticsTable statisticsTable : huffmanTable) {
+                if (statisticsTable != null && statisticsTable.getFrequency() > 0) {
+                    writer.println(statisticsTable.getHuffmanCode() + " " + statisticsTable.getFrequency());
+
+                } else writer.println(0);
+
+            }*/
 //            String binaryRepresentation = "";
 //            for (int j = 0; j < bytes.length; j++) {
 //                if (huffmanTable[bytes[j] + 128] != null && huffmanTable[bytes[j] + 128].getFrequency() > 0) {
@@ -104,45 +191,58 @@ public class Huffman {
 //        } catch (IOException exception) {
 //            Message.displayMessage("Warning", exception.getMessage());
 //        }
+
     }
 
-    // Level traversal (Breadth-first search)
-    public static void levelOrderTraverse(Node node) {
-        if (node == null)
+
+    public static void decompress(final File sourceFile , final File destinationFile) {
+    
+    }
+
+    private static void printHeader(final File destinationFile, final String fileExtension) {
+
+        // Base Case
+        if (root == null) {
             return;
-
-        Queue<Node> queue = new LinkedList<>();
-        // we add start node
-        queue.add(node);
-
-        try {
-            FileOutputStream fos = new FileOutputStream("level.txt");
-            PrintWriter writer = new PrintWriter("level.txt");
-            //     FileStream outputFS = new FileStream()
-            //iterate while queue not empty
-            while (!queue.isEmpty()) {
-
-                // dequeue and print data
-                Node next = queue.remove();
-                if (next.isLeaf()) {
-                    fos.write(next.getBytes());
-                    writer.println(next.getFrequency());
-                }
-
-                // System.out.print(next.data + " ");
-
-                // we add children nodes if not null
-                if (next.getLeftChild() != null)
-                    queue.add(next.getLeftChild());
-
-                if (next.getRightChild() != null)
-                    queue.add(next.getRightChild());
-            }
-            fos.close();
-            writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
 
+        try {
+
+            PrintWriter writer = new PrintWriter(destinationFile);
+            writer.println(fileExtension);
+
+            // Create an empty stack and push root to it
+            Stack<Node> nodeStack = new Stack<Node>();
+            nodeStack.push(root);
+
+        /* Pop all items one by one. Do following for every popped item
+         a) print it
+         b) push its right child
+         c) push its left child
+         Note that right child is pushed first so that left is processed first */
+            while (!nodeStack.empty()) {
+
+                // Pop the top item from stack and print it
+                Node current = nodeStack.peek();
+                // y: is leaf
+                // n: not leaf
+                writer.print(current.getBytes() + "" + ((current.getBytes() != '\0') ? 'y' : 'n'));
+                nodeStack.pop();
+
+                // Push right and left children of the popped node to stack
+                if (current.getRightChild() != null) {
+                    nodeStack.push(current.getRightChild());
+                }
+                if (current.getLeftChild() != null) {
+                    nodeStack.push(current.getLeftChild());
+                }
+            }
+            writer.print('`');// end the header
+            writer.close();
+        } catch (IOException e) {
+            Message.displayMessage("Warning", e.getMessage());
+        }
     }
+
+
 }

@@ -14,6 +14,9 @@ public class Node implements Comparable<Node> {
     public Node() {
 
     }
+    public Node(final byte bytes) {
+        this.bytes = bytes;
+    }
 
     public Node(final byte bytes, final int frequency, final Node left, final Node right) {
         this.bytes = bytes;
