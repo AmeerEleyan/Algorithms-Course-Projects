@@ -7,9 +7,7 @@ import java.util.Arrays;
 public class Tsts {
     public static void main(String[] args) {
 
-        String str = "abcdef1";
-        byte[]bytes = str.getBytes();
-        System.out.println(Arrays.toString(bytes));
+
 
     }
 //        byte bb = 0b00000000;
@@ -68,4 +66,5 @@ public class Tsts {
 //        }
 //
 //    }
+
 }
