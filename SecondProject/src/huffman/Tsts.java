@@ -7,6 +7,9 @@ import java.util.Arrays;
 public class Tsts {
     public static void main(String[] args) {
 
+        String s = "10101";
+        String r= s.substring(s.length());
+        System.out.println(r);
 
 
     }

@@ -48,7 +48,10 @@ public class Driver implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         this.comboBox.getItems().add("Compress File");
         this.comboBox.getItems().add("Decompress File");
-        this.returnControlsDefault();
+        this.comboBox.setDisable(false);
+        this.btBrowse.setDisable(true);
+        this.btSave.setDisable(true);
+        this.btAnotherFile.setDisable(true);
         this.cmASCII.setCellValueFactory(new PropertyValueFactory<>("ASCII"));
         this.cmFrequency.setCellValueFactory(new PropertyValueFactory<>("frequency"));
         this.cmHuffman.setCellValueFactory(new PropertyValueFactory<>("huffmanCode"));
@@ -99,7 +102,8 @@ public class Driver implements Initializable {
         if (destinationFile != null) { // To check if the user select the file or close the window without selecting
 
             if (this.comboBox.getValue().equals("Compress File")) {
-                Huffman.compress(this.sourceFile, destinationFile);
+                Huffman.printToFile(this.sourceFile, destinationFile);
+                // Huffman.compress(this.sourceFile, destinationFile);
                 Message.displayMessage("Successfully", this.sourceFile.getName() + " was compressed successfully ");
             } else {
                 Huffman.decompress(this.sourceFile, destinationFile);
@@ -116,17 +120,19 @@ public class Driver implements Initializable {
 
     private void returnControlsDefault() {
         this.comboBox.setDisable(false);
-        this.btBrowse.setDisable(true);
+        this.btBrowse.setDisable(false);
         this.btSave.setDisable(true);
         this.btAnotherFile.setDisable(true);
         this.txtHeader.clear();
         this.tableView.getItems().clear();
+        Huffman.returnDefault();
 
     }
 
     private void fillStatisticsTable() {
         for (int i = 0; i < Huffman.huffmanTable.length; i++) {
-            if (Huffman.huffmanTable[i] != null && Huffman.huffmanTable[i].getASCII() != '\0')
+            //&& Huffman.huffmanTable[i].getASCII() != '\0'
+            if (Huffman.huffmanTable[i] != null)
                 this.tableView.getItems().add(Huffman.huffmanTable[i]);
         }
     }

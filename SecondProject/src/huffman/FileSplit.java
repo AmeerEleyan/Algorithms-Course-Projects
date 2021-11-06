@@ -9,18 +9,9 @@ import java.util.Arrays;
 public class FileSplit {
     public static void main(String[] args) throws IOException {
         String d = "txt";
-        byte[]b = d.getBytes();
-        System.out.println(Arrays.toString(b));
-        FileOutputStream fos = new FileOutputStream("output.txt");
-        try {
-            fos.write(b, 0, b.length);
-            fos.write('\n');
-            fos.write('y');
-            fos.write(b, 0, b.length);
-        }
-        finally {
-            fos.close();
-        }
+        byte[]b = {'0'};
+        writeBlock(0, b,b.length);
+
     }
 
     private void splitFile(File file) throws IOException {
@@ -57,14 +48,14 @@ public class FileSplit {
         }
     }
 
-    private void writeBlock(int blockNumber, byte[] buffer, int length) throws IOException {
-        FileOutputStream fos = new FileOutputStream("output_" + blockNumber + ".dat");
+    private static void writeBlock(int blockNumber, byte[] buffer, int length)  {
         try {
+            FileOutputStream fos = new FileOutputStream("testFunc.txt");
             fos.write(buffer, 0, length);
-
-        }
-        finally {
             fos.close();
+        }catch (IOException e) {
+            System.out.println();
         }
+
     }
 }

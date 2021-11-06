@@ -1,18 +1,21 @@
 package huffman;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.PriorityQueue;
 import java.util.Stack;
 
 public class Huffman {
     private static final int ALPHABET_SIZE = 256;
-    public static final StatisticsTable[] huffmanTable = new StatisticsTable[ALPHABET_SIZE];
-    // private Node root;
+    public static StatisticsTable[] huffmanTable;
+    private static Node root;
 
     public static void encoding(final File sourceFile) {
-        // root = buildHuffmanTree(buildFrequenciesOfTheBytes(sourceFile));
-        // assert root != null;
-        // getHuffmanCode(root, "");
+        root = buildHuffmanTree(buildFrequenciesOfTheBytes(sourceFile));
+        assert root != null;
+        huffmanTable = new StatisticsTable[ALPHABET_SIZE];
+        getHuffmanCode(root, "");
 
 //        iterativePreorder(root);
 //        byte[] pre = {0, 97, 0, 0, 0, 100, 102, 98, 0, 99, 101};
@@ -34,7 +37,7 @@ public class Huffman {
             byte[] buffer = new byte[1024]; // number of bytes can be read
 
             // remaining is the number of bytes to read to fill the buffer
-            int remaining = buffer.length;
+            short remaining = (short) buffer.length;
 
             while (true) {
                 int read = fis.read(buffer, buffer.length - remaining, remaining);
@@ -44,16 +47,15 @@ public class Huffman {
                         for (byte b : buffer) {
                             frequencies[b + 128]++;
                         }
-                        remaining = buffer.length;
+                        remaining = (short) buffer.length;
                     }
                 } else {
                     // the end of the file was reached. If some bytes are in the buffer
-                    // they are written to the last output file
-                    if (remaining < buffer.length) {
-                        for (byte b : buffer) {
-                            frequencies[b + 128]++;
-                        }
+
+                    for (int i = 0; i < buffer.length - remaining; i++) {
+                        frequencies[buffer[i] + 128]++;
                     }
+
                     break;
                 }
             }
@@ -90,6 +92,7 @@ public class Huffman {
         return null;
     }
 
+    // build huffman code for each byte recursive
     public static void getHuffmanCode(Node node, String code) {
         if (node.isLeaf()) {
             huffmanTable[node.getBytes() + 128] = new StatisticsTable(node.getBytes(), node.getFrequency(), code, code.length());
@@ -170,9 +173,10 @@ public class Huffman {
     }
 
     public static void printToFile(final File sourceFile, final File destinationFile) {
-        int indexOfDot = sourceFile.getName().lastIndexOf('.');
-        String fileExtension = sourceFile.getName().substring(indexOfDot);
+        byte indexOfDot = (byte) sourceFile.getName().lastIndexOf('.');
+        String fileExtension = sourceFile.getName().substring(indexOfDot + 1);
         byte[] fileExtensionBytes = fileExtension.getBytes();
+
         try {
 
             // ******* print the extension to the destination file *********************
@@ -182,12 +186,7 @@ public class Huffman {
             fos.write(fileExtensionBytes, 0, fileExtensionBytes.length);
             fos.write('\n');
 
-
-            Node root = buildHuffmanTree(buildFrequenciesOfTheBytes(sourceFile));
-            assert root != null;
-            getHuffmanCode(root, "");
-
-            // ******** print the header of the file using PreOrder traversal for the huffman tree iteratively *******
+            // ******** print the header of the file using PreOrder traversal for the huffman tree iteratively O(n) *******
 
             // Create an empty stack and push root to it
             Stack<Node> nodeStack = new Stack<>();
@@ -219,46 +218,84 @@ public class Huffman {
 
             // ************** encode the file and print to the output file ************
 
-            FileInputStream fis = new FileInputStream(sourceFile);
+            InputStream fis = new FileInputStream(sourceFile);
 
             byte[] buffer = new byte[1024]; // number of bytes can be read
 
             // remaining is the number of bytes to read to fill the buffer
-            int remaining = buffer.length;
+            short remaining = (short) buffer.length;
 
-            byte[] huffman = new byte[8];
-            int index = 0; // used for the above huffman array
+            byte[] huffman = new byte[1024];
+            short index = 0; // used for the above huffman array
+            String remainingBits = "";
+            String huffmanBits = "";
             while (true) {
-                int read = fis.read(buffer, buffer.length - remaining, remaining);
+                short read = (short) fis.read(buffer, buffer.length - remaining, remaining);
                 if (read >= 0) { // some bytes were read
                     remaining -= read;
                     if (remaining == 0) { // the buffer is full
-                        String remainingBits = "";
                         for (byte b : buffer) {
-                            String huffmanBits = remainingBits + huffmanTable[b + 128].getHuffmanCode();
+                            huffmanBits = remainingBits + huffmanTable[b + 128].getHuffmanCode();
+
                             if (huffmanBits.length() >= 8) {
-                                remainingBits = huffmanBits.substring(huffmanBits.length() - 8);
-                                huffmanBits = huffmanBits.substring(0, 9);
-                                byte huffmanByte = (byte) (int) Integer.valueOf(huffmanBits, 2);
+                                remainingBits = huffmanBits.substring(8); // to store bit above than index 7
+                                byte huffmanByte = (byte) (int) Integer.valueOf(huffmanBits.substring(0, 8), 2);
                                 huffman[index++] = huffmanByte;
+                                if (index == 1024) {
+                                    fos.write(huffman, 0, 1024);
+                                    index = 0;
+                                }
+                            } else {
+                                remainingBits = huffmanBits;
                             }
 
                         }
-                        remaining = buffer.length;
+                        remaining = (short) buffer.length;
                     }
                 } else {
                     // the end of the file was reached. If some bytes are in the buffer
-                    // they are written to the last output file
-                    if (remaining < buffer.length) {
-                        for (byte b : buffer) {
 
+                    for (int i = 0; i < buffer.length - remaining; i++) { // for the remaining bytes
+                        huffmanBits = remainingBits + huffmanTable[buffer[i] + 128].getHuffmanCode();
+
+                        if (huffmanBits.length() >= 8) {
+                            remainingBits = huffmanBits.substring(8); // to store bit above than index 7
+                            byte huffmanByte = (byte) (int) Integer.valueOf(huffmanBits.substring(0, 8), 2);
+                            huffman[index++] = huffmanByte;
+                            if (index == 1024) {
+                                fos.write(huffman, 0, 1024);
+                                index = 0;
+                            }
+                        } else {
+                            remainingBits = huffmanBits;
                         }
+                    }
+
+
+                    String temp;
+                    while (remainingBits.length() != 0) {
+                        int length = remainingBits.length();
+                        if (length < 8) {
+                            temp = remainingBits.substring(length);
+                            remainingBits = remainingBits.substring(0, length);
+                        } else {
+                            temp = remainingBits.substring(8);
+                            remainingBits = remainingBits.substring(0, 8);
+                        }
+                        byte huffmanByte = (byte) (int) Integer.valueOf(remainingBits, 2);
+                        huffman[index++] = huffmanByte;
+                        if (index == 1024) {
+                            fos.write(huffman, 0, 1024);
+                            index = 0;
+                        }
+                        remainingBits = temp;
                     }
                     break;
                 }
             }
-
-
+            if (index > 0) {
+                fos.write(huffman, 0, index);
+            }
             fis.close();
             fos.close();
         } catch (IOException e) {
@@ -311,6 +348,11 @@ public class Huffman {
 
     public static void decompress(final File sourceFile, final File destinationFile) {
 
+    }
+
+    public static void returnDefault() {
+        huffmanTable = new StatisticsTable[ALPHABET_SIZE];
+        root = null;
     }
 
     private static void printHeader(final File destinationFile, final String fileExtension) {
