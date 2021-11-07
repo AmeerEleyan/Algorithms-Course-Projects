@@ -10,14 +10,25 @@ public class Tsts {
 
         byte[] pre = {0, 97, 0, 0, 0, 100, 102, 98, 0, 99, 101};
         char[] preL = {'N', 'L', 'N', 'N', 'N', 'L', 'L', 'L', 'N', 'L', 'N'};
-        byte huffmanByte = (byte) (int) Integer.valueOf("100101", 2);
+       // byte huffmanByte = (byte) (int) Integer.valueOf("100101", 2);
        // System.out.println(huffmanByte);
        // System.out.println(byteToString(huffmanByte));
-        int x = 8456132;
-        String s = String.valueOf(x);
+//        int x = 8456132;
+//        String s = String.valueOf(x);
+//        System.out.println(s);
+//        Node d = constructTree(pre.length, pre, preL);
+//        byte byteValue =-128 ;
+//        byte huffmanByte = (byte) (int) Integer.valueOf("00001011", 2);
+//        System.out.println(huffmanByte);
+//        huffmanByte = (byte) (int) Integer.valueOf("10101110", 2);
+//        System.out.println(huffmanByte);
+//        huffmanByte = (byte) (int) Integer.valueOf("10001111", 2);
+//        System.out.println(huffmanByte);
+//        huffmanByte = (byte) (int) Integer.valueOf("11100100", 2);
+//        System.out.println(huffmanByte);
+        String s = "01111001";
+        s = s.substring(7);
         System.out.println(s);
-        Node d = constructTree(pre.length, pre, preL);
-        byte byteValue =-128 ;
     }
 
     public static String byteToString(byte b) {

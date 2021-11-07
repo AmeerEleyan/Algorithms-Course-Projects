@@ -4,14 +4,43 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 public class FileSplit {
     public static void main(String[] args) throws IOException {
         String d = "txt";
-        byte[]b = splitFile(new File("cv.huf"));
-System.out.println(Arrays.toString(b));
+         int x = 100000;
+         try{
 
+             FileOutputStream fos = new FileOutputStream("sb.txt");
+             fos.write(String.valueOf(x).getBytes());
+             fos.close();
+             byte[] df = ByteBuffer.allocate(4).putInt(x).array();
+             FileInputStream fis = new FileInputStream("sb.txt");
+             fis.read(df,0,4);
+             int value = 0;
+             for (byte b : df) {
+                 value = (value << 8) + (b & 0xFF);
+             }
+             fis.close();
+             System.out.println(value);
+
+         }catch(IOException e){
+
+         }
+       // byte[]b  = getFileLengthAsBytes(x);
+       // System.out.println(Arrays.toString(b));
+
+    }
+    private static byte[] getFileLengthAsBytes(int length) {
+        int NumberOfDigits = (int) (Math.floor(Math.log10(length)) + 1);
+        byte[] bytes = new byte[NumberOfDigits]; // number of digits
+        for (int i = NumberOfDigits - 1; i >= 0; i--) {
+            bytes[i] = (byte) (length % 10);
+            length /= 10;
+        }
+        return bytes;
     }
 
     private static  byte[]  splitFile(File file) throws IOException {

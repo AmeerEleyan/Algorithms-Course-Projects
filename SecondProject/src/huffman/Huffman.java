@@ -10,7 +10,7 @@ public class Huffman {
     private static Node root;
     public static String header = "";
     private static short numberOfNodes = 0;
-    private static byte extensionSize = 0;
+
 
     public static void encoding(final File sourceFile) {
         root = buildHuffmanTree(buildFrequenciesOfTheBytes(sourceFile));
@@ -139,7 +139,6 @@ public class Huffman {
         byte indexOfDot = (byte) sourceFile.getName().lastIndexOf('.');
         String fileExtension = sourceFile.getName().substring(indexOfDot + 1);
         byte[] fileExtensionBytes = fileExtension.getBytes();
-        extensionSize = (byte) fileExtensionBytes.length;
         int lengthOfFile = (int) sourceFile.length();
         try {
 
@@ -147,10 +146,14 @@ public class Huffman {
             FileOutputStream fos = new FileOutputStream(destinationFile);
 
 
-            fos.write(lengthOfFile);
+            String l = Integer.toBinaryString(lengthOfFile);
+            l = "0".repeat(32 - l.length()) + l;
+
+            fos.write(getFileLengthAsBytes(l), 0, 4);
             fos.write('\n');
-            fos.write((byte) numberOfNodes);
-            fos.write('\n');
+            fos.flush();
+            //  fos.write((byte) numberOfNodes);
+            //   fos.write('\n');
 
             // print the file extension
             fos.write(fileExtensionBytes, 0, fileExtensionBytes.length);
@@ -252,7 +255,8 @@ public class Huffman {
                     while (remainingBits.length() != 0) {
                         int length = remainingBits.length();
                         if (length < 8) {
-                            temp = remainingBits.substring(length) + "0".repeat(8 - length);
+                            temp = remainingBits.substring(length);
+                            remainingBits += ("0".repeat(8 - length));
                         } else {
                             temp = remainingBits.substring(8);
                             remainingBits = remainingBits.substring(0, 8);
@@ -288,8 +292,16 @@ public class Huffman {
         root = null;
         header = "";
         numberOfNodes = 0;
-        extensionSize = 0;
     }
 
+    private static byte[] getFileLengthAsBytes(String binaryString) {
+
+        byte[] bytes = new byte[4]; // number of digits
+        bytes[0] = (byte) (int) Integer.valueOf(binaryString.substring(0, 8), 2);
+        bytes[1] = (byte) (int) Integer.valueOf(binaryString.substring(8, 16), 2);
+        bytes[2] = (byte) (int) Integer.valueOf(binaryString.substring(16, 24), 2);
+        bytes[3] = (byte) (int) Integer.valueOf(binaryString.substring(24, 32), 2);
+        return bytes;
+    }
 
 }
