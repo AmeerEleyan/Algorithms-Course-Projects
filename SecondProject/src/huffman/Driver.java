@@ -103,6 +103,7 @@ public class Driver implements Initializable {
 
             if (this.comboBox.getValue().equals("Compress File")) {
                 Huffman.printToFile(this.sourceFile, destinationFile);
+                this.txtHeader.setText(Huffman.header);
                 // Huffman.compress(this.sourceFile, destinationFile);
                 Message.displayMessage("Successfully", this.sourceFile.getName() + " was compressed successfully ");
             } else {
@@ -136,4 +137,5 @@ public class Driver implements Initializable {
                 this.tableView.getItems().add(Huffman.huffmanTable[i]);
         }
     }
+
 }

@@ -1,8 +1,6 @@
 package huffman;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.PriorityQueue;
 import java.util.Stack;
 
@@ -10,6 +8,9 @@ public class Huffman {
     private static final int ALPHABET_SIZE = 256;
     public static StatisticsTable[] huffmanTable;
     private static Node root;
+    public static String header = "";
+    private static short numberOfNodes = 0;
+    private static byte extensionSize = 0;
 
     public static void encoding(final File sourceFile) {
         root = buildHuffmanTree(buildFrequenciesOfTheBytes(sourceFile));
@@ -29,10 +30,10 @@ public class Huffman {
 
     }
 
-    public static int[] buildFrequenciesOfTheBytes(final File file) {
+    public static int[] buildFrequenciesOfTheBytes(final File sourceFile) {
         int[] frequencies = new int[ALPHABET_SIZE];
         try {
-            FileInputStream fis = new FileInputStream(file);
+            FileInputStream fis = new FileInputStream(sourceFile);
 
             byte[] buffer = new byte[1024]; // number of bytes can be read
 
@@ -50,7 +51,7 @@ public class Huffman {
                         remaining = (short) buffer.length;
                     }
                 } else {
-                    // the end of the file was reached. If some bytes are in the buffer
+                    // the end of the sourceFile was reached. If some bytes are in the buffer
 
                     for (int i = 0; i < buffer.length - remaining; i++) {
                         frequencies[buffer[i] + 128]++;
@@ -79,13 +80,16 @@ public class Huffman {
                 }
             }
 
-            while (priorityQueue.size() > 1) {
+
+            while (priorityQueue.size() > 1) { // O(nlogn)
                 Node left = priorityQueue.poll();
                 Node right = priorityQueue.poll();
                 assert right != null;
                 Node parent = new Node((byte) '\0', left.getFrequency() + right.getFrequency(), left, right);
                 priorityQueue.add(parent);
+
             }
+
             assert priorityQueue.peek() != null;
             return priorityQueue.peek();
         }
@@ -131,62 +135,31 @@ public class Huffman {
     }
 
 
-    //O(N)
-    private static void iterativePreorder(Node node) {
-
-        try {
-            // Base Case
-            if (node == null) {
-                return;
-            }
-
-            // Create an empty stack and push root to it
-            Stack<Node> nodeStack = new Stack<>();
-            nodeStack.push(node);
-            PrintWriter writer = new PrintWriter("newPreorder.txt");
-
-        /* Pop all items one by one. Do following for every popped item
-         a) print it
-         b) push its right child
-         c) push its left child
-         Note that right child is pushed first so that left is processed first */
-            while (!nodeStack.empty()) {
-
-                // Pop the top item from stack and print it
-                Node current = nodeStack.peek();
-                //  writer.println(current.getBytes());
-                nodeStack.pop();
-
-                // Push right and left children of the popped node to stack
-                if (current.getRightChild() != null) {
-                    nodeStack.push(current.getRightChild());
-                }
-                if (current.getLeftChild() != null) {
-                    nodeStack.push(current.getLeftChild());
-                }
-            }
-            writer.close();
-        } catch (IOException e) {
-            Message.displayMessage("Warning", e.getMessage());
-        }
-
-    }
-
     public static void printToFile(final File sourceFile, final File destinationFile) {
         byte indexOfDot = (byte) sourceFile.getName().lastIndexOf('.');
         String fileExtension = sourceFile.getName().substring(indexOfDot + 1);
         byte[] fileExtensionBytes = fileExtension.getBytes();
-
+        extensionSize = (byte) fileExtensionBytes.length;
+        int lengthOfFile = (int) sourceFile.length();
         try {
 
             // ******* print the extension to the destination file *********************
             FileOutputStream fos = new FileOutputStream(destinationFile);
 
+
+            fos.write(lengthOfFile);
+            fos.write('\n');
+            fos.write((byte) numberOfNodes);
+            fos.write('\n');
+
             // print the file extension
             fos.write(fileExtensionBytes, 0, fileExtensionBytes.length);
             fos.write('\n');
 
+            header += (fileExtension + "\n");
+
             // ******** print the header of the file using PreOrder traversal for the huffman tree iteratively O(n) *******
+
 
             // Create an empty stack and push root to it
             Stack<Node> nodeStack = new Stack<>();
@@ -203,6 +176,7 @@ public class Huffman {
                 Node current = nodeStack.peek();
                 fos.write(current.getBytes());
                 fos.write((current.isLeaf()) ? 'y' : 'n');
+                header += ((char) current.getBytes() + "" + ((current.isLeaf()) ? 'y' : 'n'));
                 nodeStack.pop();
 
                 // Push right and left children of the popped node to stack
@@ -212,7 +186,9 @@ public class Huffman {
                 if (current.getLeftChild() != null) {
                     nodeStack.push(current.getLeftChild());
                 }
+                numberOfNodes++;
             }
+
             // ********** end of the header ********************
             fos.write('\n');
 
@@ -276,8 +252,7 @@ public class Huffman {
                     while (remainingBits.length() != 0) {
                         int length = remainingBits.length();
                         if (length < 8) {
-                            temp = remainingBits.substring(length);
-                            remainingBits = remainingBits.substring(0, length);
+                            temp = remainingBits.substring(length) + "0".repeat(8 - length);
                         } else {
                             temp = remainingBits.substring(8);
                             remainingBits = remainingBits.substring(0, 8);
@@ -304,48 +279,6 @@ public class Huffman {
 
     }
 
-    public static void compress(final File fileSource, final File destinationFile) {
-
-        try {
-            int indexOfDot = fileSource.getName().lastIndexOf('.');
-            String fileExtension = fileSource.getName().substring(indexOfDot);
-            printHeader(destinationFile, fileExtension);
-            PrintWriter writer = new PrintWriter(destinationFile);
-            //  byte[] bytes = getBytesFromFile(fileSource);
-            FileOutputStream fos = new FileOutputStream(destinationFile);
-            fos.write((byte) 12);
-        } catch (IOException e) {
-            Message.displayMessage("Warinig", e.getMessage());
-        }
-
-        //writer.append()
-            /*for (StatisticsTable statisticsTable : huffmanTable) {
-                if (statisticsTable != null && statisticsTable.getFrequency() > 0) {
-                    writer.println(statisticsTable.getHuffmanCode() + " " + statisticsTable.getFrequency());
-
-                } else writer.println(0);
-
-            }*/
-//            String binaryRepresentation = "";
-//            for (int j = 0; j < bytes.length; j++) {
-//                if (huffmanTable[bytes[j] + 128] != null && huffmanTable[bytes[j] + 128].getFrequency() > 0) {
-//                    writer.print(huffmanTable[bytes[j] + 128].getHuffmanCode());
-//                   /* binaryRepresentation += huffmanTable[bytes[j] + 128].getHuffmanCode();
-//                    if (binaryRepresentation.length() >= 8) {
-//                        writer.print(Integer.parseInt(binaryRepresentation, 2) + " ");
-//                        binaryRepresentation = "";
-//                    }*/
-//                }
-//
-//            }
-//            writer.close();
-//        } catch (IOException exception) {
-//            Message.displayMessage("Warning", exception.getMessage());
-//        }
-
-    }
-
-
     public static void decompress(final File sourceFile, final File destinationFile) {
 
     }
@@ -353,51 +286,9 @@ public class Huffman {
     public static void returnDefault() {
         huffmanTable = new StatisticsTable[ALPHABET_SIZE];
         root = null;
-    }
-
-    private static void printHeader(final File destinationFile, final String fileExtension) {
-
-//        // Base Case
-//        if (root == null) {
-//            return;
-//        }
-//
-//        try {
-//
-//            PrintWriter writer = new PrintWriter(destinationFile);
-//            writer.println(fileExtension);
-//
-//            // Create an empty stack and push root to it
-//            Stack<Node> nodeStack = new Stack<Node>();
-//            nodeStack.push(root);
-//
-//        /* Pop all items one by one. Do following for every popped item
-//         a) print it
-//         b) push its right child
-//         c) push its left child
-//         Note that right child is pushed first so that left is processed first */
-//            while (!nodeStack.empty()) {
-//
-//                // Pop the top item from stack and print it
-//                Node current = nodeStack.peek();
-//                // y: is leaf
-//                // n: not leaf
-//                writer.print(current.getBytes() + "" + ((current.getBytes() != '\0') ? 'y' : 'n'));
-//                nodeStack.pop();
-//
-//                // Push right and left children of the popped node to stack
-//                if (current.getRightChild() != null) {
-//                    nodeStack.push(current.getRightChild());
-//                }
-//                if (current.getLeftChild() != null) {
-//                    nodeStack.push(current.getLeftChild());
-//                }
-//            }
-//            writer.print('`');// end the header
-//            writer.close();
-//        } catch (IOException e) {
-//            Message.displayMessage("Warning", e.getMessage());
-//        }
+        header = "";
+        numberOfNodes = 0;
+        extensionSize = 0;
     }
 
 

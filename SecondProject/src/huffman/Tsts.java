@@ -3,15 +3,62 @@ package huffman;
 import java.io.*;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.Stack;
 
 public class Tsts {
     public static void main(String[] args) {
 
-        String s = "10101";
-        String r= s.substring(s.length());
-        System.out.println(r);
+        byte[] pre = {0, 97, 0, 0, 0, 100, 102, 98, 0, 99, 101};
+        char[] preL = {'N', 'L', 'N', 'N', 'N', 'L', 'L', 'L', 'N', 'L', 'N'};
+        byte huffmanByte = (byte) (int) Integer.valueOf("100101", 2);
+       // System.out.println(huffmanByte);
+       // System.out.println(byteToString(huffmanByte));
+        int x = 8456132;
+        String s = String.valueOf(x);
+        System.out.println(s);
+        Node d = constructTree(pre.length, pre, preL);
+        byte byteValue =-128 ;
+    }
 
+    public static String byteToString(byte b) {
+        byte[] masks = {-128, 64, 32, 16, 8, 4, 2, 1};
+        StringBuilder builder = new StringBuilder();
+        for (byte m : masks) {
+            if ((b & m) == m) {
+                builder.append('1');
+            } else {
+                builder.append('0');
+            }
+        }
+        return builder.toString();
+    }
 
+    public static Node constructTree(int n, byte pre[], char preLN[]) {
+
+        // Code here
+        Stack<Node> s = new Stack<>();
+        Node root = new Node(pre[0]);
+        s.push(root);
+        int i = 1;
+        while (i < n) {
+            Node curr = s.peek();
+            if (curr.getLeftChild() == null) {
+                curr.setLeftChild(new Node(pre[i]));
+                if (preLN[i] == 'N') {
+                    s.push(curr.getLeftChild());
+                }
+                i++;
+            } else if (curr.getRightChild() == null) {
+                curr.setRightChild(new Node(pre[i]));
+                if (preLN[i] == 'N') {
+                    s.push(curr.getRightChild());
+                }
+                i++;
+            } else {
+                s.pop();
+            }
+        }
+        return root;
     }
 //        byte bb = 0b00000000;
 //        // byte cc = 0b10000000;

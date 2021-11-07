@@ -9,12 +9,12 @@ import java.util.Arrays;
 public class FileSplit {
     public static void main(String[] args) throws IOException {
         String d = "txt";
-        byte[]b = {'0'};
-        writeBlock(0, b,b.length);
+        byte[]b = splitFile(new File("cv.huf"));
+System.out.println(Arrays.toString(b));
 
     }
 
-    private void splitFile(File file) throws IOException {
+    private static  byte[]  splitFile(File file) throws IOException {
         FileInputStream fis = new FileInputStream(file);
         try {
             byte[] buffer = new byte[1024];
@@ -34,12 +34,8 @@ public class FileSplit {
                     }
                 }
                 else {
-                    // the end of the file was reached. If some bytes are in the buffer
-                    // they are written to the last output file
-                    if (remaining < buffer.length) {
-                        writeBlock(blockNumber, buffer, buffer.length - remaining);
-                    }
-                    break;
+                    return buffer;
+
                 }
             }
         }
