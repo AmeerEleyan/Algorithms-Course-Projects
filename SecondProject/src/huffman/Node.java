@@ -10,6 +10,7 @@ public class Node implements Comparable<Node> {
     private int frequency;
     private Node leftChild;
     private Node rightChild;
+    private static int numberOfLeaf = 0;
 
     public Node() {
 
@@ -27,6 +28,14 @@ public class Node implements Comparable<Node> {
 
     public boolean isLeaf() {
         return this.leftChild == null && this.rightChild == null;
+    }
+
+    public static int getNumberOfLeaf() {
+        return numberOfLeaf;
+    }
+
+    public static void setNumberOfLeaf(int numberOfLeaf) {
+        Node.numberOfLeaf = numberOfLeaf;
     }
 
     public byte getBytes() {

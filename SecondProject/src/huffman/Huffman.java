@@ -17,6 +17,14 @@ public class Huffman {
         assert root != null;
         huffmanTable = new StatisticsTable[ALPHABET_SIZE];
         getHuffmanCode(root, "");
+        System.out.println(numberOfNodes);
+
+//        System.out.print(Arrays.toString(in));
+//        System.out.println("*/**********");
+//        System.out.print(Arrays.toString(p));
+//        inorderTraversal(root);
+//        System.out.println("**********");
+//        preorderTraversal(root);
 
 //        iterativePreorder(root);
 //        byte[] pre = {0, 97, 0, 0, 0, 100, 102, 98, 0, 99, 101};
@@ -77,9 +85,10 @@ public class Huffman {
             for (int i = 0; i < ALPHABET_SIZE; i++) { // start from -128 to the 127 because it's the range of th byte
                 if (frequencies[i] > 0) {
                     priorityQueue.add(new Node((byte) (i - 128), frequencies[i], null, null));
+                    numberOfNodes++;
                 }
             }
-
+            numberOfNodes = (short) ((numberOfNodes * 2) - 1);
 
             while (priorityQueue.size() > 1) { // O(nlogn)
                 Node left = priorityQueue.poll();
@@ -145,55 +154,33 @@ public class Huffman {
             // ******* print the extension to the destination file *********************
             FileOutputStream fos = new FileOutputStream(destinationFile);
 
-
+            // print the file length in bytes ( 4 bytes)
             String l = Integer.toBinaryString(lengthOfFile);
             l = "0".repeat(32 - l.length()) + l;
-
             fos.write(getFileLengthAsBytes(l), 0, 4);
             fos.write('\n');
-            fos.flush();
-            //  fos.write((byte) numberOfNodes);
-            //   fos.write('\n');
 
             // print the file extension
             fos.write(fileExtensionBytes, 0, fileExtensionBytes.length);
             fos.write('\n');
 
-            header += (fileExtension + "\n");
+            // text area ******
+          //  header += (fileExtension + "\n");****
 
-            // ******** print the header of the file using PreOrder traversal for the huffman tree iteratively O(n) *******
+            // print the huffman in inOrder traversal
+            fos.write(getInOrderTraversal(root, numberOfNodes), 0, numberOfNodes);
+            // ^` are special to separate in order from preOrder
+            fos.write('^');
+            fos.write('`');
 
-
-            // Create an empty stack and push root to it
-            Stack<Node> nodeStack = new Stack<>();
-            nodeStack.push(root);
-
-            /* Pop all items one by one. Do following for every popped item
-             a) print it
-             b) push its right child
-             c) push its left child
-             Note that right child is pushed first so that left is processed first */
-            while (!nodeStack.empty()) {
-
-                // Pop the top item from stack and print it
-                Node current = nodeStack.peek();
-                fos.write(current.getBytes());
-                fos.write((current.isLeaf()) ? 'y' : 'n');
-                header += ((char) current.getBytes() + "" + ((current.isLeaf()) ? 'y' : 'n'));
-                nodeStack.pop();
-
-                // Push right and left children of the popped node to stack
-                if (current.getRightChild() != null) {
-                    nodeStack.push(current.getRightChild());
-                }
-                if (current.getLeftChild() != null) {
-                    nodeStack.push(current.getLeftChild());
-                }
-                numberOfNodes++;
-            }
+            // print the huffman in preOrder traversal
+            fos.write(getPreOrderTraversal(root, numberOfNodes), 0, numberOfNodes);
+            // ^` are special to separate in preOrder from huffmanCode
+            fos.write('^');
+            fos.write('`');
 
             // ********** end of the header ********************
-            fos.write('\n');
+
 
             // ************** encode the file and print to the output file ************
 
@@ -302,6 +289,57 @@ public class Huffman {
         bytes[2] = (byte) (int) Integer.valueOf(binaryString.substring(16, 24), 2);
         bytes[3] = (byte) (int) Integer.valueOf(binaryString.substring(24, 32), 2);
         return bytes;
+    }
+
+    private static byte[] getInOrderTraversal(Node root, short numberOfLeaf) {
+        Stack<Node> nodeStack = new Stack<>();
+        Node current = root;
+        byte[] inorder = new byte[numberOfLeaf];
+        short index = 0;
+        while (!nodeStack.isEmpty() || current != null) {
+            if (current != null) {
+                nodeStack.push(current);
+                current = current.getLeftChild();
+            } else {
+                Node node = nodeStack.pop();
+                inorder[index++] = node.getBytes();
+                current = node.getRightChild();
+
+            }
+        }
+        return inorder;
+    }
+
+    private static byte[] getPreOrderTraversal(Node root, short numberOfLeaf) {
+
+        // Create an empty stack and push root to it
+        Stack<Node> nodeStack = new Stack<>();
+        nodeStack.push(root);
+
+        byte[] preorder = new byte[numberOfLeaf];
+        short index = 0;
+
+        /* Pop all items one by one. Do following for every popped item
+        a) print it
+        b) push its right child
+        c) push its left child
+        Note that right child is pushed first so that left is processed first */
+        while (!nodeStack.empty()) {
+
+            // Pop the top item from stack and print it
+            Node current = nodeStack.peek();
+            preorder[index++] = current.getBytes();
+            nodeStack.pop();
+
+            // Push right and left children of the popped node to stack
+            if (current.getRightChild() != null) {
+                nodeStack.push(current.getRightChild());
+            }
+            if (current.getLeftChild() != null) {
+                nodeStack.push(current.getLeftChild());
+            }
+        }
+        return preorder;
     }
 
 }
