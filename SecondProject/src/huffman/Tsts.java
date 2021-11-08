@@ -27,9 +27,10 @@ public class Tsts {
 //        System.out.println(huffmanByte);
 //        huffmanByte = (byte) (int) Integer.valueOf("11100100", 2);
 //        System.out.println(huffmanByte);
+        int x = Integer.parseInt("10000000",2);
         String s = "01111001";
         s = s.substring(7);
-        System.out.println(s);
+        System.out.println(x);
     }
 
     public static String byteToString(byte b) {

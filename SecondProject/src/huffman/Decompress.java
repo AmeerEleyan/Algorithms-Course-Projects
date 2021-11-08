@@ -16,7 +16,7 @@ public class Decompress {
     private static int numberOfNodes = 0;
 
     public static void main(String[] args) throws Exception {
-        decompress(new File("datas.huf"), new File("102.txt"));
+        decompress(new File("jn.huf"), new File("14.PNG"));
     }
 
 
@@ -26,15 +26,17 @@ public class Decompress {
         boolean getFileLength = false;
         boolean getFileExtension = false;
         boolean getInOrderTraversal = false;
-
+        String length = "";
         for (short i = 0; i < buffer.length; i++) {
 
             // new line('\n') in ascii is 10
             // to get the file length from first some inorder
             if (buffer[i] != (byte) 10 && !getFileLength) {
-                originalFileLength = (originalFileLength * 10) + (int) buffer[i];
+                length += byteToString(buffer[i]);
+                // originalFileLength = (originalFileLength * 10) + (int) buffer[i];
                 continue;
             } else if (!getFileLength) { // file extension was obtained; because start a new line
+                originalFileLength = Integer.parseInt(length, 2);
                 getFileLength = true;
                 continue;
             }
@@ -50,7 +52,8 @@ public class Decompress {
             }
 
             // get the inOrder traversal
-            if (buffer[i] != (byte) 94 && buffer[i + 1] != (byte) 96 && !getInOrderTraversal) {
+            // (buffer[i] != (byte) 94 ^ buffer[i + 1] != (byte) 96) || (buffer[i] != (byte) 94 && buffer[i + 1] != (byte) 96)
+            if (((buffer[i] != (byte) 94 ^ buffer[i + 1] != (byte) 96) || (buffer[i] != (byte) 94 && buffer[i + 1] != (byte) 96)) && !getInOrderTraversal) {
                 inOrder[indexForBytes++] = buffer[i];
                 numberOfNodes++;
                 continue;
@@ -62,7 +65,7 @@ public class Decompress {
             }
 
             // get the preOrder traversal
-            if (buffer[i] != (byte) 94 && buffer[i + 1] != (byte) 96) {
+            if (((buffer[i] != (byte) 94 ^ buffer[i + 1] != (byte) 96) || (buffer[i] != (byte) 94 && buffer[i + 1] != (byte) 96))) {
                 prOrder[indexForBytes++] = buffer[i];
             } else {
                 beginningIndexOfHuffmanCode = (short) (i + 2);// beginning of the Huffman code
@@ -137,10 +140,10 @@ public class Decompress {
 
             // I coped them, because when i
             byte[] inOrder = new byte[numberOfNodes];
-            System.arraycopy(tempInOrder,0,inOrder,0,numberOfNodes);
+            System.arraycopy(tempInOrder, 0, inOrder, 0, numberOfNodes);
 
             byte[] prOrder = new byte[numberOfNodes];
-            System.arraycopy(tempPrOrder,0,prOrder,0,numberOfNodes);
+            System.arraycopy(tempPrOrder, 0, prOrder, 0, numberOfNodes);
 
             int myLength = 0;
             root = buildHuffmanTree(prOrder, inOrder);
@@ -151,6 +154,7 @@ public class Decompress {
             Node current = root;
             String binaryString = "";
 
+            byte tempI = 0;
             boolean headerWasBuilt = false;
             while (true) {
                 if (read >= 0) { // some bytes were read
@@ -164,7 +168,7 @@ public class Decompress {
                         do {
                             if (current == null) break;
                             binaryString = binaryString + byteToString(buffer[beginningIndexOfHuffmanCode++]);
-                            for (byte i = 0; i < binaryString.length(); i++) {
+                            for (byte i = tempI; i < binaryString.length(); i++) {
                                 if (current == null)
                                     break;
                                 if (binaryString.charAt(i) == '0') {
@@ -172,23 +176,31 @@ public class Decompress {
                                 } else {
                                     current = current.getRightChild();
                                 }
+                                if (myLength == originalFileLength) {
+                                    break; // end of huffman codef
+                                }
                                 if (current.isLeaf()) {
                                     bufferWriter[indexOfBufferWriter++] = current.getBytes();
                                     current = root;
                                     myLength++;
                                     binaryString = binaryString.substring(i + 1);
+                                    i = -1;
                                 }
                                 if (indexOfBufferWriter == 1050) {
                                     fos.write(bufferWriter, 0, 1050);
                                     indexOfBufferWriter = 0;
                                 }
-                                if (myLength == originalFileLength) break; // end of huffman code
+
                             }
+                            tempI = (byte) binaryString.length();
                         } while (beginningIndexOfHuffmanCode < 1050);
 
                         remaining = (short) buffer.length;
                     }
                 } else {
+
+                    boolean flag = true; // for length
+
                     // the end of the file was reached. If some bytes are in the buffer
                     if (headerWasBuilt) {
                         beginningIndexOfHuffmanCode = 0;
@@ -196,28 +208,33 @@ public class Decompress {
                     do {
                         binaryString = binaryString + byteToString(buffer[beginningIndexOfHuffmanCode++]);
                         if (current == null) break;
-                        for (byte i = 0; i < binaryString.length(); i++) {
+                        for (byte i = tempI; i < binaryString.length(); i++) {
                             if (current == null) break;
                             if (binaryString.charAt(i) == '0') {
                                 current = current.getLeftChild();
                             } else {
                                 current = current.getRightChild();
                             }
+
                             if (current.isLeaf()) {
                                 bufferWriter[indexOfBufferWriter++] = current.getBytes();
                                 current = root;
                                 myLength++;
-                                if (i == 0) binaryString = binaryString.substring(i + 1);
-                                else binaryString = binaryString.substring(i);
-                                i = -1;
+                                binaryString = binaryString.substring(i + 1);
+                                i = -1; // because when again loop will increment
                             }
                             if (indexOfBufferWriter == 1050) {
                                 fos.write(bufferWriter, 0, indexOfBufferWriter);
                                 indexOfBufferWriter = 0;
                             }
-                            if (myLength == originalFileLength) break; // end of huffman code
+                            if (myLength == originalFileLength) {
+                                flag = false; // break while loop
+                                break; // end of huffman code
+                            }
                         }
-                    } while (beginningIndexOfHuffmanCode < 1050 - remaining);
+                        tempI = (byte) binaryString.length();
+                    } while ((beginningIndexOfHuffmanCode < 1050 - remaining) && flag);
+
                     break;
                 }
                 read = fis.read(buffer, buffer.length - remaining, remaining);
