@@ -1,7 +1,7 @@
 /**
- *      @author: Ameer Eleyan
- *      ID: 1191076
- *      At: 10/29/2021   1:48 AM
+ * @author: Ameer Eleyan
+ * ID: 1191076
+ * At: 10/29/2021   1:48 AM
  */
 package lcs;
 
@@ -16,6 +16,7 @@ import javafx.stage.FileChooser;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.ResourceBundle;
 import java.util.Scanner;
 
@@ -58,11 +59,14 @@ public class Driver implements Initializable {
     @FXML // fx:id="textAreaForData"
     private TextArea textAreaForData; // Value injected by FXMLLoader
 
+    @FXML // fx:id="textAreaForResult"
+    private TextArea textAreaForResult; // Value injected by FXMLLoader
+
     @FXML // fx:id="textAreaDetails"
     private TextArea textAreaDetails; // Value injected by FXMLLoader
 
-    @FXML // fx:id="textAreaForResult"
-    private TextArea textAreaForResult; // Value injected by FXMLLoader
+    @FXML // fx:id="textAreaResults"
+    private TextArea textAreaResults; // Value injected by FXMLLoader
 
     @FXML // fx:id="txtData"
     private TextField txtData; // Value injected by FXMLLoader
@@ -246,15 +250,15 @@ public class Driver implements Initializable {
      * Find the longest common subsequence between two sequences
      * using  Dynamic programming approach which takes the O (N * M) time complexity,
      * the following relation represent the code. Then Display the result
-     *
-     *                     ________
-     *                    |
-     *                    |  0                                                        if ( i = 0 ) OR ( j = 0 )
+     * <p>
+     * ________
+     * |
+     * |  0                                                        if ( i = 0 ) OR ( j = 0 )
      * costForLCS[i.j]  = |
-     *                    |  costForLCS [ i-1, j-1 ] + 1                              if xi = yj
-     *                    |
-     *                    |  max ( costForLCS [ i-1, j ], costForLCS [ i , j-1 ] )    if xi ≠ yj
-     *                    |________
+     * |  costForLCS [ i-1, j-1 ] + 1                              if xi = yj
+     * |
+     * |  max ( costForLCS [ i-1, j ], costForLCS [ i , j-1 ] )    if xi ≠ yj
+     * |________
      **/
     public void longestCommonSubsequence() {
 
@@ -282,6 +286,28 @@ public class Driver implements Initializable {
         }
 
         // View details of the results
+        this.textAreaResults.appendText("\t");
+        for (int i = 0; i < this.size + 1; i++) {
+
+            for (int j = 0; j < this.size + 1; j++) {
+
+                /* The first row and first column which was zero value will be skipped
+                    and instead of them will be filled with Led word in the row,
+                    and Power word in the column
+                */
+                if (i == 0 && j < this.size)
+                    textAreaResults.appendText("\t\t" + "Led-" + this.LEDs[j]);//this.size => Led7 print
+                else if (j == 0) textAreaResults.appendText("Power-" + i + "\t\t");
+
+
+                if ((j > 0) && (i > 0)) // Display values after fill first row and first column
+                    textAreaResults.appendText(" " + costForLCS[i][j] + " \t  \t  \t");
+            }
+
+            this.textAreaResults.appendText("\n");
+        }
+
+        // View details of the results
         this.textAreaDetails.appendText("\t");
         for (int i = 0; i < this.size + 1; i++) {
 
@@ -297,11 +323,18 @@ public class Driver implements Initializable {
 
 
                 if ((j > 0) && (i > 0)) // Display values after fill first row and first column
-                    textAreaDetails.appendText(" " + costForLCS[i][j] + " \t  \t  \t");
+                    textAreaDetails.appendText(" " + tempArrayForDisplayResult[i][j] + " \t  \t  \t");
             }
 
             this.textAreaDetails.appendText("\n");
         }
+        this.textAreaDetails.appendText("\n\n");
+        this.textAreaDetails.appendText("0: Left arrow");
+        this.textAreaDetails.appendText("\n");
+        this.textAreaDetails.appendText("1: Northwest arrow");
+        this.textAreaDetails.appendText("\n");
+        this.textAreaDetails.appendText("2: Up arrow");
+        this.textAreaDetails.appendText("\n");
         displayAllLCS(tempArrayForDisplayResult, this.size, this.size, costForLCS);
 
     }
