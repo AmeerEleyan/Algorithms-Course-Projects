@@ -8,7 +8,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Stack;
 
-public class Decompress {
+public class HuffmanDecompress {
 
     private static Node root;
     private static short beginningIndexOfHuffmanCode;
@@ -16,7 +16,7 @@ public class Decompress {
     private static int numberOfNodes = 0;
 
     public static void main(String[] args) throws Exception {
-        decompress(new File("jn.huf"), new File("14.PNG"));
+        decompress(new File("jn.huf"));
     }
 
 
@@ -53,7 +53,10 @@ public class Decompress {
 
             // get the inOrder traversal
             // (buffer[i] != (byte) 94 ^ buffer[i + 1] != (byte) 96) || (buffer[i] != (byte) 94 && buffer[i + 1] != (byte) 96)
-            if (((buffer[i] != (byte) 94 ^ buffer[i + 1] != (byte) 96) || (buffer[i] != (byte) 94 && buffer[i + 1] != (byte) 96)) && !getInOrderTraversal) {
+            if (((buffer[i] != (byte) 94 ^ buffer[i + 1] != (byte) 96) ||
+                    (buffer[i] != (byte) 94 && buffer[i + 1] != (byte) 96))
+                    && !getInOrderTraversal) {
+
                 inOrder[indexForBytes++] = buffer[i];
                 numberOfNodes++;
                 continue;
@@ -65,7 +68,10 @@ public class Decompress {
             }
 
             // get the preOrder traversal
-            if (((buffer[i] != (byte) 94 ^ buffer[i + 1] != (byte) 96) || (buffer[i] != (byte) 94 && buffer[i + 1] != (byte) 96))) {
+            if (((buffer[i] != (byte) 94 ^ buffer[i + 1] != (byte) 96) ||
+                    (buffer[i] != (byte) 94
+                            && buffer[i + 1] != (byte) 96))) {
+
                 prOrder[indexForBytes++] = buffer[i];
             } else {
                 beginningIndexOfHuffmanCode = (short) (i + 2);// beginning of the Huffman code
@@ -115,12 +121,13 @@ public class Decompress {
     }
 
 
-    public static void decompress(final File sourceFile, final File destinationFile) {
+    public static void decompress(final File sourceFile) {
+
+        byte indexOfDot = (byte) sourceFile.getAbsolutePath().lastIndexOf('.');
 
         // the number of node in huffman tree is 2n -1
         try {
             FileInputStream fis = new FileInputStream(sourceFile);
-            FileOutputStream fos = new FileOutputStream(destinationFile);
 
             // 1050 because in the first time, if all bytes are repeated, the number of inorder traversal nodes is 511
             // and the preorder 511 and file length 6 and special char between them 4 and max file extension  can be 20
@@ -137,6 +144,9 @@ public class Decompress {
             byte[] tempPrOrder = new byte[511];
             StringBuilder fileExtension = new StringBuilder("");
             getHeaderInfo(buffer, tempInOrder, tempPrOrder, fileExtension);
+
+            String newFilePath = sourceFile.getAbsolutePath().substring(0, indexOfDot + 1) + fileExtension;
+            FileOutputStream fos = new FileOutputStream(newFilePath);
 
             // I coped them, because when i
             byte[] inOrder = new byte[numberOfNodes];

@@ -21,11 +21,6 @@
                   <Font name="System Bold" size="14.0" />
                </font>
             </Button>
-            <Button fx:id="btSave" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#handleSave" prefHeight="40.0" prefWidth="196.0" style="-fx-background-radius: 35; -fx-border-radius: 35;" stylesheets="@style.css" text="Save" textAlignment="CENTER">
-               <font>
-                  <Font name="System Bold" size="14.0" />
-               </font>
-            </Button>
          </children>
       </VBox>
       <Button fx:id="btAnotherFile" alignment="CENTER" contentDisplay="CENTER" layoutX="14.0" layoutY="721.0" mnemonicParsing="false" onAction="#handleAnotherFile" prefHeight="30.0" prefWidth="158.0" style="-fx-background-radius: 35; -fx-border-radius: 35;" stylesheets="@style.css" text="Another file" textAlignment="CENTER">

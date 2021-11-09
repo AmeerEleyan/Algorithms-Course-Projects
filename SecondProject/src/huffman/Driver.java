@@ -15,9 +15,6 @@ public class Driver implements Initializable {
     @FXML // fx:id="btBrowse"
     private Button btBrowse; // Value injected by FXMLLoader
 
-    @FXML // fx:id="btSave"
-    private Button btSave; // Value injected by FXMLLoader
-
     @FXML // fx:id="btTAnotherFile"
     private Button btAnotherFile; // Value injected by FXMLLoader
 
@@ -42,15 +39,12 @@ public class Driver implements Initializable {
     @FXML // fx:id="txtHeader"
     private TextArea txtHeader; // Value injected by FXMLLoader
 
-    private File sourceFile;
-
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         this.comboBox.getItems().add("Compress File");
         this.comboBox.getItems().add("Decompress File");
         this.comboBox.setDisable(false);
         this.btBrowse.setDisable(true);
-        this.btSave.setDisable(true);
         this.btAnotherFile.setDisable(true);
         this.cmASCII.setCellValueFactory(new PropertyValueFactory<>("ASCII"));
         this.cmFrequency.setCellValueFactory(new PropertyValueFactory<>("frequency"));
@@ -70,50 +64,28 @@ public class Driver implements Initializable {
             FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Files", "*.huf"); // Specifying the extension of the files
             fileChooser.getExtensionFilters().add(extFilter); // Appends the specified element to the end of this list
         }
-        this.sourceFile = fileChooser.showOpenDialog(GUI.window.getScene().getWindow()); // Browsing one file as .txt
+        File sourceFile = fileChooser.showOpenDialog(GUI.window.getScene().getWindow()); // Browsing one file as .txt
 
-        if (this.sourceFile != null) { // To check if the user select the file or close the window without selecting
-            if (this.sourceFile.length() == 0) {
-                Message.displayMessage("Warning", "There are no data in the " + this.sourceFile.getName());
+        if (sourceFile != null) { // To check if the user select the file or close the window without selecting
+            if (sourceFile.length() == 0) {
+                Message.displayMessage("Warning", "There are no data in the " + sourceFile.getName());
             } else {
                 if (this.comboBox.getValue().equals("Compress File")) {
-                    Huffman.encoding(this.sourceFile);
-                    Message.displayMessage("Successfully", this.sourceFile.getName() + " was encoding successfully, you can save it");
+                    HuffmanCompress.compress(sourceFile);
+                    txtHeader.setText(HuffmanCompress.header);
+                    this.fillStatisticsTable();
+                    Message.displayMessage("Successfully", sourceFile.getName() + " was compress successfully");
                 } else {
-                    Huffman.decoding(this.sourceFile);
-                    Message.displayMessage("Successfully", this.sourceFile.getName() + " was decoding successfully, you can save it");
+                    HuffmanDecompress.decompress(sourceFile);
+                    Message.displayMessage("Successfully", sourceFile.getName() + " was decompress successfully");
                 }
-                this.fillStatisticsTable();
                 this.comboBox.setDisable(true);
-                this.btSave.setDisable(false);
                 this.btAnotherFile.setDisable(false);
             }
 
         }
     }
 
-    public void handleSave() {
-        // File Chooser
-        FileChooser fileChooser = new FileChooser(); //File to upload
-        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Files", "*.huf"); // Specifying the extension of the files
-        fileChooser.getExtensionFilters().add(extFilter); // Appends the specified element to the end of this list
-        File destinationFile = fileChooser.showSaveDialog(GUI.window.getScene().getWindow()); // Browsing one file as .txt
-
-        if (destinationFile != null) { // To check if the user select the file or close the window without selecting
-
-            if (this.comboBox.getValue().equals("Compress File")) {
-                Huffman.printToFile(this.sourceFile, destinationFile);
-                this.txtHeader.setText(Huffman.header);
-                // Huffman.compress(this.sourceFile, destinationFile);
-                Message.displayMessage("Successfully", this.sourceFile.getName() + " was compressed successfully ");
-            } else {
-                Huffman.decompress(this.sourceFile, destinationFile);
-                Message.displayMessage("Successfully", this.sourceFile.getName() + " was decompressed successfully ");
-            }
-            this.btBrowse.setDisable(true);
-            this.btSave.setDisable(true);
-        }
-    }
 
     public void handleAnotherFile() {
         this.returnControlsDefault();
@@ -122,19 +94,17 @@ public class Driver implements Initializable {
     private void returnControlsDefault() {
         this.comboBox.setDisable(false);
         this.btBrowse.setDisable(false);
-        this.btSave.setDisable(true);
         this.btAnotherFile.setDisable(true);
         this.txtHeader.clear();
         this.tableView.getItems().clear();
-        Huffman.returnDefault();
+        HuffmanCompress.returnDefault();
 
     }
 
     private void fillStatisticsTable() {
-        for (int i = 0; i < Huffman.huffmanTable.length; i++) {
-            //&& Huffman.huffmanTable[i].getASCII() != '\0'
-            if (Huffman.huffmanTable[i] != null)
-                this.tableView.getItems().add(Huffman.huffmanTable[i]);
+        for (int i = 0; i < HuffmanCompress.huffmanTable.length; i++) {
+            if (HuffmanCompress.huffmanTable[i] != null)
+                this.tableView.getItems().add(HuffmanCompress.huffmanTable[i]);
         }
     }
 
