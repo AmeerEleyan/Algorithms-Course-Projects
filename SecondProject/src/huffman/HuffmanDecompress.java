@@ -4,117 +4,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Stack;
 
 public class HuffmanDecompress {
-
-    private static Node root;
-    private static short beginningIndexOfHuffmanCode;
-    private static int originalFileLength;
-    private static int numberOfNodes = 0;
-
-    public static void getHeaderInfo(byte[] buffer, byte[] inOrder, byte[] prOrder, StringBuilder fileExtension) {
-
-        short indexForBytes = 0;
-        boolean getFileLength = false;
-        boolean getFileExtension = false;
-        boolean getInOrderTraversal = false;
-        String length = "";
-        for (short i = 0; i < buffer.length; i++) {
-
-            // new line('\n') in ascii is 10
-            // to get the file length from first some inorder
-            if (buffer[i] != (byte) 10 && !getFileLength) {
-                length += byteToString(buffer[i]);
-                // originalFileLength = (originalFileLength * 10) + (int) buffer[i];
-                continue;
-            } else if (!getFileLength) { // file extension was obtained; because start a new line
-                originalFileLength = Integer.parseInt(length, 2);
-                getFileLength = true;
-                continue;
-            }
-
-            // new line('\n') in ascii is 10
-            // to get the file extension from second some inorder
-            if (buffer[i] != (byte) 10 && !getFileExtension) {
-                fileExtension.append((char) buffer[i]);
-                continue;
-            } else if (!getFileExtension) { // file extension was obtained; because start a new line
-                getFileExtension = true;
-                continue;
-            }
-
-            // get the inOrder traversal
-            // (buffer[i] != (byte) 94 ^ buffer[i + 1] != (byte) 96) || (buffer[i] != (byte) 94 && buffer[i + 1] != (byte) 96)
-            if (((buffer[i] != (byte) 94 ^ buffer[i + 1] != (byte) 96) ||
-                    (buffer[i] != (byte) 94 && buffer[i + 1] != (byte) 96))
-                    && !getInOrderTraversal) {
-
-                inOrder[indexForBytes++] = buffer[i];
-                numberOfNodes++;
-                continue;
-            } else if (!getInOrderTraversal) {
-                getInOrderTraversal = true;
-                indexForBytes = 0;
-                i++; // to skip special char('`')
-                continue;
-            }
-
-            // get the preOrder traversal
-            if (((buffer[i] != (byte) 94 ^ buffer[i + 1] != (byte) 96) ||
-                    (buffer[i] != (byte) 94
-                            && buffer[i + 1] != (byte) 96))) {
-
-                prOrder[indexForBytes++] = buffer[i];
-            } else {
-                beginningIndexOfHuffmanCode = (short) (i + 2);// beginning of the Huffman code
-                break;
-            }
-
-        }
-    }
-
-    public static Node buildHuffmanTree(byte[] preorder, byte[] inorder) {
-        Set<Node> set = new HashSet<>();
-        Stack<Node> stack = new Stack<>();
-        Node root = null;
-        for (int pre = 0, in = 0; pre < preorder.length; ) {
-
-            Node node;
-            do {
-                node = new Node(preorder[pre]);
-                if (root == null) {
-                    root = node;
-                }
-                if (!stack.isEmpty()) {
-                    if (set.contains(stack.peek())) {
-                        set.remove(stack.peek());
-                        stack.pop().setRightChild(node);
-                    } else {
-                        stack.peek().setLeftChild(node);
-                    }
-                }
-                stack.push(node);
-            } while (preorder[pre++] != inorder[in] && pre < preorder.length);
-
-            node = null;
-            while (!stack.isEmpty() && in < inorder.length &&
-                    stack.peek().getBytes() == inorder[in]) {
-                node = stack.pop();
-                in++;
-            }
-
-            if (node != null) {
-                set.add(node);
-                stack.push(node);
-            }
-        }
-
-        return root;
-    }
-
 
     public static void decompress(final File sourceFile) {
 
@@ -137,9 +28,12 @@ public class HuffmanDecompress {
 
             StringBuilder fileExtension = new StringBuilder("");
 
-            beginningIndexOfHuffmanCode = (short) Print.getHuffmanRootOfHuffmanTree(buffer, fileExtension);
-            root= Print.root;
-            originalFileLength = Print.originalFileLength;
+            ReadFileToDecompress decompress = new ReadFileToDecompress();
+
+            short beginningIndexOfHuffmanCode = (short) decompress.getHuffmanRootOfHuffmanTree(buffer, fileExtension);
+
+            Node root = decompress.getRoot();
+            int originalFileLength = decompress.getOriginalFileLength();
 
 
             String newFilePath = sourceFile.getAbsolutePath().substring(0, indexOfDot + 1) + fileExtension;
@@ -167,10 +61,8 @@ public class HuffmanDecompress {
                         }
                         do {
                             if (current == null) break;
-                            binaryString = binaryString + byteToString(buffer[beginningIndexOfHuffmanCode++]);
+                            binaryString = binaryString + Utility.byteToString(buffer[beginningIndexOfHuffmanCode++]);
                             for (byte i = tempI; i < binaryString.length(); i++) {
-                                if (current == null)
-                                    break;
                                 if (binaryString.charAt(i) == '0') {
                                     current = current.getLeftChild();
                                 } else {
@@ -178,9 +70,6 @@ public class HuffmanDecompress {
                                 }
                                 if (myLength == originalFileLength) {
                                     break; // end of huffman codef
-                                }
-                                if(current == null) {
-                                    System.out.println("");
                                 }
                                 if (current.isLeaf()) {
                                     bufferWriter[indexOfBufferWriter++] = current.getBytes();
@@ -209,16 +98,13 @@ public class HuffmanDecompress {
                         beginningIndexOfHuffmanCode = 0;
                     }
                     do {
-                        binaryString = binaryString + byteToString(buffer[beginningIndexOfHuffmanCode++]);
-                        if (current == null) break;
+                        binaryString = binaryString + Utility.byteToString(buffer[beginningIndexOfHuffmanCode++]);
                         for (byte i = tempI; i < binaryString.length(); i++) {
-                            if (current == null) break;
                             if (binaryString.charAt(i) == '0') {
                                 current = current.getLeftChild();
                             } else {
                                 current = current.getRightChild();
                             }
-
                             if (current.isLeaf()) {
                                 bufferWriter[indexOfBufferWriter++] = current.getBytes();
                                 current = root;
@@ -247,54 +133,10 @@ public class HuffmanDecompress {
                 fos.write(bufferWriter, 0, indexOfBufferWriter);
             }
             fis.close();
+            fos.close();
         } catch (IOException e) {
-            System.out.println(e.getMessage());
-            // Message.displayMessage("Warning", e.getMessage());
+            Message.displayMessage("Warning", e.getMessage());
         }
     }
-
-
-    private static String byteToString(byte b) {
-        byte[] masks = {-128, 64, 32, 16, 8, 4, 2, 1};
-        StringBuilder builder = new StringBuilder();
-        for (byte m : masks) {
-            if ((b & m) == m) {
-                builder.append('1');
-            } else {
-                builder.append('0');
-            }
-        }
-        return builder.toString();
-    }
-
-    //    public static Node constructTree(short numberOfNodes, byte[] header, char[] isLeaf) {
-//
-//        // Code here
-//        Stack<Node> s = new Stack<>();
-//        Node root = new Node(header[0]);
-//        s.push(root);
-//        int i = 1;
-//        while (i < numberOfNodes) {
-//            if (isLeaf[i] == '\0')
-//                break;
-//            Node curr = s.peek();
-//            if (curr.getLeftChild() == null) {
-//                curr.setLeftChild(new Node(header[i]));
-//                if (isLeaf[i] == 'n') {
-//                    s.push(curr.getLeftChild());
-//                }
-//                i++;
-//            } else if (curr.getRightChild() == null) {
-//                curr.setRightChild(new Node(header[i]));
-//                if (isLeaf[i] == 'n') {
-//                    s.push(curr.getRightChild());
-//                }
-//                i++;
-//            } else {
-//                s.pop();
-//            }
-//        }
-//        return root;
-//    }
 
 }

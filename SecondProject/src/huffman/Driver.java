@@ -39,6 +39,8 @@ public class Driver implements Initializable {
     @FXML // fx:id="txtHeader"
     private TextArea txtHeader; // Value injected by FXMLLoader
 
+    private HuffmanCompress header;
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         this.comboBox.getItems().add("Compress File");
@@ -71,8 +73,9 @@ public class Driver implements Initializable {
                 Message.displayMessage("Warning", "There are no data in the " + sourceFile.getName());
             } else {
                 if (this.comboBox.getValue().equals("Compress File")) {
-                    HuffmanCompress.compress(sourceFile);
-                    txtHeader.setText(HuffmanCompress.header);
+                    this.header = new HuffmanCompress();
+                    this.header.compress(sourceFile);
+                    txtHeader.setText(this.header.header);
                     this.fillStatisticsTable();
                     Message.displayMessage("Successfully", sourceFile.getName() + " was compress successfully");
                 } else {
@@ -97,14 +100,14 @@ public class Driver implements Initializable {
         this.btAnotherFile.setDisable(true);
         this.txtHeader.clear();
         this.tableView.getItems().clear();
-        HuffmanCompress.returnDefault();
+        this.header.returnDefault();
 
     }
 
     private void fillStatisticsTable() {
-        for (int i = 0; i < HuffmanCompress.huffmanTable.length; i++) {
-            if (HuffmanCompress.huffmanTable[i] != null)
-                this.tableView.getItems().add(HuffmanCompress.huffmanTable[i]);
+        for (int i = 0; i < this.header.huffmanTable.length; i++) {
+            if (this.header.huffmanTable[i] != null)
+                this.tableView.getItems().add(this.header.huffmanTable[i]);
         }
     }
 

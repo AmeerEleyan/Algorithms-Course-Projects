@@ -7,10 +7,6 @@ public class StatisticsTable {
     private int huffmanLength;
 
 
-    public StatisticsTable() {
-
-    }
-
     public StatisticsTable(byte ASCII, int frequency, String variableLength, int huffmanLength) {
         this.ASCII = ASCII;
         this.frequency = frequency;

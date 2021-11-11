@@ -2,42 +2,25 @@ package huffman;
 
 import java.io.*;
 import java.util.PriorityQueue;
-import java.util.Stack;
 
 public class HuffmanCompress {
-    private static final int ALPHABET_SIZE = 256;
-    public static StatisticsTable[] huffmanTable;
-    private static Node root;
-    public static String header = "";
-    private static short numberOfNodes = 0;
+    private final int ALPHABET_SIZE = 256;
+    public StatisticsTable[] huffmanTable;
+    private Node root;
+    public String header = "";
+    private short numberOfNodes = 0;
 
 
-    public static void compress(final File sourceFile) {
+    public void compress(final File sourceFile) {
         root = buildHuffmanTree(buildFrequenciesOfTheBytes(sourceFile));
         assert root != null;
         huffmanTable = new StatisticsTable[ALPHABET_SIZE];
         getHuffmanCode(root, "");
         printToFile(sourceFile);
 
-        // System.out.println(numberOfNodes);
-        // printPostorder(root);
-
-//        System.out.print(Arrays.toString(in));
-//        System.out.println("*/**********");
-//        System.out.print(Arrays.toString(p));
-//        inorderTraversal(root);
-//        System.out.println("**********");
-//        preorderTraversal(root);
-
-//        iterativePreorder(root);
-//        byte[] pre = {0, 97, 0, 0, 0, 100, 102, 98, 0, 99, 101};
-//        char[] preL = {'N', 'L', 'N', 'N', 'N', 'L', 'L', 'L', 'N', 'L', 'N'};
-//        Node d = constructTree(pre.length, pre, preL);
-
-
     }
 
-    public static int[] buildFrequenciesOfTheBytes(final File sourceFile) {
+    private int[] buildFrequenciesOfTheBytes(final File sourceFile) {
         int[] frequencies = new int[ALPHABET_SIZE];
         try {
             FileInputStream fis = new FileInputStream(sourceFile);
@@ -76,7 +59,7 @@ public class HuffmanCompress {
     }
 
 
-    private static Node buildHuffmanTree(final int[] frequencies) {
+    private Node buildHuffmanTree(final int[] frequencies) {
 
         if (frequencies != null) {
 
@@ -87,7 +70,6 @@ public class HuffmanCompress {
                     numberOfNodes++;
                 }
             }
-            //numberOfNodes = (short) ((numberOfNodes * 2) - 1);
 
             while (priorityQueue.size() > 1) { // O(nlogn)
                 Node left = priorityQueue.poll();
@@ -105,7 +87,7 @@ public class HuffmanCompress {
     }
 
     // build huffman code for each byte recursive
-    public static void getHuffmanCode(Node node, String code) {
+    private void getHuffmanCode(Node node, String code) {
         if (node.isLeaf()) {
             huffmanTable[node.getBytes() + 128] = new StatisticsTable(node.getBytes(), node.getFrequency(), code, code.length());
         } else {
@@ -115,7 +97,7 @@ public class HuffmanCompress {
     }
 
 
-    public static void printToFile(final File sourceFile) {
+    private void printToFile(final File sourceFile) {
 
         byte indexOfDot = (byte) sourceFile.getAbsolutePath().lastIndexOf('.');
         String newFilePath = sourceFile.getAbsolutePath().substring(0, indexOfDot + 1) + "huf";
@@ -130,7 +112,7 @@ public class HuffmanCompress {
             // print the file length in bytes ( 4 bytes)
             String l = Integer.toBinaryString(lengthOfFile);
             l = "0".repeat(32 - l.length()) + l;
-            byte[] lengthInBytes = getFileLengthAsBytes(l);
+            byte[] lengthInBytes = Utility.getFileLengthAsBytes(l);
             fos.write(lengthInBytes, 0, 4);
 
 
@@ -142,9 +124,8 @@ public class HuffmanCompress {
             //header = getFileLengthAsString(lengthInBytes); // file length
             // header += (fileExtension + "\n");// file extension
 
-
             // new
-            byte[][] data = Osama.getHeader(huffmanTable, numberOfNodes);
+            byte[][] data = this.getHeader(huffmanTable, numberOfNodes);
 
             fos.write(data[0].length); // lengths
             fos.write(data[0], 0, data[0].length);
@@ -153,31 +134,15 @@ public class HuffmanCompress {
             fos.write(data[1], 0, data[1].length);
 
             int data2length = data[2].length;
-            String slength = Integer.toBinaryString(data2length);
-            slength = "0".repeat(16 - slength.length()) + slength;
+            String sLength = Integer.toBinaryString(data2length);
+            sLength = "0".repeat(16 - sLength.length()) + sLength;
             byte[] tempByte = new byte[2];
-            tempByte[0] = (byte) (int) Integer.valueOf(slength.substring(0, 8), 2);
-            tempByte[1] = (byte) (int) Integer.valueOf(slength.substring(8), 2);
+            tempByte[0] = (byte) (int) Integer.valueOf(sLength.substring(0, 8), 2);
+            tempByte[1] = (byte) (int) Integer.valueOf(sLength.substring(8), 2);
 
             fos.write(tempByte, 0, 2); /// huffman
             fos.write(data[2], 0, data2length);
 
-            // print the huffman in inOrder traversal
-           /* byte[] inorderTraversal = getInOrderTraversal(root, numberOfNodes);
-            fos.write(inorderTraversal, 0, numberOfNodes);
-            // ^` are special to separate in order from preOrder
-            fos.write('^');
-            fos.write('`');*/
-
-            // print the huffman in preOrder traversal
-           /* byte[] preOrderTraversal = getPreOrderTraversal(root, numberOfNodes);
-            fos.write(preOrderTraversal, 0, numberOfNodes);
-            // ^` are special to separate in preOrder from huffmanCode
-            fos.write('^');
-            fos.write('`');*/
-
-            //header += getInOrderTraversalAsString(inorderTraversal);
-            // header += getPreOrderTraversalAsString(preOrderTraversal);
             // ********** end of the header ********************
 
 
@@ -269,153 +234,116 @@ public class HuffmanCompress {
 
     }
 
-    public static void returnDefault() {
+    private byte[][] getHeader(StatisticsTable[] huffmanTable, int numberOfNodes) {
+
+        byte[][] bytes = new byte[3][];
+
+        // ***********************************************************************************
+
+        // get  huffmanTable length as 4 bits of two node and set into new byte
+        byte[] lengths;
+        boolean isEven = (numberOfNodes & 1) == 0;
+
+        int evenNumber = (numberOfNodes >> 1);
+        if (isEven) lengths = new byte[evenNumber];
+        else lengths = new byte[evenNumber + 1];
+
+        String lengthForTwoByte = "";
+        int sumOfBitsLength = 0; // using to create n bytes to store huffmanTable code in them
+        byte flag = 0;
+        int index = 0;
+        String s1 = "";
+        /*
+        if huffmanTable[iLoop].getHuffmanLength() = 13 and s1 will be 00001101
+        and huffmanTable[iLoop+1].getHuffmanLength() = 10 ans s2 will be 00001010,
+        so I will take last 4 bit in right side for s1 and s2 and convert them into one byte
+        newByte will be = 11011010
+         */
+        for (int iLoop = 0; iLoop < huffmanTable.length; iLoop++) {
+
+            if (huffmanTable[iLoop] != null) {
+                s1 = Utility.byteToString((byte) huffmanTable[iLoop].getHuffmanLength());
+                lengthForTwoByte += s1.substring(4);
+                flag++;
+
+            }
+            if (flag == 2) {
+                sumOfBitsLength += ((Utility.getLengthOfHuffmanCode(lengthForTwoByte, true)) +
+                        (Utility.getLengthOfHuffmanCode(lengthForTwoByte, false)));
+
+                lengths[index++] = (byte) (int) Integer.valueOf(lengthForTwoByte, 2);
+                flag = 0;
+                lengthForTwoByte = "";
+            }
+        }
+
+        if (lengthForTwoByte.length() == 4) {
+            sumOfBitsLength += (Utility.getLengthOfHuffmanCode(lengthForTwoByte, true));
+            lengths[index] = (byte) (int) Integer.valueOf(lengthForTwoByte + "0".repeat(4), 2); // 0101 => 01010000
+        }
+
+        bytes[0] = lengths; // to store the length of each Huffman code in the leaf node
+
+        // ***********************************************************************************
+
+        // fill byte of each leaf node
+        byte[] asciiArray = new byte[numberOfNodes];
+        for (int iLoop = 0, iIndex = 0; iLoop < huffmanTable.length; iLoop++) {
+            if (huffmanTable[iLoop] != null) {
+                asciiArray[iIndex++] = huffmanTable[iLoop].getASCII();
+            }
+        }
+        bytes[1] = asciiArray; // store all byte of leaf nodes
+
+        // ***********************************************************************************
+
+        // to calculate how many bytes exactly I need  to store Huffman code for each leaf node
+        byte[] huffmanCodeForLeaf;
+        if (sumOfBitsLength % 8 == 0)
+            huffmanCodeForLeaf = new byte[sumOfBitsLength / 8];
+        else huffmanCodeForLeaf = new byte[(sumOfBitsLength / 8) + 1];
+
+        String huff = "";
+        byte b;
+        int iIndex = 0;
+        for (StatisticsTable statisticsTable : huffmanTable) {
+            if (statisticsTable != null) {
+                huff += statisticsTable.getHuffmanCode();
+                if (iIndex == 254) {
+                    System.out.println();
+                }
+                if (huff.length() >= 8) {
+                    b = (byte) (int) Integer.valueOf(huff.substring(0, 8), 2);
+                    huffmanCodeForLeaf[iIndex++] = b;
+                    huff = huff.substring(8);
+                }
+
+            }
+        }
+        while (huff.length() > 0) {
+            if (huff.length() >= 8) {
+                b = (byte) (int) Integer.valueOf(huff.substring(0, 8), 2);
+                huff = huff.substring(8);
+                huffmanCodeForLeaf[iIndex++] = b;
+            } else {
+                b = (byte) (int) Integer.valueOf(huff + "0".repeat(8 - huff.length()), 2);
+                huffmanCodeForLeaf[iIndex] = b;
+                huff = "";
+            }
+        }
+
+        bytes[2] = huffmanCodeForLeaf; // To store Huffman representation for all bytes in  leaf nodes
+
+        // ***********************************************************************************
+
+        return bytes;
+    }
+
+    public void returnDefault() {
         huffmanTable = new StatisticsTable[ALPHABET_SIZE];
         root = null;
         header = "";
         numberOfNodes = 0;
     }
-
-    private static byte[] getFileLengthAsBytes(String binaryString) {
-
-        byte[] bytes = new byte[4]; // number of digits
-        bytes[0] = (byte) (int) Integer.valueOf(binaryString.substring(0, 8), 2);
-        bytes[1] = (byte) (int) Integer.valueOf(binaryString.substring(8, 16), 2);
-        bytes[2] = (byte) (int) Integer.valueOf(binaryString.substring(16, 24), 2);
-        bytes[3] = (byte) (int) Integer.valueOf(binaryString.substring(24, 32), 2);
-        return bytes;
-    }
-
-    private static String getFileLengthAsString(byte[] length) {
-        String len = "";
-        for (byte b : length) {
-            len += (char) b;
-        }
-        return len + "\n";
-    }
-
-    private static String byteToString(byte b) {
-        byte[] masks = {-128, 64, 32, 16, 8, 4, 2, 1};
-        StringBuilder builder = new StringBuilder();
-        for (byte m : masks) {
-            if ((b & m) == m) {
-                builder.append('1');
-            } else {
-                builder.append('0');
-            }
-        }
-        return builder.toString();
-    }
-
-    private static byte[] getInOrderTraversal(Node root, short numberOfLeaf) {
-        Stack<Node> nodeStack = new Stack<>();
-        Node current = root;
-        byte[] inorder = new byte[numberOfLeaf];
-        short index = 0;
-        while (!nodeStack.isEmpty() || current != null) {
-            if (current != null) {
-                nodeStack.push(current);
-                current = current.getLeftChild();
-            } else {
-                Node node = nodeStack.pop();
-                inorder[index++] = node.getBytes();
-                current = node.getRightChild();
-
-            }
-        }
-        return inorder;
-    }
-
-    private static String getInOrderTraversalAsString(byte[] inorder) {
-        String in = "";
-        for (byte b : inorder) {
-            if (b == '\0') in += ' ';
-            else in += (char) b;
-        }
-        return in + "\n";
-    }
-
-    private static byte[] getPreOrderTraversal(Node root, short numberOfLeaf) {
-
-        // Create an empty stack and push root to it
-        Stack<Node> nodeStack = new Stack<>();
-        nodeStack.push(root);
-
-        byte[] preorder = new byte[numberOfLeaf];
-        short index = 0;
-
-        /* Pop all items one by one. Do following for every popped item
-        a) print it
-        b) push its right child
-        c) push its left child
-        Note that right child is pushed first so that left is processed first */
-        while (!nodeStack.empty()) {
-
-            // Pop the top item from stack and print it
-            Node current = nodeStack.peek();
-            preorder[index++] = current.getBytes();
-            nodeStack.pop();
-
-            // Push right and left children of the popped node to stack
-            if (current.getRightChild() != null) {
-                nodeStack.push(current.getRightChild());
-            }
-            if (current.getLeftChild() != null) {
-                nodeStack.push(current.getLeftChild());
-            }
-        }
-        return preorder;
-    }
-
-    private static String getPreOrderTraversalAsString(byte[] preorder) {
-        String pre = "";
-        for (byte b : preorder) {
-            if (b == '\0') pre += ' ';
-            else pre += (char) b;
-        }
-        return pre + "\n";
-    }
-
-//    static void printPostorder(Node node) {
-//        if (node == null)
-//            return;
-//
-//        // first recur on left subtree
-//        printPostorder(node.getLeftChild());
-//
-//        // then recur on right subtree
-//        printPostorder(node.getRightChild());
-//
-//        // now deal with the node
-//        System.out.print(node.getBytes() + ", ");
-//    }
-
-//    public static Node constructTree(int n, byte pre[], char preLN[]) {
-//
-//        // Code here
-//        Stack<Node> s = new Stack<>();
-//        Node root = new Node(pre[0]);
-//        s.push(root);
-//        int i = 1;
-//        while (i < n) {
-//            Node curr = s.peek();
-//            if (curr.getLeftChild() == null) {
-//                curr.setLeftChild(new Node(pre[i]));
-//                if (preLN[i] == 'N') {
-//                    s.push(curr.getLeftChild());
-//                }
-//                i++;
-//            } else if (curr.getRightChild() == null) {
-//                curr.setRightChild(new Node(pre[i]));
-//                if (preLN[i] == 'N') {
-//                    s.push(curr.getRightChild());
-//                }
-//                i++;
-//            } else {
-//                s.pop();
-//            }
-//        }
-//        return root;
-//    }
 
 }

@@ -1,49 +1,54 @@
 package huffman;
 
 
-public class Print {
-    private static Byte[] fileBytes;
-    private static String[] huffRepresentation;
+public class ReadFileToDecompress {
+    private Byte[] fileBytes;
+    private String[] huffRepresentation;
 
-    public static int originalFileLength;
-    public static Node root;
+    private int originalFileLength;
+    private Node root;
 
-    private static byte[] huffmanLengths;
-    private static byte[] huffmanRepresentationBytes;
+    private byte[] huffmanLengths;
+    private byte[] huffmanRepresentationBytes;
 
-    public static int getHuffmanRootOfHuffmanTree(final byte[] buffer, StringBuilder fileExtension) {
+    public int getHuffmanRootOfHuffmanTree(final byte[] buffer, StringBuilder fileExtension) {
         int beginning = decompress(buffer, fileExtension);
-        huffRepresentation = new String[fileBytes.length];
+        this.huffRepresentation = new String[this.fileBytes.length];
         buildTwoMainArray();
-        root = buildTree(fileBytes, huffRepresentation);
+        this.root = buildTree(this.fileBytes, this.huffRepresentation);
         return beginning;
     }
 
+    public int getOriginalFileLength() {
+        return this.originalFileLength;
+    }
 
-    private static void buildTwoMainArray() {
+    public Node getRoot() {
+        return this.root;
+    }
+
+    private void buildTwoMainArray() {
         int huffIndex = 0;
         String len;
         int firstHuffLength, secondHuffLength;
-        String fullHuffCode = getHuffmanRepresentationBytesAsSting();
-        for (int i = 0; i < huffmanLengths.length; ++i) {
+        String fullHuffCode = this.getHuffmanRepresentationBytesAsSting();
+        for (int i = 0; i < this.huffmanLengths.length; ++i) {
 
-            len = byteToString(huffmanLengths[i]);
-            firstHuffLength = getLengthOfHuffmanCode(len, true);
-            secondHuffLength = getLengthOfHuffmanCode(len, false);
+            len = Utility.byteToString(this.huffmanLengths[i]);
+            firstHuffLength = Utility.getLengthOfHuffmanCode(len, true);
+            secondHuffLength = Utility.getLengthOfHuffmanCode(len, false);
 
-
-            huffRepresentation[huffIndex++] = fullHuffCode.substring(0, firstHuffLength);
+            this.huffRepresentation[huffIndex++] = fullHuffCode.substring(0, firstHuffLength);
             fullHuffCode = fullHuffCode.substring(firstHuffLength);
             if (secondHuffLength == 0) break;
-            huffRepresentation[huffIndex++] = fullHuffCode.substring(0, secondHuffLength);
+            this.huffRepresentation[huffIndex++] = fullHuffCode.substring(0, secondHuffLength);
             fullHuffCode = fullHuffCode.substring(secondHuffLength);
 
         }
 
-
     }
 
-    public static Node buildTree(Byte[] bytes, String[] huff) {
+    private Node buildTree(Byte[] bytes, String[] huff) {
         Node root;
         if (bytes.length > 0) {
             root = new Node((byte) '\0');
@@ -74,7 +79,7 @@ public class Print {
         return root;
     }
 
-    public static int decompress(final byte[] buffer, StringBuilder fileExtension) {
+    private int decompress(final byte[] buffer, StringBuilder fileExtension) {
 
         String length = "";
 
@@ -82,13 +87,10 @@ public class Print {
         int hlSize = 0;
         int hlIndex = 0;
 
-
-        boolean isFileBytesIHave = false;
         int fbSize = 0;
         int fbIndex = 0;
 
-
-        int hrSize = 0;
+        int hrSize;
         int hrIndex = 0;
 
         boolean getFileExtension = false;
@@ -97,10 +99,10 @@ public class Print {
 
             // get file length from first 4 bytes
             if (i < 4) {
-                length += byteToString(buffer[i]);
+                length += Utility.byteToString(buffer[i]);
                 continue;
             } else if (i == 4) {
-                originalFileLength = Integer.parseInt(length, 2);
+                this.originalFileLength = Integer.parseInt(length, 2);
                 length = null;
             }
 
@@ -121,77 +123,47 @@ public class Print {
             if (!isHuffmanLengthIHave) {
                 hlSize = buffer[i];
                 if (hlSize <= 0) hlSize += 256; // to handle negative value in bytes
-                huffmanLengths = new byte[hlSize];
+                this.huffmanLengths = new byte[hlSize];
                 isHuffmanLengthIHave = true;
                 continue;
             }
             if (hlIndex < hlSize) {
-                huffmanLengths[hlIndex++] = buffer[i];
+                this.huffmanLengths[hlIndex++] = buffer[i];
                 continue;
             }
 
             // get file bytes
-            if (!isFileBytesIHave) {
-                fbSize = buffer[i];
-                if (fbSize <= 0) fbSize += 256;
-                fileBytes = new Byte[fbSize];
-                break;
-            }
+            fbSize = buffer[i];
+            if (fbSize <= 0) fbSize += 256;
+            this.fileBytes = new Byte[fbSize];
+            break;
         }
 
         for (int k = 0; k < fbSize; k++) {
-            fileBytes[fbIndex++] = buffer[++i];
+            this.fileBytes[fbIndex++] = buffer[++i];
         }
 
         byte b1 = buffer[++i];
         byte b2 = buffer[++i];
-        String sHr = byteToString(b1) + byteToString(b2);
+        String sHr = Utility.byteToString(b1) + Utility.byteToString(b2);
         hrSize = Integer.parseInt(sHr, 2);
-        huffmanRepresentationBytes = new byte[hrSize];
+        this.huffmanRepresentationBytes = new byte[hrSize];
         int j;
         for (j = 0; j < hrSize; j++) {
-            huffmanRepresentationBytes[hrIndex++] = buffer[++i];
+            this.huffmanRepresentationBytes[hrIndex++] = buffer[++i];
         }
         return i + 1;
     }
 
-    private static String getHuffmanRepresentationBytesAsSting() {
+    private String getHuffmanRepresentationBytesAsSting() {
         StringBuilder s = new StringBuilder("");
         for (byte b : huffmanRepresentationBytes) {
-            s.append(byteToString(b));
+            s.append(Utility.byteToString(b));
         }
         return s.toString();
     }
 
-    public static String byteToString(byte b) {
-        byte[] masks = {-128, 64, 32, 16, 8, 4, 2, 1};
-        StringBuilder builder = new StringBuilder();
-        for (byte m : masks) {
-            if ((b & m) == m) {
-                builder.append('1');
-            } else {
-                builder.append('0');
-            }
-        }
-        return builder.toString();
-    }
 
-    private static int getLengthOfHuffmanCode(String lengthForTwoByte, boolean part) {
-        // if part == true, I return first 4 bit as int
-        // if part == false, I return second 4 bit as int
-        //String huff = byteToString(b);
-        byte[] as4Bits = {8, 4, 2, 1};
-        int length = 0;
-        if (part) {
-            for (byte i = 0; i < 4; i++) {
-                if (lengthForTwoByte.charAt(i) == '1') length += as4Bits[i];
-            }
-        } else {
-            for (byte i = 4; i < 8; i++) {
-                if (lengthForTwoByte.charAt(i) == '1') length += as4Bits[i - 4];
-            }
-        }
-        return length;
-    }
+
 
 }
