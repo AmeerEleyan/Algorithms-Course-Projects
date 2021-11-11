@@ -15,11 +15,6 @@ public class HuffmanDecompress {
     private static int originalFileLength;
     private static int numberOfNodes = 0;
 
-    public static void main(String[] args) throws Exception {
-        decompress(new File("jn.huf"));
-    }
-
-
     public static void getHeaderInfo(byte[] buffer, byte[] inOrder, byte[] prOrder, StringBuilder fileExtension) {
 
         short indexForBytes = 0;
@@ -183,6 +178,9 @@ public class HuffmanDecompress {
                                 }
                                 if (myLength == originalFileLength) {
                                     break; // end of huffman codef
+                                }
+                                if(current == null) {
+                                    System.out.println("");
                                 }
                                 if (current.isLeaf()) {
                                     bufferWriter[indexOfBufferWriter++] = current.getBytes();

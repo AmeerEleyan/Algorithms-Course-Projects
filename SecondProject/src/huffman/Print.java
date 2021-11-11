@@ -25,18 +25,26 @@ public class Print {
         int huffIndex = 0;
         String len, huff = "";
         int firstHuffLength, secondHuffLength;
+        String fullHuffCode = getHuffmanRepresentationBytesAsSting();
         for (int i = 0; i < huffmanLengths.length; ++i) {
 
             len = byteToString(huffmanLengths[i]);
             firstHuffLength = getLengthOfHuffmanCode(len, true);
             secondHuffLength = getLengthOfHuffmanCode(len, false);
 
-            if (secondHuffLength == 0) {
+
+            huffRepresentation[huffIndex++] = fullHuffCode.substring(0, firstHuffLength);
+            fullHuffCode = fullHuffCode.substring(firstHuffLength);
+            if (secondHuffLength == 0) break;
+            huffRepresentation[huffIndex++] = fullHuffCode.substring(0, secondHuffLength);
+            fullHuffCode = fullHuffCode.substring(secondHuffLength);
+
+           /* if (secondHuffLength == 0) {
                 huffRepresentation[huffIndex] = huff.substring(0, firstHuffLength);
                 break; // the byte have only first 4 bits
             }
 
-            while (hrIndex < huffmanRepresentationBytes.length) {
+            while (hrIndex < fileBytes.length) {
                 huff += byteToString(huffmanRepresentationBytes[hrIndex++]);
 
                 if (firstHuffLength <= huff.length()) {
@@ -49,10 +57,10 @@ public class Print {
                         break;
                     }
 
-                } else {
-                    huff += byteToString(huffmanRepresentationBytes[hrIndex++]);
                 }
             }
+
+            */
 
         }
 
@@ -109,8 +117,8 @@ public class Print {
         int hrIndex = 0;
 
         boolean getFileExtension = false;
-
-        for (short i = 0; i < buffer.length; i++) {
+        short i = 0;
+        for (; i < buffer.length; i++) {
 
             // get file length from first 4 bytes
             if (i < 4) {
@@ -157,27 +165,30 @@ public class Print {
             }
             if (fbIndex < fbSize) {
                 fileBytes[fbIndex++] = buffer[i];
-                continue;
+                if (fbIndex == fbSize)
+                    break;
             }
-
-            // get huffman representation
-            if (!isHuffmanRepresentationIHave) {
-                hrSize = buffer[i];
-                if (hrSize <= 0) hrSize += 256; // 0 => 256, -1=> 255, 1 => 1
-                huffmanRepresentationBytes = new byte[hrSize];
-                isHuffmanRepresentationIHave = true;
-                continue;
-            }
-            if (hrIndex < hrSize) {
-                huffmanRepresentationBytes[hrIndex++] = buffer[i];
-                continue;
-            }
-            if (hrIndex == hrSize) return i; // i represent beginning of huffman code index;
 
         }
-        return 0;
+        byte b1 = buffer[++i];
+        byte b2 = buffer[++i];
+        String sHr = byteToString(b1) + byteToString(b2);
+        hrSize = Integer.parseInt(sHr, 2);
+        huffmanRepresentationBytes = new byte[hrSize];
+        int j;
+        for (j = 0; j < hrSize; j++) {
+            huffmanRepresentationBytes[hrIndex++] = buffer[++i];
+        }
+        return i + 1;
     }
 
+    private static String getHuffmanRepresentationBytesAsSting() {
+        StringBuilder s = new StringBuilder("");
+        for (byte b : huffmanRepresentationBytes) {
+            s.append(byteToString(b));
+        }
+        return s.toString();
+    }
 
     public static String byteToString(byte b) {
         byte[] masks = {-128, 64, 32, 16, 8, 4, 2, 1};

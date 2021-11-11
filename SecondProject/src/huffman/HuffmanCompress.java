@@ -140,7 +140,7 @@ public class HuffmanCompress {
 
 
             //header = getFileLengthAsString(lengthInBytes); // file length
-           // header += (fileExtension + "\n");// file extension
+            // header += (fileExtension + "\n");// file extension
 
 
             // new
@@ -152,8 +152,15 @@ public class HuffmanCompress {
             fos.write(data[1].length); // bytes
             fos.write(data[1], 0, data[1].length);
 
-            fos.write(data[2].length); /// huffman
-            fos.write(data[2], 0, data[2].length);
+            int data2length = data[2].length;
+            String slength = Integer.toBinaryString(data2length);
+            slength = "0".repeat(16 - slength.length()) + slength;
+            byte[] tempByte = new byte[2];
+            tempByte[0] = (byte) (int) Integer.valueOf(slength.substring(0, 8), 2);
+            tempByte[1] = (byte) (int) Integer.valueOf(slength.substring(8), 2);
+
+            fos.write(tempByte, 0, 2); /// huffman
+            fos.write(data[2], 0, data2length);
 
             // print the huffman in inOrder traversal
            /* byte[] inorderTraversal = getInOrderTraversal(root, numberOfNodes);
@@ -170,7 +177,7 @@ public class HuffmanCompress {
             fos.write('`');*/
 
             //header += getInOrderTraversalAsString(inorderTraversal);
-           // header += getPreOrderTraversalAsString(preOrderTraversal);
+            // header += getPreOrderTraversalAsString(preOrderTraversal);
             // ********** end of the header ********************
 
 
@@ -285,6 +292,19 @@ public class HuffmanCompress {
             len += (char) b;
         }
         return len + "\n";
+    }
+
+    private static String byteToString(byte b) {
+        byte[] masks = {-128, 64, 32, 16, 8, 4, 2, 1};
+        StringBuilder builder = new StringBuilder();
+        for (byte m : masks) {
+            if ((b & m) == m) {
+                builder.append('1');
+            } else {
+                builder.append('0');
+            }
+        }
+        return builder.toString();
     }
 
     private static byte[] getInOrderTraversal(Node root, short numberOfLeaf) {
