@@ -14,9 +14,11 @@ public class FileSplit {
          try{
 
              FileOutputStream fos = new FileOutputStream("256.txt");
-             fos.write(200);
+             byte [] test ={97, 98,99};
+             fos.write(test,0,3);
+             fos.write(test,0,3);
              fos.close();
-             byte[] df = new byte[2];
+             byte[] df = new byte[6];
              FileInputStream fis = new FileInputStream("256.txt");
              fis.read(df);
              System.out.println(Arrays.toString(df));

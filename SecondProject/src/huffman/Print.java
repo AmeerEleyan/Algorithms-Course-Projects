@@ -161,15 +161,21 @@ public class Print {
                 if (fbSize <= 0) fbSize += 256;
                 fileBytes = new Byte[fbSize];
                 isFileBytesIHave = true;
-                continue;
+                break;
             }
-            if (fbIndex < fbSize) {
-                fileBytes[fbIndex++] = buffer[i];
-                if (fbIndex == fbSize)
-                    break;
-            }
+//            if (fbIndex < fbSize) {
+//                fileBytes[fbIndex] = buffer[i];
+//                if (buffer[i] == 124)
+//                    System.out.println();
+//                fbIndex++;
+//            } else break;
 
         }
+
+        for (int k = 0; k < fbSize; k++) {
+            fileBytes[fbIndex++] = buffer[++i];
+        }
+
         byte b1 = buffer[++i];
         byte b2 = buffer[++i];
         String sHr = byteToString(b1) + byteToString(b2);
