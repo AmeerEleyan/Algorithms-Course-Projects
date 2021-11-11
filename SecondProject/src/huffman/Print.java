@@ -21,9 +21,8 @@ public class Print {
 
 
     private static void buildTwoMainArray() {
-        int hrIndex = 0;
         int huffIndex = 0;
-        String len, huff = "";
+        String len;
         int firstHuffLength, secondHuffLength;
         String fullHuffCode = getHuffmanRepresentationBytesAsSting();
         for (int i = 0; i < huffmanLengths.length; ++i) {
@@ -38,29 +37,6 @@ public class Print {
             if (secondHuffLength == 0) break;
             huffRepresentation[huffIndex++] = fullHuffCode.substring(0, secondHuffLength);
             fullHuffCode = fullHuffCode.substring(secondHuffLength);
-
-           /* if (secondHuffLength == 0) {
-                huffRepresentation[huffIndex] = huff.substring(0, firstHuffLength);
-                break; // the byte have only first 4 bits
-            }
-
-            while (hrIndex < fileBytes.length) {
-                huff += byteToString(huffmanRepresentationBytes[hrIndex++]);
-
-                if (firstHuffLength <= huff.length()) {
-                    huffRepresentation[huffIndex++] = huff.substring(0, firstHuffLength);
-                    huff = huff.substring(firstHuffLength);
-
-                    if (secondHuffLength <= huff.length()) {
-                        huffRepresentation[huffIndex++] = huff.substring(0, secondHuffLength);
-                        huff = huff.substring(secondHuffLength);
-                        break;
-                    }
-
-                }
-            }
-
-            */
 
         }
 
@@ -112,7 +88,6 @@ public class Print {
         int fbIndex = 0;
 
 
-        boolean isHuffmanRepresentationIHave = false;
         int hrSize = 0;
         int hrIndex = 0;
 
@@ -160,16 +135,8 @@ public class Print {
                 fbSize = buffer[i];
                 if (fbSize <= 0) fbSize += 256;
                 fileBytes = new Byte[fbSize];
-                isFileBytesIHave = true;
                 break;
             }
-//            if (fbIndex < fbSize) {
-//                fileBytes[fbIndex] = buffer[i];
-//                if (buffer[i] == 124)
-//                    System.out.println();
-//                fbIndex++;
-//            } else break;
-
         }
 
         for (int k = 0; k < fbSize; k++) {

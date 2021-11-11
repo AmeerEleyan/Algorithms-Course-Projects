@@ -141,7 +141,6 @@ public class Osama {
 
         // to calculate how many bytes exactly I need  to store Huffman code for each leaf node
         byte[] huffmanCodeForLeaf;
-        System.out.println(sumOfBitsLength);
         if (sumOfBitsLength % 8 == 0)
             huffmanCodeForLeaf = new byte[sumOfBitsLength / 8];
         else huffmanCodeForLeaf = new byte[(sumOfBitsLength / 8) + 1];
