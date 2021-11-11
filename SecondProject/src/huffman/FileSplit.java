@@ -13,18 +13,20 @@ public class FileSplit {
          int x = 100000;
          try{
 
-             FileOutputStream fos = new FileOutputStream("sb.txt");
-             fos.write(String.valueOf(x).getBytes());
+             FileOutputStream fos = new FileOutputStream("256.txt");
+             fos.write(200);
              fos.close();
-             byte[] df = ByteBuffer.allocate(4).putInt(x).array();
-             FileInputStream fis = new FileInputStream("sb.txt");
-             fis.read(df,0,4);
-             int value = 0;
-             for (byte b : df) {
-                 value = (value << 8) + (b & 0xFF);
-             }
+             byte[] df = new byte[2];
+             FileInputStream fis = new FileInputStream("256.txt");
+             fis.read(df);
+             System.out.println(Arrays.toString(df));
+//             fis.read(df,0,4);
+//             int value = 0;
+//             for (byte b : df) {
+//                 value = (value << 8) + (b & 0xFF);
+//             }
              fis.close();
-             System.out.println(value);
+            // System.out.println(value);
 
          }catch(IOException e){
 

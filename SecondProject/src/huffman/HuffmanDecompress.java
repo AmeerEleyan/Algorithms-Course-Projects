@@ -129,10 +129,10 @@ public class HuffmanDecompress {
         try {
             FileInputStream fis = new FileInputStream(sourceFile);
 
-            // 1050 because in the first time, if all bytes are repeated, the number of inorder traversal nodes is 511
+            // 1024 because in the first time, if all bytes are repeated, the number of inorder traversal nodes is 511
             // and the preorder 511 and file length 6 and special char between them 4 and max file extension  can be 20
-            // So I select 1050 to not call this method again
-            byte[] buffer = new byte[1050]; // number of bytes can be read
+            // So I select 1024 to not call this method again
+            byte[] buffer = new byte[1024]; // number of bytes can be read
 
             // remaining is the number of bytes to read to fill the buffer
             short remaining = (short) buffer.length;
@@ -140,25 +140,20 @@ public class HuffmanDecompress {
             int read = fis.read(buffer, 0, remaining);
 
 
-            byte[] tempInOrder = new byte[511]; // 511;  because it is maximum number of nodes in huffman tree
-            byte[] tempPrOrder = new byte[511];
             StringBuilder fileExtension = new StringBuilder("");
-            getHeaderInfo(buffer, tempInOrder, tempPrOrder, fileExtension);
+
+            beginningIndexOfHuffmanCode = (short) Print.getHuffmanRootOfHuffmanTree(buffer, fileExtension);
+            root= Print.root;
+            originalFileLength = Print.originalFileLength;
+
 
             String newFilePath = sourceFile.getAbsolutePath().substring(0, indexOfDot + 1) + fileExtension;
             FileOutputStream fos = new FileOutputStream(newFilePath);
 
-            // I coped them, because when i
-            byte[] inOrder = new byte[numberOfNodes];
-            System.arraycopy(tempInOrder, 0, inOrder, 0, numberOfNodes);
-
-            byte[] prOrder = new byte[numberOfNodes];
-            System.arraycopy(tempPrOrder, 0, prOrder, 0, numberOfNodes);
-
             int myLength = 0;
-            root = buildHuffmanTree(prOrder, inOrder);
 
-            byte[] bufferWriter = new byte[1050];
+
+            byte[] bufferWriter = new byte[1024];
             int indexOfBufferWriter = 0;
 
             Node current = root;
@@ -196,14 +191,14 @@ public class HuffmanDecompress {
                                     binaryString = binaryString.substring(i + 1);
                                     i = -1;
                                 }
-                                if (indexOfBufferWriter == 1050) {
-                                    fos.write(bufferWriter, 0, 1050);
+                                if (indexOfBufferWriter == 1024) {
+                                    fos.write(bufferWriter, 0, 1024);
                                     indexOfBufferWriter = 0;
                                 }
 
                             }
                             tempI = (byte) binaryString.length();
-                        } while (beginningIndexOfHuffmanCode < 1050);
+                        } while (beginningIndexOfHuffmanCode < 1024);
 
                         remaining = (short) buffer.length;
                     }
@@ -233,7 +228,7 @@ public class HuffmanDecompress {
                                 binaryString = binaryString.substring(i + 1);
                                 i = -1; // because when again loop will increment
                             }
-                            if (indexOfBufferWriter == 1050) {
+                            if (indexOfBufferWriter == 1024) {
                                 fos.write(bufferWriter, 0, indexOfBufferWriter);
                                 indexOfBufferWriter = 0;
                             }
@@ -243,7 +238,7 @@ public class HuffmanDecompress {
                             }
                         }
                         tempI = (byte) binaryString.length();
-                    } while ((beginningIndexOfHuffmanCode < 1050 - remaining) && flag);
+                    } while ((beginningIndexOfHuffmanCode < 1024 - remaining) && flag);
 
                     break;
                 }
@@ -261,7 +256,7 @@ public class HuffmanDecompress {
     }
 
 
-    public static String byteToString(byte b) {
+    private static String byteToString(byte b) {
         byte[] masks = {-128, 64, 32, 16, 8, 4, 2, 1};
         StringBuilder builder = new StringBuilder();
         for (byte m : masks) {

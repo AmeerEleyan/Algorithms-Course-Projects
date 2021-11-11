@@ -87,7 +87,7 @@ public class HuffmanCompress {
                     numberOfNodes++;
                 }
             }
-            numberOfNodes = (short) ((numberOfNodes * 2) - 1);
+            //numberOfNodes = (short) ((numberOfNodes * 2) - 1);
 
             while (priorityQueue.size() > 1) { // O(nlogn)
                 Node left = priorityQueue.poll();
@@ -132,32 +132,45 @@ public class HuffmanCompress {
             l = "0".repeat(32 - l.length()) + l;
             byte[] lengthInBytes = getFileLengthAsBytes(l);
             fos.write(lengthInBytes, 0, 4);
-            fos.write('\n');
+
 
             // print the file extension
             fos.write(fileExtensionBytes, 0, fileExtensionBytes.length);
             fos.write('\n');
 
-            header = getFileLengthAsString(lengthInBytes); // file length
-            header += (fileExtension + "\n");// file extension
 
+            //header = getFileLengthAsString(lengthInBytes); // file length
+           // header += (fileExtension + "\n");// file extension
+
+
+            // new
+            byte[][] data = Osama.getHeader(huffmanTable, numberOfNodes);
+
+            fos.write(data[0].length); // lengths
+            fos.write(data[0], 0, data[0].length);
+
+            fos.write(data[1].length); // bytes
+            fos.write(data[1], 0, data[1].length);
+
+            fos.write(data[2].length); /// huffman
+            fos.write(data[2], 0, data[2].length);
 
             // print the huffman in inOrder traversal
-            byte[] inorderTraversal = getInOrderTraversal(root, numberOfNodes);
+           /* byte[] inorderTraversal = getInOrderTraversal(root, numberOfNodes);
             fos.write(inorderTraversal, 0, numberOfNodes);
             // ^` are special to separate in order from preOrder
             fos.write('^');
-            fos.write('`');
+            fos.write('`');*/
 
             // print the huffman in preOrder traversal
-            byte[] preOrderTraversal = getPreOrderTraversal(root, numberOfNodes);
+           /* byte[] preOrderTraversal = getPreOrderTraversal(root, numberOfNodes);
             fos.write(preOrderTraversal, 0, numberOfNodes);
             // ^` are special to separate in preOrder from huffmanCode
             fos.write('^');
-            fos.write('`');
+            fos.write('`');*/
 
-            header += getInOrderTraversalAsString(inorderTraversal);
-            header += getPreOrderTraversalAsString(preOrderTraversal);
+            //header += getInOrderTraversalAsString(inorderTraversal);
+           // header += getPreOrderTraversalAsString(preOrderTraversal);
             // ********** end of the header ********************
 
 
