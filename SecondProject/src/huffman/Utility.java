@@ -1,3 +1,8 @@
+/**
+ * @author: Ameer Eleyan
+ * ID: 1191076
+ * At: 11/5/2021   10:8 PM
+ */
 package huffman;
 
 public abstract class Utility {
@@ -41,5 +46,13 @@ public abstract class Utility {
         bytes[2] = (byte) (int) Integer.valueOf(binaryString.substring(16, 24), 2);
         bytes[3] = (byte) (int) Integer.valueOf(binaryString.substring(24, 32), 2);
         return bytes;
+    }
+
+    public static String getFileLengthAsString(byte[] length) {
+        StringBuilder len = new StringBuilder();
+        for (byte b : length) {
+            len.append((char) b);
+        }
+        return len.toString();
     }
 }

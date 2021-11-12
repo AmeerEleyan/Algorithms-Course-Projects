@@ -1,3 +1,8 @@
+/**
+ * @author: Ameer Eleyan
+ * ID: 1191076
+ * At: 10/30/2021   2:00 AM
+ */
 package huffman;
 
 import javafx.fxml.FXML;
@@ -39,6 +44,12 @@ public class Driver implements Initializable {
     @FXML // fx:id="txtHeader"
     private TextArea txtHeader; // Value injected by FXMLLoader
 
+    @FXML // fx:id="lblHeader"
+    private Label lblHeader; // Value injected by FXMLLoader
+
+    @FXML // fx:id="lblStatistics"
+    private Label lblStatistics; // Value injected by FXMLLoader
+
     private HuffmanCompress header;
 
     @Override
@@ -48,6 +59,10 @@ public class Driver implements Initializable {
         this.comboBox.setDisable(false);
         this.btBrowse.setDisable(true);
         this.btAnotherFile.setDisable(true);
+        this.lblHeader.setDisable(true);
+        this.lblStatistics.setDisable(true);
+        this.tableView.setDisable(true);
+        this.txtHeader.setDisable(true);
         this.cmASCII.setCellValueFactory(new PropertyValueFactory<>("ASCII"));
         this.cmFrequency.setCellValueFactory(new PropertyValueFactory<>("frequency"));
         this.cmHuffman.setCellValueFactory(new PropertyValueFactory<>("huffmanCode"));
@@ -75,7 +90,11 @@ public class Driver implements Initializable {
                 if (this.comboBox.getValue().equals("Compress File")) {
                     this.header = new HuffmanCompress();
                     this.header.compress(sourceFile);
-                    txtHeader.setText(this.header.header);
+                    this.lblHeader.setDisable(false);
+                    this.lblStatistics.setDisable(false);
+                    this.tableView.setDisable(false);
+                    this.txtHeader.setDisable(false);
+                    this.txtHeader.setText(this.header.getFullHeaderAsString());
                     this.fillStatisticsTable();
                     Message.displayMessage("Successfully", sourceFile.getName() + " was compress successfully");
                 } else {
@@ -101,13 +120,17 @@ public class Driver implements Initializable {
         this.txtHeader.clear();
         this.tableView.getItems().clear();
         this.header.returnDefault();
+        this.tableView.setDisable(true);
+        this.txtHeader.setDisable(true);
+        this.lblHeader.setDisable(true);
+        this.lblStatistics.setDisable(true);
 
     }
 
     private void fillStatisticsTable() {
-        for (int i = 0; i < this.header.huffmanTable.length; i++) {
-            if (this.header.huffmanTable[i] != null)
-                this.tableView.getItems().add(this.header.huffmanTable[i]);
+        for (int i = 0; i < this.header.getHuffmanTable().length; i++) {
+            if (this.header.getHuffmanTable()[i] != null)
+                this.tableView.getItems().add(this.header.getHuffmanTable()[i]);
         }
     }
 

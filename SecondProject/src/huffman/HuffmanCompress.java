@@ -1,3 +1,8 @@
+/**
+ * @author: Ameer Eleyan
+ * ID: 1191076
+ * At: 11/5/2021   10:30 PM
+ */
 package huffman;
 
 import java.io.*;
@@ -5,9 +10,9 @@ import java.util.PriorityQueue;
 
 public class HuffmanCompress {
     private final int ALPHABET_SIZE = 256;
-    public StatisticsTable[] huffmanTable;
+    private StatisticsTable[] huffmanTable;
     private Node root;
-    public String header = "";
+    private String fullHeaderAsString = "";
     private short numberOfNodes = 0;
 
 
@@ -18,6 +23,15 @@ public class HuffmanCompress {
         getHuffmanCode(root, "");
         printToFile(sourceFile);
 
+    }
+
+
+    public StatisticsTable[] getHuffmanTable() {
+        return this.huffmanTable;
+    }
+
+    public String getFullHeaderAsString() {
+        return this.fullHeaderAsString;
     }
 
     private int[] buildFrequenciesOfTheBytes(final File sourceFile) {
@@ -121,19 +135,20 @@ public class HuffmanCompress {
             fos.write('\n');
 
 
-            //header = getFileLengthAsString(lengthInBytes); // file length
-            // header += (fileExtension + "\n");// file extension
-
             // new
-            byte[][] data = this.getHeader(huffmanTable, numberOfNodes);
+            byte[][] header = this.getHeader(huffmanTable, numberOfNodes);
 
-            fos.write(data[0].length); // lengths
-            fos.write(data[0], 0, data[0].length);
+            this.fullHeaderAsString = Utility.getFileLengthAsString(lengthInBytes); // file length
+            this.fullHeaderAsString += (fileExtension + "\n");// file extension
+            this.fullHeaderAsString += getHeaderAsString(header);
 
-            fos.write(data[1].length); // bytes
-            fos.write(data[1], 0, data[1].length);
+            fos.write(header[0].length); // lengths
+            fos.write(header[0], 0, header[0].length);
 
-            int data2length = data[2].length;
+            fos.write(header[1].length); // bytes
+            fos.write(header[1], 0, header[1].length);
+
+            int data2length = header[2].length;
             String sLength = Integer.toBinaryString(data2length);
             sLength = "0".repeat(16 - sLength.length()) + sLength;
             byte[] tempByte = new byte[2];
@@ -141,7 +156,7 @@ public class HuffmanCompress {
             tempByte[1] = (byte) (int) Integer.valueOf(sLength.substring(8), 2);
 
             fos.write(tempByte, 0, 2); /// huffman
-            fos.write(data[2], 0, data2length);
+            fos.write(header[2], 0, data2length);
 
             // ********** end of the header ********************
 
@@ -158,7 +173,7 @@ public class HuffmanCompress {
             byte[] huffman = new byte[1024];
             short index = 0; // used for the above huffman array
             String remainingBits = "";
-            String huffmanBits = "";
+            String huffmanBits;
             while (true) {
                 short read = (short) fis.read(buffer, buffer.length - remaining, remaining);
                 if (read >= 0) { // some bytes were read
@@ -200,7 +215,6 @@ public class HuffmanCompress {
                             remainingBits = huffmanBits;
                         }
                     }
-
 
                     String temp;
                     while (remainingBits.length() != 0) {
@@ -259,10 +273,10 @@ public class HuffmanCompress {
         so I will take last 4 bit in right side for s1 and s2 and convert them into one byte
         newByte will be = 11011010
          */
-        for (int iLoop = 0; iLoop < huffmanTable.length; iLoop++) {
+        for (StatisticsTable table : huffmanTable) {
 
-            if (huffmanTable[iLoop] != null) {
-                s1 = Utility.byteToString((byte) huffmanTable[iLoop].getHuffmanLength());
+            if (table != null) {
+                s1 = Utility.byteToString((byte) table.getHuffmanLength());
                 lengthForTwoByte += s1.substring(4);
                 flag++;
 
@@ -342,8 +356,25 @@ public class HuffmanCompress {
     public void returnDefault() {
         huffmanTable = new StatisticsTable[ALPHABET_SIZE];
         root = null;
-        header = "";
+        fullHeaderAsString = "";
         numberOfNodes = 0;
+    }
+
+    private String getHeaderAsString(byte[][] header) {
+
+        StringBuilder head = new StringBuilder();
+
+        for (byte[] bytes : header) {
+            head.append(bytes.length); // size of each
+            // first row: represent lengths for huffman code
+            // second row : represent all bytes
+            // third row: represent all huffman code
+            for (byte aByte : bytes) {
+                head.append((char) aByte); // huffman code for each byte
+            }
+        }
+
+        return head.toString();
     }
 
 }
