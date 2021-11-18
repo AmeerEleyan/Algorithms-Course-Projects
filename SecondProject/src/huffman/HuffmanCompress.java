@@ -103,7 +103,7 @@ public class HuffmanCompress {
     // build huffman code for each byte recursive
     private void getHuffmanCode(Node node, String code) {
         if (node.isLeaf()) {
-            huffmanTable[node.getBytes() + 128] = new StatisticsTable(node.getBytes(), node.getFrequency(), code, code.length());
+            huffmanTable[node.getBytes() + 128] = new StatisticsTable(node.getBytes(), node.getFrequency(), code, (byte) code.length());
         } else {
             getHuffmanCode(node.getLeftChild(), code + "0");
             getHuffmanCode(node.getRightChild(), code + "1");
@@ -152,8 +152,8 @@ public class HuffmanCompress {
             String sLength = Integer.toBinaryString(data2length);
             sLength = "0".repeat(16 - sLength.length()) + sLength;
             byte[] tempByte = new byte[2];
-            tempByte[0] = (byte) (int) Integer.valueOf(sLength.substring(0, 8), 2);
-            tempByte[1] = (byte) (int) Integer.valueOf(sLength.substring(8), 2);
+            tempByte[0] = Utility.stringToByte(sLength.substring(0, 8));
+            tempByte[1] = Utility.stringToByte(sLength.substring(8));
 
             fos.write(tempByte, 0, 2); /// huffman
             fos.write(header[2], 0, data2length);
@@ -184,7 +184,7 @@ public class HuffmanCompress {
 
                             if (huffmanBits.length() >= 8) {
                                 remainingBits = huffmanBits.substring(8); // to store bit above than index 7
-                                byte huffmanByte = (byte) (int) Integer.valueOf(huffmanBits.substring(0, 8), 2);
+                                byte huffmanByte = Utility.stringToByte(huffmanBits.substring(0, 8));
                                 huffman[index++] = huffmanByte;
                                 if (index == 1024) {
                                     fos.write(huffman, 0, 1024);
@@ -205,7 +205,7 @@ public class HuffmanCompress {
 
                         if (huffmanBits.length() >= 8) {
                             remainingBits = huffmanBits.substring(8); // to store bit above than index 7
-                            byte huffmanByte = (byte) (int) Integer.valueOf(huffmanBits.substring(0, 8), 2);
+                            byte huffmanByte = Utility.stringToByte(huffmanBits.substring(0, 8));
                             huffman[index++] = huffmanByte;
                             if (index == 1024) {
                                 fos.write(huffman, 0, 1024);
@@ -226,7 +226,7 @@ public class HuffmanCompress {
                             temp = remainingBits.substring(8);
                             remainingBits = remainingBits.substring(0, 8);
                         }
-                        byte huffmanByte = (byte) (int) Integer.valueOf(remainingBits, 2);
+                        byte huffmanByte = Utility.stringToByte(remainingBits);
                         huffman[index++] = huffmanByte;
                         if (index == 1024) {
                             fos.write(huffman, 0, 1024);
@@ -254,48 +254,18 @@ public class HuffmanCompress {
 
         // ***********************************************************************************
 
-        // get  huffmanTable length as 4 bits of two node and set into new byte
-        byte[] lengths;
-        boolean isEven = (numberOfNodes & 1) == 0;
-
-        int evenNumber = (numberOfNodes >> 1);
-        if (isEven) lengths = new byte[evenNumber];
-        else lengths = new byte[evenNumber + 1];
-
-        String lengthForTwoByte = "";
-        int sumOfBitsLength = 0; // using to create n bytes to store huffmanTable code in them
-        byte flag = 0;
+        // get  huffmanTable length for each leaf node
+        byte[] lengths = new byte[numberOfNodes];
         int index = 0;
-        String s1 = "";
-        /*
-        if huffmanTable[iLoop].getHuffmanLength() = 13 and s1 will be 00001101
-        and huffmanTable[iLoop+1].getHuffmanLength() = 10 ans s2 will be 00001010,
-        so I will take last 4 bit in right side for s1 and s2 and convert them into one byte
-        newByte will be = 11011010
-         */
-        for (StatisticsTable table : huffmanTable) {
-
-            if (table != null) {
-                s1 = Utility.byteToString((byte) table.getHuffmanLength());
-                lengthForTwoByte += s1.substring(4);
-                flag++;
-
-            }
-            if (flag == 2) {
-                sumOfBitsLength += ((Utility.getLengthOfHuffmanCode(lengthForTwoByte, true)) +
-                        (Utility.getLengthOfHuffmanCode(lengthForTwoByte, false)));
-
-                lengths[index++] = (byte) (int) Integer.valueOf(lengthForTwoByte, 2);
-                flag = 0;
-                lengthForTwoByte = "";
+        int sumOfBitsLength = 0;
+        for (StatisticsTable b : huffmanTable) {
+            if (b != null) {
+                lengths[index++] = b.getHuffmanLength();
+                sumOfBitsLength += b.getHuffmanLength();
             }
         }
 
-        if (lengthForTwoByte.length() == 4) {
-            sumOfBitsLength += (Utility.getLengthOfHuffmanCode(lengthForTwoByte, true));
-            lengths[index] = (byte) (int) Integer.valueOf(lengthForTwoByte + "0".repeat(4), 2); // 0101 => 01010000
-        }
-
+        System.err.println(sumOfBitsLength);
         bytes[0] = lengths; // to store the length of each Huffman code in the leaf node
 
         // ***********************************************************************************
@@ -323,11 +293,8 @@ public class HuffmanCompress {
         for (StatisticsTable statisticsTable : huffmanTable) {
             if (statisticsTable != null) {
                 huff += statisticsTable.getHuffmanCode();
-                if (iIndex == 254) {
-                    System.out.println();
-                }
                 if (huff.length() >= 8) {
-                    b = (byte) (int) Integer.valueOf(huff.substring(0, 8), 2);
+                    b = Utility.stringToByte(huff.substring(0, 8));
                     huffmanCodeForLeaf[iIndex++] = b;
                     huff = huff.substring(8);
                 }
@@ -336,11 +303,11 @@ public class HuffmanCompress {
         }
         while (huff.length() > 0) {
             if (huff.length() >= 8) {
-                b = (byte) (int) Integer.valueOf(huff.substring(0, 8), 2);
+                b = Utility.stringToByte(huff.substring(0, 8));
                 huff = huff.substring(8);
                 huffmanCodeForLeaf[iIndex++] = b;
             } else {
-                b = (byte) (int) Integer.valueOf(huff + "0".repeat(8 - huff.length()), 2);
+                b = Utility.stringToByte(huff + "0".repeat(8 - huff.length()));
                 huffmanCodeForLeaf[iIndex] = b;
                 huff = "";
             }

@@ -4,10 +4,10 @@ public class StatisticsTable {
     private byte ASCII;
     private int frequency;
     private String huffmanCode;
-    private int huffmanLength;
+    private byte huffmanLength;
 
 
-    public StatisticsTable(byte ASCII, int frequency, String variableLength, int huffmanLength) {
+    public StatisticsTable(byte ASCII, int frequency, String variableLength, byte huffmanLength) {
         this.ASCII = ASCII;
         this.frequency = frequency;
         this.huffmanCode = variableLength;
@@ -34,11 +34,11 @@ public class StatisticsTable {
         return this.huffmanCode;
     }
 
-    public int getHuffmanLength() {
+    public byte getHuffmanLength() {
         return this.huffmanLength;
     }
 
-    public void setHuffmanLength(int huffmanLength) {
+    public void setHuffmanLength(byte huffmanLength) {
         this.huffmanLength = huffmanLength;
     }
 

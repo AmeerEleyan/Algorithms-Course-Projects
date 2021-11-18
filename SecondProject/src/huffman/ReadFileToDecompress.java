@@ -28,24 +28,11 @@ public class ReadFileToDecompress {
     }
 
     private void buildTwoMainArray() {
-        int huffIndex = 0;
-        String len;
-        int firstHuffLength, secondHuffLength;
         String fullHuffCode = this.getHuffmanRepresentationBytesAsSting();
         for (int i = 0; i < this.huffmanLengths.length; ++i) {
-
-            len = Utility.byteToString(this.huffmanLengths[i]);
-            firstHuffLength = Utility.getLengthOfHuffmanCode(len, true);
-            secondHuffLength = Utility.getLengthOfHuffmanCode(len, false);
-
-            this.huffRepresentation[huffIndex++] = fullHuffCode.substring(0, firstHuffLength);
-            fullHuffCode = fullHuffCode.substring(firstHuffLength);
-            if (secondHuffLength == 0) break;
-            this.huffRepresentation[huffIndex++] = fullHuffCode.substring(0, secondHuffLength);
-            fullHuffCode = fullHuffCode.substring(secondHuffLength);
-
+            this.huffRepresentation[i] = fullHuffCode.substring(0, this.huffmanLengths[i]);
+            fullHuffCode = fullHuffCode.substring(this.huffmanLengths[i]);
         }
-
     }
 
     private Node buildTree(Byte[] bytes, String[] huff) {
@@ -85,23 +72,19 @@ public class ReadFileToDecompress {
 
         boolean isHuffmanLengthIHave = false;
         int hlSize = 0;
-        int hlIndex = 0;
-
-        int fbSize = 0;
-        int fbIndex = 0;
-
+        int fbSize = 0; // file bytes
         int hrSize;
-        int hrIndex = 0;
+
 
         boolean getFileExtension = false;
         short i = 0;
-        for (; i < buffer.length; i++) {
-
+        while(true){
             // get file length from first 4 bytes
             if (i < 4) {
-                length += Utility.byteToString(buffer[i]);
+                length += Utility.byteToString(buffer[i++]);
                 continue;
             } else if (i == 4) {
+                assert length != null;
                 this.originalFileLength = Integer.parseInt(length, 2);
                 length = null;
             }
@@ -109,38 +92,35 @@ public class ReadFileToDecompress {
             // get file extension from the 4th byte even to find the first '\n'
             // because no file extension contains  '\n'
             if (buffer[i] != (byte) 10 && !getFileExtension) {
-                fileExtension.append((char) buffer[i]);
+                fileExtension.append((char) buffer[i++]);
                 continue;
             } else if (buffer[i] == (byte) 10) { // end of file extension and skip current byte that represent \n
                 getFileExtension = true;
-
+                i++;
                 continue;
             }
 
             // starting to get the bytes and are Huffman representation for them;
 
             // get # of lengths bytes
-            if (!isHuffmanLengthIHave) {
-                hlSize = buffer[i];
-                if (hlSize <= 0) hlSize += 256; // to handle negative value in bytes
-                this.huffmanLengths = new byte[hlSize];
-                isHuffmanLengthIHave = true;
-                continue;
-            }
-            if (hlIndex < hlSize) {
-                this.huffmanLengths[hlIndex++] = buffer[i];
-                continue;
-            }
 
-            // get file bytes
-            fbSize = buffer[i];
-            if (fbSize <= 0) fbSize += 256;
-            this.fileBytes = new Byte[fbSize];
+            hlSize = buffer[i];
+            if (hlSize <= 0) hlSize += 256; // to handle negative value in bytes
+            this.huffmanLengths = new byte[hlSize];
             break;
         }
 
-        for (int k = 0; k < fbSize; k++) {
-            this.fileBytes[fbIndex++] = buffer[++i];
+        for (int hlIndex = 0; hlIndex < hlSize; hlIndex++) {
+            this.huffmanLengths[hlIndex] = buffer[++i];
+        }
+
+        // get file bytes
+        fbSize = buffer[++i];
+        if (fbSize <= 0) fbSize += 256;
+        this.fileBytes = new Byte[fbSize];
+
+        for (int fbIndex = 0; fbIndex < fbSize; fbIndex++) {
+            this.fileBytes[fbIndex] = buffer[++i];
         }
 
         byte b1 = buffer[++i];
@@ -148,9 +128,8 @@ public class ReadFileToDecompress {
         String sHr = Utility.byteToString(b1) + Utility.byteToString(b2);
         hrSize = Integer.parseInt(sHr, 2);
         this.huffmanRepresentationBytes = new byte[hrSize];
-        int j;
-        for (j = 0; j < hrSize; j++) {
-            this.huffmanRepresentationBytes[hrIndex++] = buffer[++i];
+        for (int hrIndex = 0; hrIndex < hrSize; hrIndex++) {
+            this.huffmanRepresentationBytes[hrIndex] = buffer[++i];
         }
         return i + 1;
     }
@@ -162,8 +141,6 @@ public class ReadFileToDecompress {
         }
         return s.toString();
     }
-
-
 
 
 }

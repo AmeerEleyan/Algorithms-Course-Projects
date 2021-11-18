@@ -20,6 +20,10 @@ public abstract class Utility {
         return builder.toString();
     }
 
+    public static byte stringToByte(String s){
+        return (byte) (int) Integer.valueOf(s, 2);
+    }
+
     public static int getLengthOfHuffmanCode(String lengthForTwoByte, boolean part) {
         // if part == true, I return first 4 bit as int
         // if part == false, I return second 4 bit as int

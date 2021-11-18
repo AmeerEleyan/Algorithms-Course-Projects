@@ -119,7 +119,7 @@ public class Driver implements Initializable {
         this.btAnotherFile.setDisable(true);
         this.txtHeader.clear();
         this.tableView.getItems().clear();
-        this.header.returnDefault();
+        if (this.header != null) this.header.returnDefault();
         this.tableView.setDisable(true);
         this.txtHeader.setDisable(true);
         this.lblHeader.setDisable(true);
