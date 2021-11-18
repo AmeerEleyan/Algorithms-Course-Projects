@@ -285,7 +285,7 @@ public class Driver implements Initializable {
             }
         }
 
-        // View details of the results
+        // View table
         this.textAreaResults.appendText("\t");
         for (int i = 0; i < this.size + 1; i++) {
 
@@ -322,19 +322,20 @@ public class Driver implements Initializable {
                 else if (j == 0) textAreaDetails.appendText("Power-" + i + "\t\t");
 
 
-                if ((j > 0) && (i > 0)) // Display values after fill first row and first column
-                    textAreaDetails.appendText(" " + tempArrayForDisplayResult[i][j] + " \t  \t  \t");
+                if ((j > 0) && (i > 0)) {// Display values after fill first row and first column
+                    char arrow = '←';
+                    if (tempArrayForDisplayResult[i][j] == 1) {
+                        arrow = '↖';
+                    } else if (tempArrayForDisplayResult[i][j] == 2) {
+                        arrow = '↑';
+                    }
+                    textAreaDetails.appendText(" " + arrow + " \t  \t  \t");
+                }
+
             }
 
             this.textAreaDetails.appendText("\n");
         }
-        this.textAreaDetails.appendText("\n\n");
-        this.textAreaDetails.appendText("0: Left arrow");
-        this.textAreaDetails.appendText("\n");
-        this.textAreaDetails.appendText("1: Northwest arrow");
-        this.textAreaDetails.appendText("\n");
-        this.textAreaDetails.appendText("2: Up arrow");
-        this.textAreaDetails.appendText("\n");
         displayAllLCS(tempArrayForDisplayResult, this.size, this.size, costForLCS);
 
     }
@@ -347,7 +348,7 @@ public class Driver implements Initializable {
 
         String[] allLCS = new String[i]; // To store all unique LCS pairs
         int Index_For_All_LCS_Matrix = 0;
-
+        boolean notFound;
         // To visit through column rows that contain LCS number
         while (costForLCS[row][column] == costForLCS[i][j]) { // To check if the current number in the costForLCS matrix equal the LCS length
 
@@ -377,7 +378,7 @@ public class Driver implements Initializable {
                 }
 
                 // other LCS but unique
-                boolean notFound = true;
+                notFound = true;
 
                 // To check if current LCS is already exist
                 for (int p = 0; p < Index_For_All_LCS_Matrix; p++) {
