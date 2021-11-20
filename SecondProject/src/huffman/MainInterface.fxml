@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="770.0" prefWidth="1200.0" style="-fx-background-color: #ffffff;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="huffman.Driver">
+<AnchorPane prefHeight="770.0" prefWidth="1200.0" style="-fx-background-color: #ffffff;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="huffman.MainInterfaceController">
    <children>
       <VBox alignment="CENTER" layoutX="455.0" layoutY="14.0" prefHeight="160.0" prefWidth="264.0" spacing="20.0" style="-fx-background-color: #ffffff;">
          <children>

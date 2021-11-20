@@ -17,6 +17,9 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+/**
+ * This class to display alert message
+ */
 public abstract class Message {
 
     public static void displayMessage(String title, String massage) {

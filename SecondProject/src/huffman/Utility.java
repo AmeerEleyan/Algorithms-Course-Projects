@@ -5,9 +5,14 @@
  */
 package huffman;
 
+/**
+ * This class contains three methods that are
+ * used in several other classes more than once
+ */
 public abstract class Utility {
 
-    public static String byteToString(byte b) {
+    // Convert byte to binary sting of 8 bits
+    public static String byteToString(final byte b) {
         byte[] masks = {-128, 64, 32, 16, 8, 4, 2, 1};
         StringBuilder builder = new StringBuilder();
         for (byte m : masks) {
@@ -20,39 +25,23 @@ public abstract class Utility {
         return builder.toString();
     }
 
-    public static byte stringToByte(String s){
+    // Convert binary string of 8 bits to byte value
+    public static byte stringToByte(final String s) {
         return (byte) (int) Integer.valueOf(s, 2);
     }
 
-    public static int getLengthOfHuffmanCode(String lengthForTwoByte, boolean part) {
-        // if part == true, I return first 4 bit as int
-        // if part == false, I return second 4 bit as int
-        //String huff = byteToString(b);
-        byte[] as4Bits = {8, 4, 2, 1};
-        int length = 0;
-        if (part) {
-            for (byte i = 0; i < 4; i++) {
-                if (lengthForTwoByte.charAt(i) == '1') length += as4Bits[i];
-            }
-        } else {
-            for (byte i = 4; i < 8; i++) {
-                if (lengthForTwoByte.charAt(i) == '1') length += as4Bits[i - 4];
-            }
-        }
-        return length;
-    }
-
-    public static byte[] getFileLengthAsBytes(String binaryString) {
-
+    // Convert file size to array of 4 bytes
+    public static byte[] getFileLengthAsBytes(final String binaryString) {
         byte[] bytes = new byte[4]; // number of digits
-        bytes[0] = (byte) (int) Integer.valueOf(binaryString.substring(0, 8), 2);
-        bytes[1] = (byte) (int) Integer.valueOf(binaryString.substring(8, 16), 2);
-        bytes[2] = (byte) (int) Integer.valueOf(binaryString.substring(16, 24), 2);
-        bytes[3] = (byte) (int) Integer.valueOf(binaryString.substring(24, 32), 2);
+        bytes[0] = stringToByte(binaryString.substring(0, 8));
+        bytes[1] = stringToByte(binaryString.substring(8, 16));
+        bytes[2] = stringToByte(binaryString.substring(16, 24));
+        bytes[3] = stringToByte(binaryString.substring(24, 32));
         return bytes;
     }
 
-    public static String getFileLengthAsString(byte[] length) {
+    // Convert file size from 4 byte to string to print it in the for the header TextArea
+    public static String getFileLengthAsString(final byte[] length) {
         StringBuilder len = new StringBuilder();
         for (byte b : length) {
             len.append((char) b);

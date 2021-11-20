@@ -26,11 +26,11 @@ public class HuffmanDecompress {
             int read = fis.read(buffer, 0, remaining);
 
 
-            StringBuilder fileExtension = new StringBuilder("");
+            StringBuilder fileExtension = new StringBuilder();
 
             ReadFileToDecompress decompress = new ReadFileToDecompress();
 
-            short beginningIndexOfHuffmanCode = (short) decompress.getHuffmanRootOfHuffmanTree(buffer, fileExtension);
+            short beginningIndexOfHuffmanCode = (short) decompress.getStartIndexOfHuffmanCode(buffer, fileExtension);
 
             Node root = decompress.getRoot();
             int originalFileLength = decompress.getOriginalFileLength();
@@ -46,7 +46,7 @@ public class HuffmanDecompress {
             int indexOfBufferWriter = 0;
 
             Node current = root;
-            String binaryString = "";
+            StringBuilder binaryString = new StringBuilder();
 
             byte tempI = 0;
             boolean headerWasBuilt = false;
@@ -60,8 +60,7 @@ public class HuffmanDecompress {
                             headerWasBuilt = true;
                         }
                         do {
-                            if (current == null) break;
-                            binaryString = binaryString + Utility.byteToString(buffer[beginningIndexOfHuffmanCode++]);
+                            binaryString.append(Utility.byteToString(buffer[beginningIndexOfHuffmanCode++]));
                             for (byte i = tempI; i < binaryString.length(); i++) {
                                 if (binaryString.charAt(i) == '0') {
                                     current = current.getLeftChild();
@@ -72,10 +71,10 @@ public class HuffmanDecompress {
                                     break; // end of huffman codef
                                 }
                                 if (current.isLeaf()) {
-                                    bufferWriter[indexOfBufferWriter++] = current.getBytes();
+                                    bufferWriter[indexOfBufferWriter++] = current.getTheByte();
                                     current = root;
                                     myLength++;
-                                    binaryString = binaryString.substring(i + 1);
+                                    binaryString = new StringBuilder(binaryString.substring(i + 1));
                                     i = -1;
                                 }
                                 if (indexOfBufferWriter == 1024) {
@@ -98,7 +97,7 @@ public class HuffmanDecompress {
                         beginningIndexOfHuffmanCode = 0;
                     }
                     do {
-                        binaryString = binaryString + Utility.byteToString(buffer[beginningIndexOfHuffmanCode++]);
+                        binaryString.append(Utility.byteToString(buffer[beginningIndexOfHuffmanCode++]));
                         for (byte i = tempI; i < binaryString.length(); i++) {
                             if (binaryString.charAt(i) == '0') {
                                 current = current.getLeftChild();
@@ -106,10 +105,10 @@ public class HuffmanDecompress {
                                 current = current.getRightChild();
                             }
                             if (current.isLeaf()) {
-                                bufferWriter[indexOfBufferWriter++] = current.getBytes();
+                                bufferWriter[indexOfBufferWriter++] = current.getTheByte();
                                 current = root;
                                 myLength++;
-                                binaryString = binaryString.substring(i + 1);
+                                binaryString = new StringBuilder(binaryString.substring(i + 1));
                                 i = -1; // because when again loop will increment
                             }
                             if (indexOfBufferWriter == 1024) {

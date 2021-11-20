@@ -11,7 +11,7 @@ public class ReadFileToDecompress {
     private byte[] huffmanLengths;
     private byte[] huffmanRepresentationBytes;
 
-    public int getHuffmanRootOfHuffmanTree(final byte[] buffer, StringBuilder fileExtension) {
+    public int getStartIndexOfHuffmanCode(final byte[] buffer, StringBuilder fileExtension) {
         int beginning = decompress(buffer, fileExtension);
         this.huffRepresentation = new String[this.fileBytes.length];
         buildTwoMainArray();
@@ -58,7 +58,7 @@ public class ReadFileToDecompress {
                         current = current.getRightChild();
                     }
                 }
-                current.setBytes(bytes[i]);
+                current.setTheByte(bytes[i]);
             }
 
         }
@@ -68,24 +68,24 @@ public class ReadFileToDecompress {
 
     private int decompress(final byte[] buffer, StringBuilder fileExtension) {
 
-        String length = "";
+        StringBuilder length = new StringBuilder();
 
-        boolean isHuffmanLengthIHave = false;
-        int hlSize = 0;
-        int fbSize = 0; // file bytes
+        int hlSize;
+        int fbSize; // file bytes
         int hrSize;
 
 
         boolean getFileExtension = false;
         short i = 0;
-        while(true){
+        while (true) {
             // get file length from first 4 bytes
             if (i < 4) {
-                length += Utility.byteToString(buffer[i++]);
+                assert length != null;
+                length.append(Utility.byteToString(buffer[i++]));
                 continue;
             } else if (i == 4) {
                 assert length != null;
-                this.originalFileLength = Integer.parseInt(length, 2);
+                this.originalFileLength = Integer.parseInt(length.toString(), 2);
                 length = null;
             }
 
@@ -135,7 +135,7 @@ public class ReadFileToDecompress {
     }
 
     private String getHuffmanRepresentationBytesAsSting() {
-        StringBuilder s = new StringBuilder("");
+        StringBuilder s = new StringBuilder();
         for (byte b : huffmanRepresentationBytes) {
             s.append(Utility.byteToString(b));
         }

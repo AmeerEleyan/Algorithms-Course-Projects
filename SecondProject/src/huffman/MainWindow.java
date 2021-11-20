@@ -1,7 +1,7 @@
 /**
  * @author: Ameer Eleyan
  * ID: 1191076
- * At: 10/30/2021   1:00 AM
+ * At: 10/29/2021   1:00 AM
  */
 package huffman;
 
@@ -14,9 +14,11 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.util.Objects;
 
-public class GUI extends Application {
+/**
+ * This class used to load fxml page in window
+ */
+public class MainWindow extends Application {
 
-    public Parent root;
     public static Stage window;
 
     public static void main(String[] args) {
@@ -26,7 +28,7 @@ public class GUI extends Application {
     @Override
     public void start(Stage primaryStage) throws IOException {
         window = primaryStage;
-        root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("MainInterface.fxml")));
+        Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("MainInterface.fxml")));
         window.setTitle("Huffman");
         window.setScene(new Scene(root));
         window.setResizable(false);

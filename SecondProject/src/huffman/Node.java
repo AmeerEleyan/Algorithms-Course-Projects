@@ -5,18 +5,27 @@
  */
 package huffman;
 
+/**
+ * This class contain 4 attributes:
+ *      - The byte that inside the tree node
+ *      - The frequency of this byte
+ *      - The left child of this node
+ *      - The right child of this node
+ * This class used to build Huffman tree
+ */
 public class Node implements Comparable<Node> {
-    private byte bytes;
+
+    private byte theByte;
     private int frequency;
     private Node leftChild;
     private Node rightChild;
 
-    public Node(final byte bytes) {
-        this.bytes = bytes;
+    public Node(final byte theByte) {
+        this.theByte = theByte;
     }
 
-    public Node(final byte bytes, final int frequency, final Node left, final Node right) {
-        this.bytes = bytes;
+    public Node(final byte theByte, final int frequency, final Node left, final Node right) {
+        this.theByte = theByte;
         this.frequency = frequency;
         this.leftChild = left;
         this.rightChild = right;
@@ -26,12 +35,12 @@ public class Node implements Comparable<Node> {
         return this.leftChild == null && this.rightChild == null;
     }
 
-    public byte getBytes() {
-        return this.bytes;
+    public byte getTheByte() {
+        return this.theByte;
     }
 
-    public void setBytes(byte bytes) {
-        this.bytes = bytes;
+    public void setTheByte(byte theByte) {
+        this.theByte = theByte;
     }
 
     public int getFrequency() {
@@ -63,13 +72,13 @@ public class Node implements Comparable<Node> {
         int frequencyComparison = Integer.compare(this.frequency, that.frequency);
         if (frequencyComparison != 0)
             return frequencyComparison;
-        return Byte.compare(this.bytes, that.bytes);
+        return Byte.compare(this.theByte, that.theByte);
     }
 
     @Override
     public String toString() {
         return "Node{" +
-                "bytes=" + bytes +
+                "bytes=" + theByte +
                 ", frequency=" + frequency +
                 ", leftChild=" + leftChild +
                 ", rightChild=" + rightChild +

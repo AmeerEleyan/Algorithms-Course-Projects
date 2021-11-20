@@ -1,32 +1,47 @@
+/**
+ * @author: Ameer Eleyan
+ * ID: 1191076
+ * At: 10/30/2021   7:15 PM
+ */
 package huffman;
 
+/**
+ * This class contain 4 attributes:
+ *      - the byte.
+ *      - frequency of this byte.
+ *      - Huffman code of this byte.
+ *      - Huffman code length of this byte.
+ * This class used when compress and decompress file process to help us
+ *  to encode and decode.
+ */
 public class StatisticsTable {
-    private byte ASCII;
+
+    private byte theByte;
     private int frequency;
     private String huffmanCode;
-    private byte huffmanLength;
+    private byte huffmanCodeLength;
 
 
-    public StatisticsTable(byte ASCII, int frequency, String variableLength, byte huffmanLength) {
-        this.ASCII = ASCII;
+    public StatisticsTable(final byte theByte, final int frequency, final String variableLength, final byte huffmanCodeLength) {
+        this.theByte = theByte;
         this.frequency = frequency;
         this.huffmanCode = variableLength;
-        this.huffmanLength = huffmanLength;
+        this.huffmanCodeLength = huffmanCodeLength;
     }
 
-    public byte getASCII() {
-        return this.ASCII;
+    public byte getTheByte() {
+        return this.theByte;
     }
 
-    public void setASCII(byte ASCII) {
-        this.ASCII = ASCII;
+    public void setTheByte(final byte theByte) {
+        this.theByte = theByte;
     }
 
     public int getFrequency() {
         return this.frequency;
     }
 
-    public void setFrequency(int frequency) {
+    public void setFrequency(final int frequency) {
         this.frequency = frequency;
     }
 
@@ -34,15 +49,15 @@ public class StatisticsTable {
         return this.huffmanCode;
     }
 
-    public byte getHuffmanLength() {
-        return this.huffmanLength;
+    public byte getHuffmanCodeLength() {
+        return this.huffmanCodeLength;
     }
 
-    public void setHuffmanLength(byte huffmanLength) {
-        this.huffmanLength = huffmanLength;
+    public void setHuffmanCodeLength(final byte huffmanCodeLength) {
+        this.huffmanCodeLength = huffmanCodeLength;
     }
 
-    public void setHuffmanCode(String huffmanCode) {
+    public void setHuffmanCode(final String huffmanCode) {
         this.huffmanCode = huffmanCode;
     }
 
@@ -50,10 +65,10 @@ public class StatisticsTable {
     @Override
     public String toString() {
         return "StatisticsTable{" +
-                "ASCII=" + ASCII +
+                "ASCII=" + theByte +
                 ", frequency=" + frequency +
                 ", huffmanCode='" + huffmanCode + '\'' +
-                ", huffmanLength=" + huffmanLength +
+                ", huffmanLength=" + huffmanCodeLength +
                 '}';
     }
 }

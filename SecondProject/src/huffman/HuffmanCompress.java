@@ -8,6 +8,35 @@ package huffman;
 import java.io.*;
 import java.util.PriorityQueue;
 
+/**
+ * This class contains several steps:
+ * 1- First, read the file, every 1024 bytes is read separately, after that,
+ * the frequency of each byte is counted. This process continues until all the
+ * file has been read. And build the frequency array.
+ * 2- Build Huffman tree using Queue depending on the frequency array
+ * ,and set the bytes that was found in the file in the leaf's of this tree.
+ * 3- Build Statistic table which contain the byte(leaf node) and his frequency, Huffman code, Huffman code Length.
+ * 4- Starting read the file again, to start encode process and print it to a new file has extension .huf .
+ * 5- Get the file size and file extension from previous step.
+ * 6- Convert the file size to 4 byte. And convert the file extension to array of bytes.
+ * 7- Starting print in the header of the huf file.
+ * 8- Print the 4 bytes from previous step and the array and '\n' to the huf file.
+ * 9- From the statistic table and number of node I build 2D array using getHeader method.
+ * a- first row of this array represent the huffman code length for each byte.
+ * b- second row, represent the bytes was found in the file(leaf node).
+ * c- Based on the first row, all 8 bits of the Huffman code are grouped into a bytes,
+ * and put them in third row.
+ * d- return this array.
+ * 10- Print the length of the first row from 2D array as one byte to the huf file, then print first row itself.
+ * 11- Print the length of the second row from 2D array as one byte to the huf file, then print second row itself.
+ * 13- Print the length of the third row from 2D array as two byte to the huf file, then print third row itself.
+ * 14- Starting to encode the file content:
+ * a- get the byte from the buffer
+ * b- get the huffman code for this byte.
+ * c- group this codes in bytes.
+ * d- when the buffer become full(1024 byte), It is printed in the file
+ * e- read another 1024 byte from the file until all the file has been read and encoded
+ */
 public class HuffmanCompress {
     private final int ALPHABET_SIZE = 256;
     private StatisticsTable[] huffmanTable;
@@ -22,7 +51,6 @@ public class HuffmanCompress {
         huffmanTable = new StatisticsTable[ALPHABET_SIZE];
         getHuffmanCode(root, "");
         printToFile(sourceFile);
-
     }
 
 
@@ -34,18 +62,21 @@ public class HuffmanCompress {
         return this.fullHeaderAsString;
     }
 
+    // Read the file every 1024 bytes is read separately, and get the frequencies for them
     private int[] buildFrequenciesOfTheBytes(final File sourceFile) {
         int[] frequencies = new int[ALPHABET_SIZE];
         try {
-            FileInputStream fis = new FileInputStream(sourceFile);
+            FileInputStream reader = new FileInputStream(sourceFile);
 
             byte[] buffer = new byte[1024]; // number of bytes can be read
 
             // remaining is the number of bytes to read to fill the buffer
             short remaining = (short) buffer.length;
-
+            int read;
             while (true) {
-                int read = fis.read(buffer, buffer.length - remaining, remaining);
+                read = reader.read(buffer, buffer.length - remaining, remaining);
+                // read methode return the total number of bytes read into the buffer, or -1 if there is no more
+                // data because the end of the file has been reached.
                 if (read >= 0) { // some bytes were read
                     remaining -= read;
                     if (remaining == 0) { // the buffer is full
@@ -56,15 +87,13 @@ public class HuffmanCompress {
                     }
                 } else {
                     // the end of the sourceFile was reached. If some bytes are in the buffer
-
                     for (int i = 0; i < buffer.length - remaining; i++) {
                         frequencies[buffer[i] + 128]++;
                     }
-
                     break;
                 }
             }
-            fis.close();
+            reader.close();
             return frequencies;
         } catch (IOException e) {
             Message.displayMessage("Warning", e.getMessage());
@@ -78,14 +107,15 @@ public class HuffmanCompress {
         if (frequencies != null) {
 
             PriorityQueue<Node> priorityQueue = new PriorityQueue<>();
-            for (int i = 0; i < ALPHABET_SIZE; i++) { // start from -128 to the 127 because it's the range of th byte
+            for (int i = 0; i < ALPHABET_SIZE; i++) {
                 if (frequencies[i] > 0) {
                     priorityQueue.add(new Node((byte) (i - 128), frequencies[i], null, null));
                     numberOfNodes++;
                 }
             }
 
-            while (priorityQueue.size() > 1) { // O(nlogn)
+            // O(nlogn)
+            while (priorityQueue.size() > 1) { // > 1, to for the ability to poll twice from queue
                 Node left = priorityQueue.poll();
                 Node right = priorityQueue.poll();
                 assert right != null;
@@ -94,7 +124,6 @@ public class HuffmanCompress {
 
             }
 
-            assert priorityQueue.peek() != null;
             return priorityQueue.peek();
         }
         return null;
@@ -103,7 +132,7 @@ public class HuffmanCompress {
     // build huffman code for each byte recursive
     private void getHuffmanCode(Node node, String code) {
         if (node.isLeaf()) {
-            huffmanTable[node.getBytes() + 128] = new StatisticsTable(node.getBytes(), node.getFrequency(), code, (byte) code.length());
+            huffmanTable[node.getTheByte() + 128] = new StatisticsTable(node.getTheByte(), node.getFrequency(), code, (byte) code.length());
         } else {
             getHuffmanCode(node.getLeftChild(), code + "0");
             getHuffmanCode(node.getRightChild(), code + "1");
@@ -111,54 +140,60 @@ public class HuffmanCompress {
     }
 
 
+    // Read the file again, and print the header and staring to encode process
     private void printToFile(final File sourceFile) {
 
+        // get the path of the file and his extension
         byte indexOfDot = (byte) sourceFile.getAbsolutePath().lastIndexOf('.');
         String newFilePath = sourceFile.getAbsolutePath().substring(0, indexOfDot + 1) + "huf";
         String fileExtension = sourceFile.getAbsolutePath().substring(indexOfDot + 1);
         byte[] fileExtensionBytes = fileExtension.getBytes();
         int lengthOfFile = (int) sourceFile.length();
+
         try {
 
-            // ******* print the extension to the destination file *********************
-            FileOutputStream fos = new FileOutputStream(newFilePath);
+            FileOutputStream writer = new FileOutputStream(newFilePath);
+
+            // ***************************** Start of the header **********************
 
             // print the file length in bytes ( 4 bytes)
             String l = Integer.toBinaryString(lengthOfFile);
             l = "0".repeat(32 - l.length()) + l;
             byte[] lengthInBytes = Utility.getFileLengthAsBytes(l);
-            fos.write(lengthInBytes, 0, 4);
-
+            writer.write(lengthInBytes, 0, 4);
 
             // print the file extension
-            fos.write(fileExtensionBytes, 0, fileExtensionBytes.length);
-            fos.write('\n');
+            writer.write(fileExtensionBytes, 0, fileExtensionBytes.length);
+            writer.write('\n');
 
-
-            // new
+            // get the 2D array (huffmanBuffer code length, bytes, huffmanBuffer code)
             byte[][] header = this.getHeader(huffmanTable, numberOfNodes);
 
+            // set the header in string to display it in the TextArea in the window
             this.fullHeaderAsString = Utility.getFileLengthAsString(lengthInBytes); // file length
             this.fullHeaderAsString += (fileExtension + "\n");// file extension
             this.fullHeaderAsString += getHeaderAsString(header);
 
-            fos.write(header[0].length); // lengths
-            fos.write(header[0], 0, header[0].length);
+            // print length of the first row(huffmanBuffer code length), then the row itself to the huf file
+            writer.write(header[0].length);
+            writer.write(header[0], 0, header[0].length);
 
-            fos.write(header[1].length); // bytes
-            fos.write(header[1], 0, header[1].length);
+            // print length of the second row(bytes), then the row itself to the huf file
+            writer.write(header[1].length);
+            writer.write(header[1], 0, header[1].length);
 
-            int data2length = header[2].length;
-            String sLength = Integer.toBinaryString(data2length);
-            sLength = "0".repeat(16 - sLength.length()) + sLength;
+            // print length of the third row(huffmanBuffer code), then the row itself to the huf file
+            int twoByteLength = header[2].length;
+            String strTwoByte = Integer.toBinaryString(twoByteLength);
+            strTwoByte = "0".repeat(16 - strTwoByte.length()) + strTwoByte;
             byte[] tempByte = new byte[2];
-            tempByte[0] = Utility.stringToByte(sLength.substring(0, 8));
-            tempByte[1] = Utility.stringToByte(sLength.substring(8));
+            tempByte[0] = Utility.stringToByte(strTwoByte.substring(0, 8));
+            tempByte[1] = Utility.stringToByte(strTwoByte.substring(8));
 
-            fos.write(tempByte, 0, 2); /// huffman
-            fos.write(header[2], 0, data2length);
+            writer.write(tempByte, 0, 2);
+            writer.write(header[2], 0, twoByteLength);
 
-            // ********** end of the header ********************
+            // ********************* end of the header ****************************
 
 
             // ************** encode the file and print to the output file ************
@@ -170,12 +205,13 @@ public class HuffmanCompress {
             // remaining is the number of bytes to read to fill the buffer
             short remaining = (short) buffer.length;
 
-            byte[] huffman = new byte[1024];
-            short index = 0; // used for the above huffman array
-            String remainingBits = "";
+            byte[] huffmanBuffer = new byte[1024];
+            short index = 0, read;
+            StringBuilder remainingBits = new StringBuilder();
             String huffmanBits;
+
             while (true) {
-                short read = (short) fis.read(buffer, buffer.length - remaining, remaining);
+                read = (short) fis.read(buffer, buffer.length - remaining, remaining);
                 if (read >= 0) { // some bytes were read
                     remaining -= read;
                     if (remaining == 0) { // the buffer is full
@@ -183,65 +219,65 @@ public class HuffmanCompress {
                             huffmanBits = remainingBits + huffmanTable[b + 128].getHuffmanCode();
 
                             if (huffmanBits.length() >= 8) {
-                                remainingBits = huffmanBits.substring(8); // to store bit above than index 7
-                                byte huffmanByte = Utility.stringToByte(huffmanBits.substring(0, 8));
-                                huffman[index++] = huffmanByte;
+                                // to store the bits above than index 7
+                                remainingBits = new StringBuilder(huffmanBits.substring(8));
+                                huffmanBuffer[index++] = Utility.stringToByte(huffmanBits.substring(0, 8));
                                 if (index == 1024) {
-                                    fos.write(huffman, 0, 1024);
+                                    writer.write(huffmanBuffer, 0, 1024);
                                     index = 0;
                                 }
                             } else {
-                                remainingBits = huffmanBits;
+                                remainingBits = new StringBuilder(huffmanBits);
                             }
 
                         }
                         remaining = (short) buffer.length;
                     }
                 } else {
+
                     // the end of the file was reached. If some bytes are in the buffer
 
                     for (int i = 0; i < buffer.length - remaining; i++) { // for the remaining bytes
                         huffmanBits = remainingBits + huffmanTable[buffer[i] + 128].getHuffmanCode();
 
                         if (huffmanBits.length() >= 8) {
-                            remainingBits = huffmanBits.substring(8); // to store bit above than index 7
-                            byte huffmanByte = Utility.stringToByte(huffmanBits.substring(0, 8));
-                            huffman[index++] = huffmanByte;
-                            if (index == 1024) {
-                                fos.write(huffman, 0, 1024);
+                            remainingBits = new StringBuilder(huffmanBits.substring(8)); // to store bit above than index 7
+                            huffmanBuffer[index++] = Utility.stringToByte(huffmanBits.substring(0, 8));
+                            if (index == 1024) { // maybe the huffmanBuffer code for these bytes when grouped reach 1024 byte
+                                writer.write(huffmanBuffer, 0, 1024);
                                 index = 0;
                             }
                         } else {
-                            remainingBits = huffmanBits;
+                            remainingBits = new StringBuilder(huffmanBits);
                         }
                     }
 
                     String temp;
+                    int length;
                     while (remainingBits.length() != 0) {
-                        int length = remainingBits.length();
+                        length = remainingBits.length();
                         if (length < 8) {
                             temp = remainingBits.substring(length);
-                            remainingBits += ("0".repeat(8 - length));
+                            remainingBits.append("0".repeat(8 - length));
                         } else {
                             temp = remainingBits.substring(8);
-                            remainingBits = remainingBits.substring(0, 8);
+                            remainingBits = new StringBuilder(remainingBits.substring(0, 8));
                         }
-                        byte huffmanByte = Utility.stringToByte(remainingBits);
-                        huffman[index++] = huffmanByte;
+                        huffmanBuffer[index++] = Utility.stringToByte(remainingBits.toString());
                         if (index == 1024) {
-                            fos.write(huffman, 0, 1024);
+                            writer.write(huffmanBuffer, 0, 1024);
                             index = 0;
                         }
-                        remainingBits = temp;
+                        remainingBits = new StringBuilder(temp);
                     }
                     break;
                 }
             }
-            if (index > 0) {
-                fos.write(huffman, 0, index);
+            if (index > 0) { // huffmanBuffer still contain bytes
+                writer.write(huffmanBuffer, 0, index);
             }
             fis.close();
-            fos.close();
+            writer.close();
         } catch (IOException e) {
             Message.displayMessage("Warning", e.getMessage());
         }
@@ -250,74 +286,74 @@ public class HuffmanCompress {
 
     private byte[][] getHeader(StatisticsTable[] huffmanTable, int numberOfNodes) {
 
-        byte[][] bytes = new byte[3][];
+        byte[][] header = new byte[3][];
 
         // ***********************************************************************************
 
-        // get  huffmanTable length for each leaf node
+        // get  huffman code length for each leaf node
         byte[] lengths = new byte[numberOfNodes];
         int index = 0;
         int sumOfBitsLength = 0;
         for (StatisticsTable b : huffmanTable) {
             if (b != null) {
-                lengths[index++] = b.getHuffmanLength();
-                sumOfBitsLength += b.getHuffmanLength();
+                lengths[index++] = b.getHuffmanCodeLength();
+                sumOfBitsLength += b.getHuffmanCodeLength();
             }
         }
 
-        System.err.println(sumOfBitsLength);
-        bytes[0] = lengths; // to store the length of each Huffman code in the leaf node
+        header[0] = lengths; // to store the length of each Huffman code
 
         // ***********************************************************************************
 
-        // fill byte of each leaf node
-        byte[] asciiArray = new byte[numberOfNodes];
+        // get the header from leaf node
+        byte[] bytes = new byte[numberOfNodes];
         for (int iLoop = 0, iIndex = 0; iLoop < huffmanTable.length; iLoop++) {
             if (huffmanTable[iLoop] != null) {
-                asciiArray[iIndex++] = huffmanTable[iLoop].getASCII();
+                bytes[iIndex++] = huffmanTable[iLoop].getTheByte();
             }
         }
-        bytes[1] = asciiArray; // store all byte of leaf nodes
+        header[1] = bytes; // store all byte of leaf nodes
 
         // ***********************************************************************************
 
-        // to calculate how many bytes exactly I need  to store Huffman code for each leaf node
+        // to calculate how many byte exactly I need to store Huffman code for each leaf node
         byte[] huffmanCodeForLeaf;
         if (sumOfBitsLength % 8 == 0)
             huffmanCodeForLeaf = new byte[sumOfBitsLength / 8];
         else huffmanCodeForLeaf = new byte[(sumOfBitsLength / 8) + 1];
 
-        String huff = "";
+        StringBuilder strBits = new StringBuilder();
         byte b;
-        int iIndex = 0;
+        int huffIndex = 0;
         for (StatisticsTable statisticsTable : huffmanTable) {
             if (statisticsTable != null) {
-                huff += statisticsTable.getHuffmanCode();
-                if (huff.length() >= 8) {
-                    b = Utility.stringToByte(huff.substring(0, 8));
-                    huffmanCodeForLeaf[iIndex++] = b;
-                    huff = huff.substring(8);
+                strBits.append(statisticsTable.getHuffmanCode());
+                if (strBits.length() >= 8) {
+                    b = Utility.stringToByte(strBits.substring(0, 8));
+                    huffmanCodeForLeaf[huffIndex++] = b;
+                    strBits = new StringBuilder(strBits.substring(8));
                 }
 
             }
         }
-        while (huff.length() > 0) {
-            if (huff.length() >= 8) {
-                b = Utility.stringToByte(huff.substring(0, 8));
-                huff = huff.substring(8);
-                huffmanCodeForLeaf[iIndex++] = b;
+        // the strBits contain bits
+        while (strBits.length() > 0) {
+            if (strBits.length() >= 8) {
+                b = Utility.stringToByte(strBits.substring(0, 8));
+                strBits = new StringBuilder(strBits.substring(8));
+                huffmanCodeForLeaf[huffIndex++] = b;
             } else {
-                b = Utility.stringToByte(huff + "0".repeat(8 - huff.length()));
-                huffmanCodeForLeaf[iIndex] = b;
-                huff = "";
+                b = Utility.stringToByte(strBits + "0".repeat(8 - strBits.length()));
+                huffmanCodeForLeaf[huffIndex] = b;
+                strBits = new StringBuilder();
             }
         }
 
-        bytes[2] = huffmanCodeForLeaf; // To store Huffman representation for all bytes in  leaf nodes
+        header[2] = huffmanCodeForLeaf; // To store Huffman representation for all leaf nodes
 
         // ***********************************************************************************
 
-        return bytes;
+        return header;
     }
 
     public void returnDefault() {
@@ -327,20 +363,31 @@ public class HuffmanCompress {
         numberOfNodes = 0;
     }
 
+    // Get the 2D array as sting to display it in the TextArea
     private String getHeaderAsString(byte[][] header) {
 
         StringBuilder head = new StringBuilder();
 
-        for (byte[] bytes : header) {
-            head.append(bytes.length); // size of each
+        for (byte i = 0; i < 3; i++) {
+            if (i == 2) {
+                int twoByteLength = header[i].length;
+                String strTwoByte = Integer.toBinaryString(twoByteLength);
+                strTwoByte = "0".repeat(16 - strTwoByte.length()) + strTwoByte;
+                byte[] tempByte = new byte[2];
+                tempByte[0] = Utility.stringToByte(strTwoByte.substring(0, 8));
+                tempByte[1] = Utility.stringToByte(strTwoByte.substring(8));
+                head.append((char) tempByte[0]);
+                head.append((char) tempByte[1]);
+            } else {
+                head.append((char) header[i].length); // size of each
+            }
             // first row: represent lengths for huffman code
             // second row : represent all bytes
             // third row: represent all huffman code
-            for (byte aByte : bytes) {
+            for (byte aByte : header[i]) {
                 head.append((char) aByte); // huffman code for each byte
             }
         }
-
         return head.toString();
     }
 
