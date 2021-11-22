@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.ResourceBundle;
 import java.util.Scanner;
 
@@ -243,6 +244,7 @@ public class Driver implements Initializable {
         this.textAreaDetails.clear();
         this.textAreaForData.clear();
         this.textAreaForResult.clear();
+        this.textAreaResults.clear();
         this.btTryAnotherData.setDisable(true);
     }
 
@@ -251,14 +253,14 @@ public class Driver implements Initializable {
      * using  Dynamic programming approach which takes the O (N * M) time complexity,
      * the following relation represent the code. Then Display the result
      * <p>
-     * ________
-     * |
-     * |  0                                                        if ( i = 0 ) OR ( j = 0 )
-     * costForLCS[i.j]  = |
-     * |  costForLCS [ i-1, j-1 ] + 1                              if xi = yj
-     * |
-     * |  max ( costForLCS [ i-1, j ], costForLCS [ i , j-1 ] )    if xi ≠ yj
-     * |________
+     *                      ________
+     *                     |
+     *                     |  0                                                        if ( i = 0 ) OR ( j = 0 )
+     * costForLCS[i.j]  =  |
+     *                     |  costForLCS [ i-1, j-1 ] + 1                              if xi = yj
+     *                     |
+     *                     |  max ( costForLCS [ i-1, j ], costForLCS [ i , j-1 ] )    if xi ≠ yj
+     *                     |________
      **/
     public void longestCommonSubsequence() {
 
@@ -285,7 +287,10 @@ public class Driver implements Initializable {
             }
         }
 
-        // View table
+        displayAllLCS(tempArrayForDisplayResult, this.size, this.size, costForLCS);
+
+        // View details of the results
+        this.textAreaDetails.appendText("\t");
         this.textAreaResults.appendText("\t");
         for (int i = 0; i < this.size + 1; i++) {
 
@@ -295,32 +300,13 @@ public class Driver implements Initializable {
                     and instead of them will be filled with Led word in the row,
                     and Power word in the column
                 */
-                if (i == 0 && j < this.size)
-                    textAreaResults.appendText("\t\t" + "Led-" + this.LEDs[j]);//this.size => Led7 print
-                else if (j == 0) textAreaResults.appendText("Power-" + i + "\t\t");
-
-
-                if ((j > 0) && (i > 0)) // Display values after fill first row and first column
-                    textAreaResults.appendText(" " + costForLCS[i][j] + " \t  \t  \t");
-            }
-
-            this.textAreaResults.appendText("\n");
-        }
-
-        // View details of the results
-        this.textAreaDetails.appendText("\t");
-        for (int i = 0; i < this.size + 1; i++) {
-
-            for (int j = 0; j < this.size + 1; j++) {
-
-                /* The first row and first column which was zero value will be skipped
-                    and instead of them will be filled with Led word in the row,
-                    and Power word in the column
-                */
-                if (i == 0 && j < this.size)
-                    textAreaDetails.appendText("\t\t" + "Led-" + this.LEDs[j]);//this.size => Led7 print
-                else if (j == 0) textAreaDetails.appendText("Power-" + i + "\t\t");
-
+                if (i == 0 && j < this.size) {
+                    textAreaDetails.appendText("\t\t" + "Led-" + this.LEDs[j]);
+                    textAreaResults.appendText("\t\t" + "Led-" + this.LEDs[j]);
+                } else if (j == 0) {
+                    textAreaDetails.appendText("Power-" + i + "\t\t");
+                    textAreaResults.appendText("Power-" + i + "\t\t");
+                }
 
                 if ((j > 0) && (i > 0)) {// Display values after fill first row and first column
                     char arrow = '←';
@@ -330,13 +316,15 @@ public class Driver implements Initializable {
                         arrow = '↑';
                     }
                     textAreaDetails.appendText(" " + arrow + " \t  \t  \t");
+                    textAreaResults.appendText(" " + costForLCS[i][j] + " \t  \t  \t");
                 }
 
             }
 
             this.textAreaDetails.appendText("\n");
+            this.textAreaResults.appendText("\n");
         }
-        displayAllLCS(tempArrayForDisplayResult, this.size, this.size, costForLCS);
+
 
     }
 
@@ -346,8 +334,8 @@ public class Driver implements Initializable {
         int row = i; // to looping for all row have the LCS number(costForLCS[size][size])
         int column = j;// to looping for all column have the LCS number(costForLCS[size][size])
 
-        String[] allLCS = new String[i]; // To store all unique LCS pairs
-        int Index_For_All_LCS_Matrix = 0;
+        // To store all unique LCS pairs
+        LinkedList<String> allLCS = new LinkedList<>();
         boolean notFound;
         // To visit through column rows that contain LCS number
         while (costForLCS[row][column] == costForLCS[i][j]) { // To check if the current number in the costForLCS matrix equal the LCS length
@@ -373,27 +361,13 @@ public class Driver implements Initializable {
                     else tempRow--;
                 }
 
-                if (column == j) { // first LCS
-                    allLCS[Index_For_All_LCS_Matrix] = pairs;
-                }
 
-                // other LCS but unique
-                notFound = true;
-
-                // To check if current LCS is already exist
-                for (int p = 0; p < Index_For_All_LCS_Matrix; p++) {
-                    if (pairs.equals(allLCS[p])) {
-                        notFound = false; // the solution does exist
-                        break;
-                    }
-                }
-
-                if (notFound) { // new solution not found(first appearance)
+                if (!allLCS.contains(pairs)) {
+                    allLCS.addFirst(pairs);
                     this.textAreaForResult.appendText("The best pairs to be connected are:\n");
                     this.textAreaForResult.appendText(pairs);
                     this.textAreaForResult.appendText("\nThus " + costForLCS[row][column] + " LEDs will be lighted");
                     this.textAreaForResult.appendText("\n\n----------------------OR----------------------\n\n");
-                    allLCS[Index_For_All_LCS_Matrix++] = pairs; // To store the unique current LCS in it's matrix
                 }
 
                 column--;
