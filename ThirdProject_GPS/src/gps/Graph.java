@@ -47,7 +47,7 @@ public class Graph {
 
     public void findShortestPath(String sourceCity, String destinationCity) {
 
-        int[] distance = new int[numberOfCities];
+        float[] distance = new float[numberOfCities];
         Arrays.fill(distance, Integer.MAX_VALUE);
 
         String[] path = new String[numberOfCities];
@@ -104,7 +104,9 @@ public class Graph {
     }
 
     // Add adjacent of the given city
-    public void addAdjacent(City city, City adjacent) {
+    public void addAdjacent(String parentName, String adjacentName) {
+        City city = hashMap.get(parentName.trim()).getCity();
+        City adjacent = hashMap.get(adjacentName.trim()).getCity();
         if (hashMap.get(city.getCityName()) != null)
             hashMap.get(city.getCityName()).addAdjacent(adjacent);
     }

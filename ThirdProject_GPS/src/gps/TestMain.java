@@ -17,16 +17,16 @@ public class TestMain {
 
         Graph graph = new Graph(cities);
 
-        graph.addAdjacent(cities[0], cities[1]);
-        graph.addAdjacent(cities[0], cities[3]);
-        graph.addAdjacent(cities[1], cities[2]);
-        graph.addAdjacent(cities[1], cities[4]);
-        graph.addAdjacent(cities[2], cities[4]);
-        graph.addAdjacent(cities[2], cities[3]);
-        graph.addAdjacent(cities[2], cities[5]);
-        graph.addAdjacent(cities[3], cities[5]);
-        graph.addAdjacent(cities[4], cities[5]);
-        graph.findShortestPath("City1","City6");
+        graph.addAdjacent("City1", "City2");
+        graph.addAdjacent("City1", "City4");
+        graph.addAdjacent("City2", "City3");
+        graph.addAdjacent("City2", "City5");
+        graph.addAdjacent("City3", "City5");
+        graph.addAdjacent("City3", "City4");
+        graph.addAdjacent("City3", "City6");
+        graph.addAdjacent("City4", "City6");
+        graph.addAdjacent("City5", "City6");
+         graph.findShortestPath("City1","City6");
 
 
     }

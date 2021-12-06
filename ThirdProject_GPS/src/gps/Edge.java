@@ -43,8 +43,8 @@ public class Edge {
     }
 
     private float getDistance(City sourceGraph, City destinationGraph) {
-        float differenceX = destinationGraph.getLayoutX() - sourceGraph.getLayoutX();
-        float distanceY = destinationGraph.getLayoutY() - sourceGraph.getLayoutY();
+        float differenceX = destinationGraph.getLayout_X_Map() - sourceGraph.getLayout_X_Map();
+        float distanceY = destinationGraph.getLayout_Y_Map() - sourceGraph.getLayout_Y_Map();
         return (float) Math.sqrt(Math.pow(differenceX, 2) + Math.pow(distanceY, 2));
     }
 

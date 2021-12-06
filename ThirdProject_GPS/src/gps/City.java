@@ -9,8 +9,11 @@ public class City implements Comparable<City> {
 
     // Attribute
     private String cityName;
-    private float layoutX;
-    private float layoutY;
+    private float layout_X_Map;
+    private float layout_Y_Map;
+
+    private float longitude;
+    private float latitude;
 
     // Empty constructor
     public City(String cityName) {
@@ -18,10 +21,16 @@ public class City implements Comparable<City> {
     }
 
     // Constructor with parameters
-    public City(String cityName, float layoutX, float layoutY) {
+    public City(String cityName, float longitude, float latitude) {
         this.cityName = cityName.trim();
-        this.layoutX = layoutX;
-        this.layoutY = layoutY;
+        this.longitude = longitude;
+        this.latitude = latitude;
+        //this.layout_X_Map = layout_X_Map;
+      //  this.layout_Y_Map = layout_Y_Map;
+    }
+
+    private float[] getLayout_X_MapFrom_longitude_latitude(float longitude, float latitude){
+        return  null;
     }
 
     public String getCityName() {
@@ -29,30 +38,46 @@ public class City implements Comparable<City> {
     }
 
     public void setCityName(String cityName) {
-        this.cityName = cityName.trim();
+        this.cityName = cityName;
     }
 
-    public float getLayoutX() {
-        return layoutX;
+    public float getLayout_X_Map() {
+        return layout_X_Map;
     }
 
-    public void setLayoutX(float layoutX) {
-        this.layoutX = layoutX;
+    public void setLayout_X_Map(float layout_X_Map) {
+        this.layout_X_Map = layout_X_Map;
     }
 
-    public float getLayoutY() {
-        return layoutY;
+    public float getLayout_Y_Map() {
+        return layout_Y_Map;
     }
 
-    public void setLayoutY(float layoutY) {
-        this.layoutY = layoutY;
+    public void setLayout_Y_Map(float layout_Y_Map) {
+        this.layout_Y_Map = layout_Y_Map;
+    }
+
+    public float getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(float longitude) {
+        this.longitude = longitude;
+    }
+
+    public float getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(float latitude) {
+        this.latitude = latitude;
     }
 
     @Override
     public String toString() {
         return "CityName: " + cityName +
-                ", layoutX=" + layoutX +
-                ", layoutY=" + layoutY;
+                ", layoutX=" + layout_X_Map +
+                ", layoutY=" + layout_Y_Map;
     }
 
     @Override

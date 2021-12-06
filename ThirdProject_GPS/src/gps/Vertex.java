@@ -33,14 +33,38 @@ public class Vertex {
         this.adjacent.addFirst(new Adjacent(adjacentCity, getDistance(adjacentCity)));
     }
 
-    private int getDistance(City destinationGraph) {
-        float differenceX = destinationGraph.getLayoutX() - this.city.getLayoutX();
-        float distanceY = destinationGraph.getLayoutY() - this.city.getLayoutY();
-        return (int) Math.sqrt(Math.pow(differenceX, 2) + Math.pow(distanceY, 2));
+    // getting the distance between two adjacent city
+    private float getDistance(City destinationCity) {
+        return getDistance(this.city.getLatitude(), this.city.getLongitude(),
+                destinationCity.getLatitude(), destinationCity.getLongitude());
+    }
+
+    // calculate distance between two cities(Km) depending on the latitude and longitude of them
+    private float getDistance(float latitudeSource, float longitudeSource,
+                              float latitudeDestination, float longitudeDestination) {
+        latitudeSource = (float) Math.toRadians(latitudeSource);
+        longitudeSource = (float) Math.toRadians(longitudeSource);
+
+        latitudeDestination = (float) Math.toRadians(latitudeDestination);
+        longitudeDestination = (float) Math.toRadians(longitudeDestination);
+
+
+        // Haversine formula
+        float distanceLat = latitudeDestination - latitudeSource;
+        float distanceLong = longitudeDestination - longitudeSource;
+
+        float distance = (float) (Math.pow(Math.sin(distanceLat / 2), 2)
+                + Math.cos(latitudeSource) * Math.cos(latitudeDestination)
+                * Math.pow(Math.sin(distanceLong / 2), 2));
+        float c = (float) (2 * Math.asin(Math.sqrt(distance)));
+
+        //The radius of the Earth in kilometres
+        float r = 6371;
+        return (c * r);
     }
 
     @Override
     public String toString() {
-        return city.toString() + ": AdjacentCity =>"  +  adjacent;
+        return city.toString() + ": AdjacentCity =>" + adjacent;
     }
 }

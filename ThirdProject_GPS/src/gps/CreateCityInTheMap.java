@@ -14,10 +14,10 @@ public class CreateCityInTheMap {
     private final Circle cityPosition;
     private final Label cityName;
 
-    public CreateCityInTheMap(String cityName, float layoutX, float layoutY) {
+    public CreateCityInTheMap(String cityName, float layout_X_Map, float layout_Y_Map) {
         this.cityPosition = new Circle(4);
-        this.cityPosition.setLayoutX(layoutX);
-        this.cityPosition.setLayoutY(layoutY);
+        this.cityPosition.setLayoutX(layout_X_Map);
+        this.cityPosition.setLayoutY(layout_Y_Map);
         this.cityPosition.setStroke(Color.BLACK);
         this.cityPosition.setFill(Color.RED);
         this.cityPosition.setStrokeType(StrokeType.INSIDE);
