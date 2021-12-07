@@ -75,9 +75,10 @@ public class City implements Comparable<City> {
 
     @Override
     public String toString() {
-        return "CityName: " + cityName +
-                ", layoutX=" + layout_X_Map +
-                ", layoutY=" + layout_Y_Map;
+        return "City" +
+                "cityNam:" + cityName +
+                ", longitude: " + longitude +
+                ", latitude: " + latitude +"\n";
     }
 
     @Override

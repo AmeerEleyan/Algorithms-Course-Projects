@@ -7,7 +7,7 @@ package gps;
 
 import java.util.LinkedList;
 
-public class Vertex {
+public class Vertex implements Comparable<Vertex> {
 
     private City city;
     private final LinkedList<Adjacent> adjacent;
@@ -66,5 +66,10 @@ public class Vertex {
     @Override
     public String toString() {
         return city.toString() + ": AdjacentCity =>" + adjacent;
+    }
+
+    @Override
+    public int compareTo(Vertex other) {
+        return this.city.compareTo(other.city);
     }
 }

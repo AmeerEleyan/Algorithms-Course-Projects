@@ -1,15 +1,14 @@
 package gps;
 
-import java.util.Arrays;
-
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.PriorityQueue;
 
 
 public class Graph {
 
-    private Vertex[] cities;
-    HashMap<String, Vertex> hashMap = new HashMap<>(6);
+    private final Vertex[] cities;
+    HashMap<String, Vertex> hashMap = new HashMap<>();
     private static int numberOfCities = 0;
 
 
@@ -47,48 +46,51 @@ public class Graph {
 
     public void findShortestPath(String sourceCity, String destinationCity) {
 
-        float[] distance = new float[numberOfCities];
-        Arrays.fill(distance, Integer.MAX_VALUE);
+        // Initialize the hash map
+        HashMap<String, DijkstraTable> table = new HashMap<>();
+        for (Vertex city : cities) {
+            table.put(city.getCity().getCityName(), new DijkstraTable(city));
+        }
+        table.get(sourceCity.trim()).setDistance(0);
 
-        String[] path = new String[numberOfCities];
+        PriorityQueue<Vertex> priorityQueue = new PriorityQueue<>();
 
-        PriorityQueue<Adjacent> priorityQueue = new PriorityQueue<>();
-        int indexOfCurrent = getIndexOf(sourceCity);
-        distance[indexOfCurrent] = 0;
+        priorityQueue.add(table.get(sourceCity.trim()).getCityVertex());
 
-        priorityQueue.add(new Adjacent(new City(sourceCity), 0));
-
+        float edgeDistance;
+        float newDistance;
+        float currentDistance;
         while (!priorityQueue.isEmpty()) {
+            Vertex current = priorityQueue.poll();
+            for (Adjacent adjacent : current.getAdjacent()) {
+                edgeDistance = adjacent.getDistance(); // between them
+                currentDistance = table.get(current.getCity().getCityName()).getDistance();// for it from table
+                newDistance = edgeDistance + currentDistance;
 
-            Adjacent current = priorityQueue.poll();
-
-            for (Adjacent adjacent : cities[indexOfCurrent].getAdjacent()) {
-
-                int indexAdjacent = getIndexOf(adjacent.getAdjacentCity().getCityName());
-
-                if (distance[indexOfCurrent] + adjacent.getDistance() < distance[indexAdjacent]) {
-                    distance[indexAdjacent] = distance[indexOfCurrent] + adjacent.getDistance();
-                    path[indexAdjacent] = current.getAdjacentCity().getCityName();
-                    priorityQueue.add(new Adjacent(new City(adjacent.getAdjacentCity().getCityName()), distance[indexAdjacent]));
+                if (newDistance < table.get(adjacent.getAdjacentCity().getCityName()).getDistance()) {
+                    table.get(adjacent.getAdjacentCity().getCityName()).setDistance(newDistance);
+                    table.get(adjacent.getAdjacentCity().getCityName()).setPath(current.getCity().getCityName());
+                    if (!table.get(adjacent.getAdjacentCity().getCityName()).isKnown()) {
+                        Vertex newVertex = hashMap.get(adjacent.getAdjacentCity().getCityName());
+                        priorityQueue.add(newVertex);
+                        table.get(adjacent.getAdjacentCity().getCityName()).setKnown(true);
+                    }
                 }
+
             }
-            indexOfCurrent = getIndexOf(current.getAdjacentCity().getCityName());
 
         }
-        System.out.println(Arrays.toString(distance));
-        System.out.println(Arrays.toString(path));
-
-    }
-
-    private int getIndexOf(String city) {
-        for (int i = 0; i < cities.length; i++) {
-            if (cities[i] != null) {
-                if (cities[i].getCity().getCityName().compareTo(city) == 0) {
-                    return i;
-                }
-            }
+        float totalDistance = table.get(destinationCity).getDistance();
+        LinkedList<City> cities = new LinkedList<>();
+        String path = this.hashMap.get(destinationCity).getCity().getCityName();
+        while (path != null) {
+            cities.addFirst(this.hashMap.get(path).getCity());
+            path = table.get(path).getPath();
         }
-        return -1; // not found
+        System.out.println("Total distance: " + totalDistance);
+        System.out.println("Path:\n" + cities);
+        System.out.println(table);
+
     }
 
     // Check if city is existing in the list
