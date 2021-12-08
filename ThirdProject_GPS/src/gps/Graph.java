@@ -44,18 +44,19 @@ public class Graph {
 
     }
 
-    public void findShortestPath(String sourceCity, String destinationCity) {
+    public ShortestPath findShortestPath(String sourceCity, String destinationCity) {
 
         // Initialize the hash map
         HashMap<String, DijkstraTable> table = new HashMap<>();
         for (Vertex city : cities) {
-            table.put(city.getCity().getCityName(), new DijkstraTable(city));
+            table.put(city.getCity().getCityName(), new DijkstraTable(city.getCity().getCityName()));
         }
         table.get(sourceCity.trim()).setDistance(0);
 
         PriorityQueue<Vertex> priorityQueue = new PriorityQueue<>();
 
-        priorityQueue.add(table.get(sourceCity.trim()).getCityVertex());
+        priorityQueue.add(this.hashMap.get(sourceCity));
+        table.get(sourceCity.trim()).setKnown(true);
 
         float edgeDistance;
         float newDistance;
@@ -81,15 +82,17 @@ public class Graph {
 
         }
         float totalDistance = table.get(destinationCity).getDistance();
-        LinkedList<City> cities = new LinkedList<>();
+        LinkedList<City> citiesInThePath = new LinkedList<>();
         String path = this.hashMap.get(destinationCity).getCity().getCityName();
         while (path != null) {
-            cities.addFirst(this.hashMap.get(path).getCity());
+            citiesInThePath.addFirst(this.hashMap.get(path).getCity());
             path = table.get(path).getPath();
         }
         System.out.println("Total distance: " + totalDistance);
-        System.out.println("Path:\n" + cities);
+        System.out.println("Path:\n" + citiesInThePath);
         System.out.println(table);
+        return new ShortestPath(totalDistance, citiesInThePath);
+
 
     }
 

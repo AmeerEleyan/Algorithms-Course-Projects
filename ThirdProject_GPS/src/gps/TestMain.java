@@ -1,8 +1,5 @@
 package gps;
 
-import java.util.Arrays;
-import java.util.Hashtable;
-
 public class TestMain {
     public static void main(String[] args) {
         City[] cities = new City[7];
@@ -28,8 +25,12 @@ public class TestMain {
         graph.addAdjacent("City5", "City6");
         graph.addAdjacent("City6", "City7");
         graph.addAdjacent("City7", "City1");
-        graph.findShortestPath("City1","City2");
+     //   graph.findShortestPath("City1","City2");
 
+
+        Vertex v = new Vertex(new City("Rammallah",35.2034f,31.9038f));
+        v.addAdjacent(new City("Betlahem",35.0998f, 31.5326f));
+        System.out.println(v.getAdjacent());
 
     }
 }

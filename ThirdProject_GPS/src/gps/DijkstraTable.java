@@ -7,16 +7,16 @@ package gps;
 
 public class DijkstraTable {
 
-    private final Vertex cityVertex;
+    private final String cityVertex;
     private boolean known;
     private float distance = Integer.MAX_VALUE;
     private String path;
 
-    public DijkstraTable(Vertex cityVertex) {
+    public DijkstraTable(String cityVertex) {
         this.cityVertex = cityVertex;
     }
 
-    public Vertex getCityVertex() {
+    public String getCityVertex() {
         return cityVertex;
     }
 
@@ -47,7 +47,7 @@ public class DijkstraTable {
     @Override
     public String toString() {
         return "DijkstraTable{" +
-                "cityVertexName: " + cityVertex.getCity().getCityName() +
+                "cityVertexName: " + cityVertex +
                 ", known: " + known +
                 ", distance: " + distance +
                 ", path: " + path +

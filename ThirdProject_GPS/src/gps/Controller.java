@@ -3,25 +3,55 @@ package gps;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.TextArea;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.shape.Line;
 
+import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.ResourceBundle;
-import java.util.Scanner;
+import java.util.*;
 
 public class Controller implements Initializable {
 
-    @FXML
-    private AnchorPane anchorPane;
+
+    @FXML // fx:id="anchorPane"
+    private AnchorPane anchorPane; // Value injected by FXMLLoader
+
+    @FXML // fx:id="btAnotherPath"
+    private Button btAnotherPath; // Value injected by FXMLLoader
+
+    @FXML // fx:id="btGo"
+    private Button btGo; // Value injected by FXMLLoader
+
+    @FXML // fx:id="combDestinationCity"
+    private ComboBox<String> combDestinationCity; // Value injected by FXMLLoader
+
+    @FXML // fx:id="combSrcCity"
+    private ComboBox<String> combSourceCity; // Value injected by FXMLLoader
+
+    @FXML // fx:id="txtDistance"
+    private TextField txtDistance; // Value injected by FXMLLoader
+
+    @FXML // fx:id="txtPath"
+    private TextArea txtPath; // Value injected by FXMLLoader
+
+    private Collection<Line> linesForPath; // lines for path
+
     private HashMap<String, CreateCityInTheMap> citiesInMap;
-    private Graph graphCities;
+
+    private Graph graphCities; // Map
+
+    private String[] citiesNames; // cities name in the map
+
+    private String sourceCity, destinationCity; // value of the comboBox
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+
+        this.loadCitiesNameToComboBox();
 
         CreateCityInTheMap city1 = new CreateCityInTheMap("Ramallah", 390, 351);
         CreateCityInTheMap city2 = new CreateCityInTheMap("Jenen", 244, 428);
@@ -61,6 +91,7 @@ public class Controller implements Initializable {
                 float latitude, longitude;
                 City city;
                 float layout_X_Map, layout_Y_Map;
+                int indexCitiesName = 0;
                 while (input.hasNext()) { // read line of data
                     try {
                         String lineOfData = input.nextLine();
@@ -69,6 +100,7 @@ public class Controller implements Initializable {
                             numberOfCities = Integer.parseInt(lineOfData.trim());
                             this.graphCities = new Graph(numberOfCities);
                             this.citiesInMap = new HashMap<>(numberOfCities);
+                            this.citiesNames = new String[numberOfCities];
 
                         } else if (line > 1 && line < numberOfCities + 2) {
                             // get data of this city
@@ -78,6 +110,7 @@ public class Controller implements Initializable {
                             latitude = Float.parseFloat(data[2].trim());
                             city = new City(cityName, longitude, latitude);
                             this.graphCities.addNewCities(city);
+                            this.citiesNames[indexCitiesName++] = cityName;
 
                             // add this city in the map and store in hash to access it later
                             layout_X_Map = city.getLayout_X_Map();
@@ -105,4 +138,82 @@ public class Controller implements Initializable {
         }
     }
 
+    // To load cities names from file to tha combo box
+    private void loadCitiesNameToComboBox() {
+        for (String citiesName : this.citiesNames) {
+            this.combSourceCity.getItems().add(citiesName);
+            this.combDestinationCity.getItems().add(citiesName);
+        }
+    }
+
+
+    public void handleBtCombSourceCity() {
+        this.sourceCity = this.combSourceCity.getValue();
+    }
+
+    public void handleCombDestinationCity() {
+        this.destinationCity = this.combDestinationCity.getValue();
+    }
+
+    public void handleBtGo() {
+        if (this.sourceCity != null) {
+            if (this.destinationCity != null) {
+                ShortestPath shortestPath = this.graphCities.findShortestPath(sourceCity, destinationCity);
+                if (shortestPath != null) {
+                    this.txtDistance.setText(shortestPath.getTotalDistance() + "");
+                    String citiesInThePath = getCitiesInThePathAsString(shortestPath.getCitiesInThePath());
+                    this.txtPath.setText(citiesInThePath);
+                    this.drawPath(shortestPath.getCitiesInThePath());
+                } else {
+                    Message.displayMessage("Warning", "There is no path between " + this.sourceCity + " and " + this.destinationCity);
+                }
+            } else {
+                Message.displayMessage("Warning", "Please select the destination city");
+            }
+        } else {
+            Message.displayMessage("Warning", "Please select the source city");
+        }
+    }
+
+    public void handleBtAnotherPath() {
+        this.txtDistance.setText("0.0 Km");
+        this.txtPath.clear();
+        this.anchorPane.getChildren().removeAll(linesForPath); // remove lineFromPath
+        this.linesForPath = null;
+    }
+
+
+    private void drawPath(LinkedList<City> citiesInThePath) {
+        Line line;
+        for (int i = 0; i < citiesInThePath.size(); i += 2) {
+            line = new Line();
+
+            CreateCityInTheMap city1 = this.citiesInMap.get(citiesInThePath.get(i).getCityName());
+            CreateCityInTheMap city2 = this.citiesInMap.get(citiesInThePath.get(i + 1).getCityName());
+            
+            line.setStartX(city1.getCityPosition().getLayoutX());
+            line.setStartY(city1.getCityPosition().getLayoutY());
+
+            line.setEndX(city2.getCityPosition().getLayoutX());
+            line.setEndY(city2.getCityPosition().getLayoutY());
+            this.linesForPath.add(line);
+        }
+        anchorPane.getChildren().addAll(this.linesForPath);
+    }
+
+    private String getCitiesInThePathAsString(LinkedList<City> citiesInThePath) {
+        StringBuilder path = new StringBuilder("Start: ");
+        byte newLine = 0;
+        for (City city : citiesInThePath) {
+            // To style the text area
+            if (newLine == 5) {
+                path.append("\n");
+                newLine = 0;
+            }
+            path.append(city.getCityName()).append(", ");
+            newLine++;
+
+        }
+        return path.substring(0, path.length() - 2);
+    }
 }

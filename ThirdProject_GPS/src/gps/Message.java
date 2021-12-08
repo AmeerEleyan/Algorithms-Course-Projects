@@ -31,11 +31,11 @@ public abstract class Message {
 
         // Style for buttons
         String styleBt = "-fx-background-color:  #ffffff; -fx-background-radius:35; -fx-border-radius: 35;" +
-                "-fx-font-size:18; -fx-border-width: 2; -fx-border-color: #4E9F3D;" +
+                "-fx-font-size:18; -fx-border-width: 2; -fx-border-color: #FF4C29;" +
                 "-fx-text-fill: #000000; -fx-font-family: 'Times New Roman';  ";
 
         // Style for hover buttons
-        String styleHoverBt = "-fx-background-color: #4E9F3D; -fx-background-radius:35; -fx-border-radius: 35;"
+        String styleHoverBt = "-fx-background-color: #FF4C29; -fx-background-radius:35; -fx-border-radius: 35;"
                 + "-fx-font-size:18; -fx-border-width: 2; -fx-border-color: #000000;" +
                 "-fx-text-fill: #ffffff; -fx-font-family: 'Times New Roman'; ";
 
