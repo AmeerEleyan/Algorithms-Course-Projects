@@ -35,7 +35,7 @@
               </rowConstraints>
                <children>
                   <ComboBox fx:id="combSourceCity" prefHeight="35.0" prefWidth="257.0" promptText="Select the source city" styleClass="comboBox" stylesheets="@style.css" GridPane.columnIndex="1" />
-                  <ComboBox fx:id="combDestinationCity" prefHeight="35.0" prefWidth="254.0" promptText="Selec the destination city" styleClass="comboBox" stylesheets="@style.css" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                  <ComboBox fx:id="combDestinationCity" prefHeight="35.0" prefWidth="254.0" promptText="Select the destination city" styleClass="comboBox" stylesheets="@style.css" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                   <Label prefHeight="35.0" prefWidth="200.0" style="-fx-background-color: #ffffff;" text="Source City:">
                      <font>
                         <Font name="System Bold" size="16.0" />
@@ -56,7 +56,7 @@
                         <Font name="System Bold" size="16.0" />
                      </font>
                   </Label>
-                  <TextField fx:id="txtDistance" prefHeight="30.0" prefWidth="120.0" style="-fx-background-color: #ffffff; -fx-border-color: #FF4C29; -fx-border-width: 0px0px2px0px;">
+                  <TextField fx:id="txtDistance" editable="false" prefHeight="30.0" prefWidth="120.0" style="-fx-background-color: #ffffff; -fx-border-color: #FF4C29; -fx-border-width: 0px0px2px0px;" text="0.0 Km">
                      <font>
                         <Font name="System Bold" size="15.0" />
                      </font>

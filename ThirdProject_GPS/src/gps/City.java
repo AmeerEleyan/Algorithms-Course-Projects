@@ -8,10 +8,12 @@ package gps;
 public class City implements Comparable<City> {
 
     // Attribute
-    private String cityName;
+    private final String cityName;
 
     private float longitude;
     private float latitude;
+    private short layout_X_Map;
+    private short layout_Y_Map;
 
     // Empty constructor
     public City(String cityName) {
@@ -19,42 +21,39 @@ public class City implements Comparable<City> {
     }
 
     // Constructor with parameters
-    public City(String cityName, float longitude, float latitude) {
+    public City(String cityName, float longitude, float latitude, short layout_X_Map, short layout_Y_Map) {
         this.cityName = cityName.trim();
         this.longitude = longitude;
         this.latitude = latitude;
+        this.layout_X_Map = layout_X_Map;
+        this.layout_Y_Map = layout_Y_Map;
     }
 
     public String getCityName() {
         return cityName;
     }
 
-    public void setCityName(String cityName) {
-        this.cityName = cityName;
-    }
-
     public float getLongitude() {
         return longitude;
-    }
-
-    public void setLongitude(float longitude) {
-        this.longitude = longitude;
     }
 
     public float getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(float latitude) {
-        this.latitude = latitude;
+    public String getLayouts_Map() {
+        return this.layout_X_Map + " " + this.layout_Y_Map;
     }
 
     @Override
     public String toString() {
-        return "City" +
-                "cityNam:" + cityName +
-                ", longitude: " + longitude +
-                ", latitude: " + latitude +"\n";
+        return "City{" +
+                "cityName='" + cityName +
+                ", longitude=" + longitude +
+                ", latitude=" + latitude +
+                ", layout_X_Map=" + layout_X_Map +
+                ", layout_Y_Map=" + layout_Y_Map +
+                '}';
     }
 
     @Override

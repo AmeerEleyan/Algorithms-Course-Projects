@@ -9,8 +9,8 @@ import java.util.LinkedList;
 
 public class ShortestPath {
 
-    private float totalDistance;
-    private LinkedList<City> citiesInThePath;
+    private final float totalDistance;
+    private final LinkedList<City> citiesInThePath;
 
     public ShortestPath(float totalDistance, LinkedList<City> citiesInThePath) {
         this.totalDistance = totalDistance;
@@ -21,16 +21,8 @@ public class ShortestPath {
         return totalDistance;
     }
 
-    public void setTotalDistance(float totalDistance) {
-        this.totalDistance = totalDistance;
-    }
-
     public LinkedList<City> getCitiesInThePath() {
         return citiesInThePath;
-    }
-
-    public void setCitiesInThePath(LinkedList<City> citiesInThePath) {
-        this.citiesInThePath = citiesInThePath;
     }
 
 }

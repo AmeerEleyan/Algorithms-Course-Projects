@@ -7,8 +7,8 @@ package gps;
 
 public class Adjacent implements Comparable<Adjacent>{
 
-    private City adjacentCity;
-    private float distance;
+    private final City adjacentCity;
+    private final float distance;
 
     public Adjacent(City adjacentCity, float distance) {
         this.adjacentCity = adjacentCity;
@@ -19,16 +19,8 @@ public class Adjacent implements Comparable<Adjacent>{
         return adjacentCity;
     }
 
-    public void setAdjacentCity(City adjacentCity) {
-        this.adjacentCity = adjacentCity;
-    }
-
     public float getDistance() {
         return distance;
-    }
-
-    public void setDistance(float distance) {
-        this.distance = distance;
     }
 
     @Override

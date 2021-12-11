@@ -29,5 +29,9 @@ public class InterfaceLoader extends Application {
         window.setScene(new Scene(root));
         window.setResizable(false);
         window.show();
+        Message.displayMessage("Hint", """
+                Please select the source and the distinction city from the list
+                or click in the map using left mouse button to select the source
+                and right mouse button to select the distinction""");
     }
 }

@@ -12,24 +12,21 @@ import java.util.PriorityQueue;
 
 public class Graph {
 
-    private final Vertex[] cities;
     private final HashMap<String, Vertex> hashMap;
-    private static int numberOfCities = 0;
+    private final int numberOfCities;
 
 
     public Graph(int numberOfCities) {
-        this.cities = new Vertex[numberOfCities];
-        this.hashMap = new HashMap<>(numberOfCities);
+        this.hashMap = new HashMap<>();
+        this.numberOfCities = numberOfCities;
     }
 
     public void addNewCities(City city) {
-        if (numberOfCities < this.cities.length) {
+        if (this.hashMap.size() < this.numberOfCities) {
             if (this.hashMap.get(city.getCityName()) != null) {
                 Message.displayMessage("Warning", city + " is already existing");
             } else {
-                this.cities[numberOfCities] = new Vertex(city);
-                this.hashMap.put(city.getCityName(), this.cities[numberOfCities]);
-                numberOfCities++;
+                this.hashMap.put(city.getCityName(), new Vertex(city));
             }
         } else {
             Message.displayMessage("Warning", "You have exceeded the number of cities allowed to be added\nso " + city.getCityName() + " will not be added");
@@ -39,39 +36,45 @@ public class Graph {
 
     public ShortestPath findShortestPath(String sourceCity, String destinationCity) {
 
-        // there is no adjacent fore source city. so there is no path from source city to distinction city
+        // there is no adjacent fore source city. so there is no path from source city to destination city
         if (this.hashMap.get(sourceCity).getAdjacent().size() == 0) {
             return null;
         }
 
         // Initialize the hash map
+        // Key: city name, Value: dijkstra table(city name, isKnown, distance, path)
         HashMap<String, DijkstraTable> table = new HashMap<>();
-        for (Vertex city : cities) {
+        for (Vertex city : this.hashMap.values()) {
             table.put(city.getCity().getCityName(), new DijkstraTable(city.getCity().getCityName()));
         }
+        // change distance of the source city to zero; because the pat with itself zero
         table.get(sourceCity.trim()).setDistance(0);
 
         PriorityQueue<Vertex> priorityQueue = new PriorityQueue<>();
 
+        // Add source city to the heap, to starting find the shortest path to the destination city
         priorityQueue.add(this.hashMap.get(sourceCity));
         table.get(sourceCity.trim()).setKnown(true);
 
-        float edgeDistance;
-        float newDistance;
-        float currentDistance;
+        float edgeDistance; // between current vertex and his adjacent
+        float currentDistance; // distance for current vertex in  dijkstra table
+        float newDistance; // summation for the above two variable
+        float adjacentInTable; // distance for the adjacent in dijkstra table
         boolean isFound = false;
+
         while (!priorityQueue.isEmpty() && !isFound) {
             Vertex current = priorityQueue.poll();
             for (Adjacent adjacent : current.getAdjacent()) {
-                edgeDistance = adjacent.getDistance(); // between them
-                currentDistance = table.get(current.getCity().getCityName()).getDistance();// for it from table
-                newDistance = edgeDistance + currentDistance;
 
-                if (newDistance < table.get(adjacent.getAdjacentCity().getCityName()).getDistance()) {
+                edgeDistance = adjacent.getDistance();
+                currentDistance = table.get(current.getCity().getCityName()).getDistance();
+                newDistance = edgeDistance + currentDistance;
+                adjacentInTable = table.get(adjacent.getAdjacentCity().getCityName()).getDistance();
+                if (newDistance < adjacentInTable) {
                     table.get(adjacent.getAdjacentCity().getCityName()).setDistance(newDistance);
                     table.get(adjacent.getAdjacentCity().getCityName()).setPath(current.getCity().getCityName());
                     if (!table.get(adjacent.getAdjacentCity().getCityName()).isKnown()) {
-                        Vertex newVertex =  this.hashMap.get(adjacent.getAdjacentCity().getCityName());
+                        Vertex newVertex = this.hashMap.get(adjacent.getAdjacentCity().getCityName());
                         priorityQueue.add(newVertex);
                         table.get(adjacent.getAdjacentCity().getCityName()).setKnown(true);
                     }
@@ -82,8 +85,12 @@ public class Graph {
                 }
             }
         }
+
+        // get total distance from source to destination
         float totalDistance = table.get(destinationCity).getDistance();
+        // get the cities in the path from source to destination
         LinkedList<City> citiesInThePath = new LinkedList<>();
+
         String path = this.hashMap.get(destinationCity).getCity().getCityName();
         while (path != null) {
             citiesInThePath.addFirst(this.hashMap.get(path).getCity());
@@ -91,28 +98,24 @@ public class Graph {
         }
         return new ShortestPath(totalDistance, citiesInThePath);
 
-
     }
 
-    // Add adjacent of the given city
+    // Add adjacent to each other, because the road is two direction
     public void addAdjacent(String parentName, String adjacentName) {
-        City city = hashMap.get(parentName.trim()).getCity();
-        City adjacent = hashMap.get(adjacentName.trim()).getCity();
-        if (hashMap.get(city.getCityName()) != null) {
+        //Check them if they are in the hash
+        if (hashMap.get(parentName.trim()) != null && hashMap.get(adjacentName.trim()) != null) {
+            City city = hashMap.get(parentName.trim()).getCity();
+            City adjacent = hashMap.get(adjacentName.trim()).getCity();
             hashMap.get(city.getCityName()).addAdjacent(adjacent);
             hashMap.get(adjacent.getCityName()).addAdjacent(city);
         }
 
     }
 
-    public static int getNumberOfCities() {
-        return numberOfCities;
-    }
-
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder();
-        for (Vertex city : cities) {
+        for (Vertex city : this.hashMap.values()) {
             result.append(city.toString()).append("\n");
         }
         return result.toString();

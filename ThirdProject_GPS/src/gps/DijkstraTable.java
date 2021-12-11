@@ -16,10 +16,6 @@ public class DijkstraTable {
         this.cityVertex = cityVertex;
     }
 
-    public String getCityVertex() {
-        return cityVertex;
-    }
-
     public boolean isKnown() {
         return known;
     }
