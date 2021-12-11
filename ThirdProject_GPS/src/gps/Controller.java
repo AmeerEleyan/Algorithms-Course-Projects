@@ -1,14 +1,18 @@
 
 package gps;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.shape.Line;
 
-import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URL;
@@ -19,12 +23,6 @@ public class Controller implements Initializable {
 
     @FXML // fx:id="anchorPane"
     private AnchorPane anchorPane; // Value injected by FXMLLoader
-
-    @FXML // fx:id="btAnotherPath"
-    private Button btAnotherPath; // Value injected by FXMLLoader
-
-    @FXML // fx:id="btGo"
-    private Button btGo; // Value injected by FXMLLoader
 
     @FXML // fx:id="combDestinationCity"
     private ComboBox<String> combDestinationCity; // Value injected by FXMLLoader
@@ -38,8 +36,8 @@ public class Controller implements Initializable {
     @FXML // fx:id="txtPath"
     private TextArea txtPath; // Value injected by FXMLLoader
 
-    private Collection<Line> linesForPath; // lines for path
-
+    // Using this attribute to handling
+    private ObservableList<Line> lineForPath;
     private HashMap<String, CreateCityInTheMap> citiesInMap;
 
     private Graph graphCities; // Map
@@ -48,29 +46,11 @@ public class Controller implements Initializable {
 
     private String sourceCity, destinationCity; // value of the comboBox
 
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-
+        this.readBabyRecordFromFile();
         this.loadCitiesNameToComboBox();
-
-        CreateCityInTheMap city1 = new CreateCityInTheMap("Ramallah", 390, 351);
-        CreateCityInTheMap city2 = new CreateCityInTheMap("Jenen", 244, 428);
-        CreateCityInTheMap city3 = new CreateCityInTheMap("Jerusalem", 316, 322);
-        anchorPane.getChildren().addAll(city1.getCityName(), city1.getCityPosition(),
-                city2.getCityName(), city2.getCityPosition(), city3.getCityName(), city3.getCityPosition());
-        Line l = new Line();
-        l.setStartX(city1.getCityPosition().getLayoutX());
-        l.setStartY(city1.getCityPosition().getLayoutY());
-        l.setEndX(city2.getCityPosition().getLayoutX());
-        l.setEndY(city2.getCityPosition().getLayoutY());
-
-        Line l2 = new Line();
-        l2.setStartX(city1.getCityPosition().getLayoutX());
-        l2.setStartY(city1.getCityPosition().getLayoutY());
-        l2.setEndX(city3.getCityPosition().getLayoutX());
-        l2.setEndY(city3.getCityPosition().getLayoutY());
-        anchorPane.getChildren().addAll(l, l2);
-
     }
 
     /**
@@ -104,7 +84,7 @@ public class Controller implements Initializable {
 
                         } else if (line > 1 && line < numberOfCities + 2) {
                             // get data of this city
-                            data = lineOfData.split(" ");
+                            data = lineOfData.split(",");
                             cityName = data[0].trim();
                             longitude = Float.parseFloat(data[1].trim());
                             latitude = Float.parseFloat(data[2].trim());
@@ -113,8 +93,8 @@ public class Controller implements Initializable {
                             this.citiesNames[indexCitiesName++] = cityName;
 
                             // add this city in the map and store in hash to access it later
-                            layout_X_Map = city.getLayout_X_Map();
-                            layout_Y_Map = city.getLayout_Y_Map();
+                            layout_X_Map = Integer.parseInt(data[3].trim());
+                            layout_Y_Map = Integer.parseInt(data[4].trim());
                             CreateCityInTheMap cityMap = new CreateCityInTheMap(cityName, layout_X_Map, layout_Y_Map);
                             this.citiesInMap.put(cityName, cityMap);
                             this.anchorPane.getChildren().addAll(cityMap.getCityName(), cityMap.getCityPosition());
@@ -147,23 +127,22 @@ public class Controller implements Initializable {
     }
 
 
-    public void handleBtCombSourceCity() {
-        this.sourceCity = this.combSourceCity.getValue();
-    }
-
-    public void handleCombDestinationCity() {
-        this.destinationCity = this.combDestinationCity.getValue();
-    }
-
     public void handleBtGo() {
-        if (this.sourceCity != null) {
-            if (this.destinationCity != null) {
+        if (this.combSourceCity != null) {
+            if (this.combDestinationCity != null) {
+                this.sourceCity = this.combSourceCity.getValue();
+                this.destinationCity = this.combDestinationCity.getValue();
                 ShortestPath shortestPath = this.graphCities.findShortestPath(sourceCity, destinationCity);
                 if (shortestPath != null) {
-                    this.txtDistance.setText(shortestPath.getTotalDistance() + "");
-                    String citiesInThePath = getCitiesInThePathAsString(shortestPath.getCitiesInThePath());
-                    this.txtPath.setText(citiesInThePath);
-                    this.drawPath(shortestPath.getCitiesInThePath());
+                    if (this.sourceCity.equals(this.destinationCity)) {
+                        Message.displayMessage("Warning", "the source city is the same destination city\nso the distance 0.0 Km");
+                    } else {
+                        this.txtDistance.setText(String.format("%.2f Km", shortestPath.getTotalDistance()) );
+                        String citiesInThePath = getCitiesInThePathAsString(shortestPath.getCitiesInThePath());
+                        this.txtPath.setText(citiesInThePath);
+                        this.drawPath(shortestPath.getCitiesInThePath());
+                    }
+
                 } else {
                     Message.displayMessage("Warning", "There is no path between " + this.sourceCity + " and " + this.destinationCity);
                 }
@@ -178,27 +157,49 @@ public class Controller implements Initializable {
     public void handleBtAnotherPath() {
         this.txtDistance.setText("0.0 Km");
         this.txtPath.clear();
-        this.anchorPane.getChildren().removeAll(linesForPath); // remove lineFromPath
-        this.linesForPath = null;
+        this.anchorPane.getChildren().removeAll(lineForPath); // remove lineFromPath
+        this.lineForPath = null;
     }
 
+    @FXML
+    void handleGetCity(MouseEvent event) {
+        float x, y;
+        if (event.getButton() == MouseButton.PRIMARY) {
+            x = (float) event.getPickResult().getIntersectedNode().getLayoutX();
+            y = (float) event.getPickResult().getIntersectedNode().getLayoutY();
+            if (x > 0 && y > 0) {
+                this.sourceCity = getCityClicked(x, y);
+                this.combSourceCity.setValue(this.sourceCity);
+            }
+        }
+        if (event.getButton() == MouseButton.SECONDARY) {
+            x = (float) event.getPickResult().getIntersectedNode().getLayoutX();
+            y = (float) event.getPickResult().getIntersectedNode().getLayoutY();
+            if (x > 0 && y > 0) {
+                this.destinationCity = getCityClicked(x, y);
+                this.combDestinationCity.setValue(this.destinationCity);
+            }
+        }
+
+    }
 
     private void drawPath(LinkedList<City> citiesInThePath) {
         Line line;
-        for (int i = 0; i < citiesInThePath.size(); i += 2) {
+        this.lineForPath = FXCollections.observableArrayList();
+        for (int i = 0; i < citiesInThePath.size() - 1; i++) {
             line = new Line();
 
             CreateCityInTheMap city1 = this.citiesInMap.get(citiesInThePath.get(i).getCityName());
             CreateCityInTheMap city2 = this.citiesInMap.get(citiesInThePath.get(i + 1).getCityName());
-            
+
             line.setStartX(city1.getCityPosition().getLayoutX());
             line.setStartY(city1.getCityPosition().getLayoutY());
 
             line.setEndX(city2.getCityPosition().getLayoutX());
             line.setEndY(city2.getCityPosition().getLayoutY());
-            this.linesForPath.add(line);
+            this.lineForPath.add(line);
         }
-        anchorPane.getChildren().addAll(this.linesForPath);
+        anchorPane.getChildren().addAll(this.lineForPath);
     }
 
     private String getCitiesInThePathAsString(LinkedList<City> citiesInThePath) {
@@ -206,7 +207,7 @@ public class Controller implements Initializable {
         byte newLine = 0;
         for (City city : citiesInThePath) {
             // To style the text area
-            if (newLine == 5) {
+            if (newLine == 4) {
                 path.append("\n");
                 newLine = 0;
             }
@@ -215,5 +216,14 @@ public class Controller implements Initializable {
 
         }
         return path.substring(0, path.length() - 2);
+    }
+
+    private String getCityClicked(float layoutX, float layoutY) {
+        for (CreateCityInTheMap city : this.citiesInMap.values()) {
+            if (layoutX == city.getCityPosition().getLayoutX() && layoutY == city.getCityPosition().getLayoutY()) {
+                return city.getCityName().getText();
+            }
+        }
+        return null;
     }
 }

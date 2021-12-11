@@ -15,7 +15,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="anchorPane" prefHeight="780.0" prefWidth="1100.0" style="-fx-background-color: #ffffff; -fx-border-color: #FF4C29; -fx-border-width: 2;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gps.Controller">
+<AnchorPane fx:id="anchorPane" onMouseClicked="#handleGetCity" prefHeight="780.0" prefWidth="1100.0" style="-fx-background-color: #ffffff; -fx-border-color: #FF4C29; -fx-border-width: 2;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gps.Controller">
    <children>
       <ImageView cache="true" fitHeight="775.0" fitWidth="550.0" layoutX="5.0" layoutY="5.0" mouseTransparent="true" pickOnBounds="true">
          <image>
@@ -34,8 +34,8 @@
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
-                  <ComboBox fx:id="combSourceCity" onAction="#handleBtCombSourceCity" prefHeight="35.0" prefWidth="257.0" promptText="Select the source city" styleClass="comboBox" stylesheets="@style.css" GridPane.columnIndex="1" />
-                  <ComboBox fx:id="combDestinationCity" onAction="#handleCombDestinationCity" prefHeight="35.0" prefWidth="254.0" promptText="Selec tthe destination city" styleClass="comboBox" stylesheets="@style.css" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                  <ComboBox fx:id="combSourceCity" prefHeight="35.0" prefWidth="257.0" promptText="Select the source city" styleClass="comboBox" stylesheets="@style.css" GridPane.columnIndex="1" />
+                  <ComboBox fx:id="combDestinationCity" prefHeight="35.0" prefWidth="254.0" promptText="Selec the destination city" styleClass="comboBox" stylesheets="@style.css" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                   <Label prefHeight="35.0" prefWidth="200.0" style="-fx-background-color: #ffffff;" text="Source City:">
                      <font>
                         <Font name="System Bold" size="16.0" />
@@ -56,9 +56,9 @@
                         <Font name="System Bold" size="16.0" />
                      </font>
                   </Label>
-                  <TextField fx:id="txtDistance" prefHeight="30.0" prefWidth="120.0" style="-fx-background-color: #ffffff; -fx-border-color: #FF4C29; -fx-border-width: 0px0px2px0px;" text="0.0 Km">
+                  <TextField fx:id="txtDistance" prefHeight="30.0" prefWidth="120.0" style="-fx-background-color: #ffffff; -fx-border-color: #FF4C29; -fx-border-width: 0px0px2px0px;">
                      <font>
-                        <Font size="14.0" />
+                        <Font name="System Bold" size="15.0" />
                      </font>
                   </TextField>
                </children>
@@ -70,7 +70,7 @@
                         <Font name="System Bold" size="16.0" />
                      </font>
                   </Label>
-                  <TextArea fx:id="txtPath" editable="false" prefHeight="170.0" prefWidth="339.0" style="-fx-background-color: #ffffff; -fx-border-color: #FF4C29; -fx-border-width: 1.5;" />
+                  <TextArea fx:id="txtPath" editable="false" prefHeight="170.0" prefWidth="339.0" style="-fx-background-color: #ffffff; -fx-border-color: #FF4C29; -fx-border-width: 1.5;" styleClass="textArea" stylesheets="@style.css" />
                </children>
             </HBox>
             <Button fx:id="btAnotherPath" mnemonicParsing="false" onAction="#handleBtAnotherPath" prefHeight="40.0" prefWidth="130.0" style="-fx-background-radius: 35; -fx-border-radius: 35;" stylesheets="@style.css" text="Another Path" />

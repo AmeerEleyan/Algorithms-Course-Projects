@@ -1,39 +1,119 @@
 50
-Jerusalem 35.2137 31.7683
-Bethlehem 35.2024 31.7054
-Ashdod 34.6553 31.8044
-Haifa 34.9896 32.7940
-Jaffa 34.7584 32.0494
-Acre 35.0827 32.9331
-Tulkarm 35.0240 32.3194
-Nablus 35.2621 32.2227
-Jenin 35.2939 32.4646
-Qalqilya 34.9815 32.1960
-Jericho 35.4618 31.8611
-Ramallah 35.2034 31.9038
-Al-Bireh 35.2217 31.9126
-Hebron 35.0998 31.5326
-Safed 35.4960 32.9646
-Lod 34.8881 31.9510
-Ramla 34.8729 31.9316
-Nazareth 35.3035 32.6996
-Tiberias 35.5310 32.7959
-Beisan 35.4973 32.4971
-TelAviv 34.7818 32.0853
-Netanya 34.8532 32.3215
-Hadera 34.9197 32.4340
-Ashkelon 34.5743 31.6688
-Gaza 34.4668 31.5017
-KhanYunis 34.3040 31.3462
-DeirAlBalah 34.3509 31.4171
-Rafah 34.2435 31.2968
-Qalandiya 35.2079 31.8616
-Beitunia 35.1698 31.8893
-Birzeit 35.1960 31.9753
-UmmAl-Fahm 35.1485 32.5171
-Caesarea 34.9045 32.5190
-Tubas 35.3700 32.3211
-Be'er-Alsaba 34.7915 31.2530
-Yata 35.0901 31.4441
-Rahat 34.7539 31.3945
-Halhul 35.0999 31.5799
+Jerusalem,35.2137,31.7683,400,345
+Bethlehem,35.2024,31.7054,367,383
+Ashdod,34.6553,31.8044,251,347
+Haifa,34.9896,32.7940,313,150
+Jaffa,34.7584,32.0494,271,290
+Akka,35.0827,32.9331,342,117
+Tulkarm,35.0240,32.3194,350,242
+Nablus,35.2621,32.2227,382,268
+Jenin,35.2939,32.4646,385,206
+Qalqilya,34.9815,32.1960,327,277
+Jericho,35.4618,31.8611,435,332
+Ramallah,35.2034,31.9038,369,312
+Al-Bireh,35.2217,31.9126,382,322
+Hebron,35.0998,31.5326,344,436
+Safed,35.4960,32.9646,423,122
+Lod,34.8881,31.9510,298,304
+Ramla,34.8729,31.9316,298,323
+Nazareth,35.3035,32.6996,410,174
+Tabrya,35.5310,32.7959,451,154
+Beisan,35.4973,32.4971,455,224
+TelAlrabe',34.7818,32.0853,257,315
+Netanya,34.8532,32.3215,294,246
+KafrManda,35.2586,32.812,346,154
+Asaklan,34.5743,31.6688,223,382
+Gaza,34.4668,31.5017,203,424
+KhanYunis,34.3040,31.3462,160,460
+DeirAlBalah,34.3509,31.4171,176,440
+Rafah,34.2435,31.2968,141,476
+Qalandiya,35.2079,31.8616,371,341
+Beitunia,35.1698,31.8893,344,318
+Birzeit,35.1960,31.9753,365,291
+UmmAl-Fahm,35.1485,32.5171,348,181
+Caesarea,34.9045,32.5190,304,199
+Tubas,35.3700,32.3211,419,254
+Be'er-Alsaba,34.7915,31.2530,298,541
+Yata,35.0901,31.4441,325,476
+Rahat,34.7539,31.3945,247,484
+Halhul,35.0999,31.5799,352,416
+AlAzaria,34.9119,31.8905,406,363
+BeitHanina,35.2252,31.8301,341,338
+SilatAl-Harithiya,35.227,32.509,347,204
+Modi'in,35.0104,31.8903,314,343
+BeitSafafa,35.2005,31.7461,378,361
+Qabatiya,35.2801,32.4096,381,233
+Tayibe,35.0097,32.2669,331,258
+Burqin,35.2617,32.4561,360,255
+Na'ura,35.3911,32.6147,415,196
+Tarqumiyah,35.0142,31.5773,280,448
+Sakhnin,35.2945,32.8642,386,135
+Salfit,35.1808,32.0851,385,287
+Jerusalem Qalandiya
+Jerusalem Bethlehem
+Jerusalem Jericho
+Jerusalem Ramla
+Jerusalem AlAzaria
+Jerusalem Modi'in
+Jerusalem BeitSafafa
+Bethlehem AlAzaria
+Bethlehem Halhul
+Bethlehem BeitSafafa
+Hebron Halhul
+Hebron Tarqumiyah
+Hebron Yata
+Be'er-Alsaba Yata
+Be'er-Alsaba Rahat
+Yata Tarqumiyah
+Yata Rahat
+Asaklan Tarqumiyah
+Tarqumiyah Ashdod
+Gaza Asaklan
+Gaza DeirAlBalah
+DeirAlBalah KhanYunis
+KhanYunis Rafah
+Ashdod TelAlrabe'
+TelAlrabe' Jaffa
+Jaffa Netanya
+Netanya Qalqilya
+Netanya Tulkarm
+Tulkarm Qalqilya
+Netanya Caesarea
+Caesarea Haifa
+Caesarea UmmAl-Fahm
+UmmAl-Fahm SilatAl-Harithiya
+UmmAl-Fahm Na'ura
+Haifa Akka
+Haifa KafrManda
+KafrManda Akka
+KafrManda Sakhnin
+Sakhnin Nazareth
+Sakhnin Safed
+Sakhnin Akka
+Nazareth Tabrya
+Nazareth Na'ura
+Na'ura Beisan
+Tabrya Beisan
+Beisan Tubas
+Ashdod Lod
+Ashdod Ramla
+Jenin Tubas
+Jenin Burqin
+Jenin SilatAl-Harithiya
+Burqin Qabatiya
+Tayibe Tulkarm
+Tayibe Nablus
+Tayibe Qalqilya
+Nablus Salfit
+Salfit Ramallah
+Ramallah Al-Bireh
+Beitunia Ramallah
+Ramallah Qalandiya
+BeitHanina Qalandiya
+BeitHanina Jerusalem
+Birzeit Ramallah
+AlAzaria Jericho
+Modi'in Ramla
+Modi'in Lod
+Lod Ramla
+Qabatiya Jenin

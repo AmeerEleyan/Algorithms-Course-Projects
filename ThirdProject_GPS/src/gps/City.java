@@ -9,8 +9,6 @@ public class City implements Comparable<City> {
 
     // Attribute
     private String cityName;
-    private float layout_X_Map;
-    private float layout_Y_Map;
 
     private float longitude;
     private float latitude;
@@ -25,12 +23,6 @@ public class City implements Comparable<City> {
         this.cityName = cityName.trim();
         this.longitude = longitude;
         this.latitude = latitude;
-        //this.layout_X_Map = layout_X_Map;
-      //  this.layout_Y_Map = layout_Y_Map;
-    }
-
-    private float[] getLayout_X_MapFrom_longitude_latitude(float longitude, float latitude){
-        return  null;
     }
 
     public String getCityName() {
@@ -39,22 +31,6 @@ public class City implements Comparable<City> {
 
     public void setCityName(String cityName) {
         this.cityName = cityName;
-    }
-
-    public float getLayout_X_Map() {
-        return layout_X_Map;
-    }
-
-    public void setLayout_X_Map(float layout_X_Map) {
-        this.layout_X_Map = layout_X_Map;
-    }
-
-    public float getLayout_Y_Map() {
-        return layout_Y_Map;
-    }
-
-    public void setLayout_Y_Map(float layout_Y_Map) {
-        this.layout_Y_Map = layout_Y_Map;
     }
 
     public float getLongitude() {
