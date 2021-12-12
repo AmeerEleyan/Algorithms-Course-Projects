@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
 
-
 public class Graph {
 
     private final HashMap<String, Vertex> hashMap;
@@ -24,7 +23,7 @@ public class Graph {
     public void addNewCities(City city) {
         if (this.hashMap.size() < this.numberOfCities) {
             if (this.hashMap.get(city.getCityName()) != null) {
-                Message.displayMessage("Warning", city + " is already existing");
+                Message.displayMessage("Warning", city.getCityName() + " is already existing");
             } else {
                 this.hashMap.put(city.getCityName(), new Vertex(city));
             }
@@ -50,10 +49,10 @@ public class Graph {
         // change distance of the source city to zero; because the pat with itself zero
         table.get(sourceCity.trim()).setDistance(0);
 
-        PriorityQueue<Vertex> priorityQueue = new PriorityQueue<>();
+        PriorityQueue<DijkstraTable> priorityQueue = new PriorityQueue<>();
+        priorityQueue.add(new DijkstraTable(sourceCity,true, 0, null));
 
         // Add source city to the heap, to starting find the shortest path to the destination city
-        priorityQueue.add(this.hashMap.get(sourceCity));
         table.get(sourceCity.trim()).setKnown(true);
 
         float edgeDistance; // between current vertex and his adjacent
@@ -63,7 +62,8 @@ public class Graph {
         boolean isFound = false;
 
         while (!priorityQueue.isEmpty() && !isFound) {
-            Vertex current = priorityQueue.poll();
+            String vertex = priorityQueue.poll().getCityVertex();
+            Vertex current = this.hashMap.get(vertex);
             for (Adjacent adjacent : current.getAdjacent()) {
 
                 edgeDistance = adjacent.getDistance();
@@ -74,8 +74,7 @@ public class Graph {
                     table.get(adjacent.getAdjacentCity().getCityName()).setDistance(newDistance);
                     table.get(adjacent.getAdjacentCity().getCityName()).setPath(current.getCity().getCityName());
                     if (!table.get(adjacent.getAdjacentCity().getCityName()).isKnown()) {
-                        Vertex newVertex = this.hashMap.get(adjacent.getAdjacentCity().getCityName());
-                        priorityQueue.add(newVertex);
+                        priorityQueue.add(new DijkstraTable(adjacent.getAdjacentCity().getCityName(), true, newDistance, current.getCity().getCityName()));
                         table.get(adjacent.getAdjacentCity().getCityName()).setKnown(true);
                     }
                     if (adjacent.getAdjacentCity().getCityName().equals(destinationCity)) {
@@ -106,8 +105,12 @@ public class Graph {
         if (hashMap.get(parentName.trim()) != null && hashMap.get(adjacentName.trim()) != null) {
             City city = hashMap.get(parentName.trim()).getCity();
             City adjacent = hashMap.get(adjacentName.trim()).getCity();
-            hashMap.get(city.getCityName()).addAdjacent(adjacent);
-            hashMap.get(adjacent.getCityName()).addAdjacent(city);
+            if (hashMap.get(parentName.trim()).getAdjacent().contains(new Adjacent(adjacent))) {
+                Message.displayMessage("Warning", parentName + " and " + adjacentName + " is already existing as neighbors");
+            } else {
+                hashMap.get(city.getCityName()).addAdjacent(adjacent);
+                hashMap.get(adjacent.getCityName()).addAdjacent(city);
+            }
         }
 
     }

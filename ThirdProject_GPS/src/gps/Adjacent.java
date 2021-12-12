@@ -5,10 +5,15 @@
  */
 package gps;
 
-public class Adjacent implements Comparable<Adjacent>{
+public class Adjacent{
 
     private final City adjacentCity;
-    private final float distance;
+    private float distance;
+
+    // use this constructor when add adjacent to check city name
+    public Adjacent(City adjacentCity) {
+        this.adjacentCity = adjacentCity;
+    }
 
     public Adjacent(City adjacentCity, float distance) {
         this.adjacentCity = adjacentCity;
@@ -29,7 +34,8 @@ public class Adjacent implements Comparable<Adjacent>{
     }
 
     @Override
-    public int compareTo(Adjacent o) {
-        return Float.compare(this.distance, o.distance);
+    public boolean equals(Object o) {
+        return this.adjacentCity.getCityName().compareTo(((Adjacent) o).adjacentCity.getCityName()) == 0;
     }
+
 }

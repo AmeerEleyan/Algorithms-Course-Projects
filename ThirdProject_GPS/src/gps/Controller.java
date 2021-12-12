@@ -110,7 +110,11 @@ public class Controller implements Initializable {
                         } else {
                             // Add the adjacent
                             data = lineOfData.split(" ");
-                            this.graphCities.addAdjacent(data[0], data[1]);
+                            if(!data[0].equals(data[1])){
+                                this.graphCities.addAdjacent(data[0], data[1]);
+                            }else{
+                                Message.displayMessage("Warning", " Invalid format in line # " + line + " in file " + cities.getName() + "\n Neighbors are the same");
+                            }
                         }
                         line++; // increment the line by one
 

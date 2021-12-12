@@ -25,6 +25,21 @@ public class CreateCityInTheMap {
         this.cityName = new Label(cityName);
         this.cityName.setLayoutX(this.cityPosition.getLayoutX() - 15);
         this.cityName.setLayoutY(this.cityPosition.getLayoutY() + 3);
+        this.cityName.setStyle("-fx-text-fill: #000000;");
+
+        // To change the design of the circle when placing a mouse arrow on it
+        this.cityPosition.setOnMouseEntered(e -> {
+            this.cityPosition.setFill(Color.BLUE);
+            this.cityPosition.setRadius(5.5);
+            this.cityName.setStyle("-fx-font-weight: Bold; -fx-text-fill: #000000; -fx-font-size: 13;");
+        });
+        // To change the design of the circle when the mouse arrow is removed from it
+        this.cityPosition.setOnMouseExited(e -> {
+            this.cityPosition.setFill(Color.RED);
+            this.cityPosition.setRadius(4);
+            this.cityName.setStyle("-fx-font-size: 12; -fx-text-fill: #000000;");
+
+        });
     }
 
     public Circle getCityPosition() {

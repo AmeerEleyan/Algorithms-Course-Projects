@@ -50,7 +50,6 @@ Tarqumiyah,35.0142,31.5773,280,448
 Sakhnin,35.2945,32.8642,386,135
 Salfit,35.1808,32.0851,385,287
 Jerusalem Qalandiya
-Jerusalem Bethlehem
 Jerusalem Jericho
 Jerusalem Ramla
 Jerusalem AlAzaria
@@ -67,7 +66,7 @@ Be'er-Alsaba Rahat
 Yata Tarqumiyah
 Yata Rahat
 Asaklan Tarqumiyah
-Tarqumiyah Ashdod
+Tarqumiyah Rahat
 Gaza Asaklan
 Gaza DeirAlBalah
 DeirAlBalah KhanYunis
@@ -117,3 +116,6 @@ Modi'in Ramla
 Modi'in Lod
 Lod Ramla
 Qabatiya Jenin
+Ashdod Asaklan
+Nablus Tubas
+
