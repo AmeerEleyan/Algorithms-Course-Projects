@@ -12,11 +12,9 @@ public class DijkstraTable implements Comparable<DijkstraTable> {
     private float distance = Integer.MAX_VALUE;
     private String path;
 
-    public DijkstraTable(String cityVertex, boolean known, float distance, String path) {
+    public DijkstraTable(String cityVertex, float distance) {
         this.cityVertex = cityVertex;
-        this.known = known;
         this.distance = distance;
-        this.path = path;
     }
 
     public DijkstraTable(String cityVertex) {

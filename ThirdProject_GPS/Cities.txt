@@ -51,7 +51,6 @@ Sakhnin,35.2945,32.8642,386,135
 Salfit,35.1808,32.0851,385,287
 Jerusalem Qalandiya
 Jerusalem Jericho
-Jerusalem Ramla
 Jerusalem AlAzaria
 Jerusalem Modi'in
 Jerusalem BeitSafafa

@@ -50,33 +50,36 @@ public class Graph {
         table.get(sourceCity.trim()).setDistance(0);
 
         PriorityQueue<DijkstraTable> priorityQueue = new PriorityQueue<>();
-        priorityQueue.add(new DijkstraTable(sourceCity,true, 0, null));
+        priorityQueue.add(table.get(sourceCity.trim()));
 
-        // Add source city to the heap, to starting find the shortest path to the destination city
-        table.get(sourceCity.trim()).setKnown(true);
-
-        float edgeDistance; // between current vertex and his adjacent
         float currentDistance; // distance for current vertex in  dijkstra table
         float newDistance; // summation for the above two variable
         float adjacentInTable; // distance for the adjacent in dijkstra table
         boolean isFound = false;
 
         while (!priorityQueue.isEmpty() && !isFound) {
+
             String vertex = priorityQueue.poll().getCityVertex();
             Vertex current = this.hashMap.get(vertex);
+
+            if (table.get(current.getCity().getCityName()).isKnown()) {
+                continue;
+            } else {
+                table.get(current.getCity().getCityName()).setKnown(true);
+            }
+
             for (Adjacent adjacent : current.getAdjacent()) {
 
-                edgeDistance = adjacent.getDistance();
+
                 currentDistance = table.get(current.getCity().getCityName()).getDistance();
-                newDistance = edgeDistance + currentDistance;
+                // adjacent.getDistance(): between current vertex and his adjacent
+                newDistance = adjacent.getDistance() + currentDistance;
                 adjacentInTable = table.get(adjacent.getAdjacentCity().getCityName()).getDistance();
+
                 if (newDistance < adjacentInTable) {
                     table.get(adjacent.getAdjacentCity().getCityName()).setDistance(newDistance);
                     table.get(adjacent.getAdjacentCity().getCityName()).setPath(current.getCity().getCityName());
-                    if (!table.get(adjacent.getAdjacentCity().getCityName()).isKnown()) {
-                        priorityQueue.add(new DijkstraTable(adjacent.getAdjacentCity().getCityName(), true, newDistance, current.getCity().getCityName()));
-                        table.get(adjacent.getAdjacentCity().getCityName()).setKnown(true);
-                    }
+                    priorityQueue.add(new DijkstraTable(adjacent.getAdjacentCity().getCityName(), newDistance));
                     if (adjacent.getAdjacentCity().getCityName().equals(destinationCity)) {
                         isFound = true;
                         break;
