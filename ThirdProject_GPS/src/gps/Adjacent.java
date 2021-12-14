@@ -5,7 +5,7 @@
  */
 package gps;
 
-public class Adjacent{
+public class Adjacent implements Comparable<Adjacent>{
 
     private final City adjacentCity;
     private float distance;
@@ -38,4 +38,8 @@ public class Adjacent{
         return this.adjacentCity.getCityName().compareTo(((Adjacent) o).adjacentCity.getCityName()) == 0;
     }
 
+    @Override
+    public int compareTo(Adjacent o) {
+        return Float.compare(this.distance, o.distance);
+    }
 }

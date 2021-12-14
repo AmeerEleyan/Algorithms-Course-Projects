@@ -5,33 +5,23 @@
  */
 package gps;
 
-public class DijkstraTable implements Comparable<DijkstraTable> {
+public class DijkstraTable {
 
     private final String cityVertex;
-    private boolean known;
+    private boolean visited;
     private float distance = Integer.MAX_VALUE;
     private String path;
-
-    public DijkstraTable(String cityVertex, float distance) {
-        this.cityVertex = cityVertex;
-        this.distance = distance;
-    }
 
     public DijkstraTable(String cityVertex) {
         this.cityVertex = cityVertex;
     }
 
-
-    public String getCityVertex() {
-        return cityVertex;
+    public boolean isVisited() {
+        return visited;
     }
 
-    public boolean isKnown() {
-        return known;
-    }
-
-    public void setKnown(boolean known) {
-        this.known = known;
+    public void setVisited(boolean visited) {
+        this.visited = visited;
     }
 
     public float getDistance() {
@@ -54,14 +44,10 @@ public class DijkstraTable implements Comparable<DijkstraTable> {
     public String toString() {
         return "DijkstraTable{" +
                 "cityVertexName: " + cityVertex +
-                ", known: " + known +
+                ", known: " + visited +
                 ", distance: " + distance +
                 ", path: " + path +
                 "}\n";
     }
 
-    @Override
-    public int compareTo(DijkstraTable o) {
-        return Float.compare(this.distance, o.distance);
-    }
 }

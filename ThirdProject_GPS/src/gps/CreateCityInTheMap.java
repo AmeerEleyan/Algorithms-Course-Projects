@@ -32,9 +32,11 @@ public class CreateCityInTheMap {
             this.cityPosition.setFill(Color.BLUE);
             this.cityPosition.setRadius(5.5);
             this.cityName.setStyle("-fx-font-weight: Bold; -fx-text-fill: #000000; -fx-font-size: 13;");
+
         });
         // To change the design of the circle when the mouse arrow is removed from it
         this.cityPosition.setOnMouseExited(e -> {
+
             this.cityPosition.setFill(Color.RED);
             this.cityPosition.setRadius(4);
             this.cityName.setStyle("-fx-font-size: 12; -fx-text-fill: #000000;");

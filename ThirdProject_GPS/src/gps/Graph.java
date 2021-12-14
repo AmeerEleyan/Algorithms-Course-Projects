@@ -49,8 +49,8 @@ public class Graph {
         // change distance of the source city to zero; because the pat with itself zero
         table.get(sourceCity.trim()).setDistance(0);
 
-        PriorityQueue<DijkstraTable> priorityQueue = new PriorityQueue<>();
-        priorityQueue.add(table.get(sourceCity.trim()));
+        PriorityQueue<Adjacent> priorityQueue = new PriorityQueue<>();
+        priorityQueue.add(new Adjacent(new City(sourceCity),0));
 
         float currentDistance; // distance for current vertex in  dijkstra table
         float newDistance; // summation for the above two variable
@@ -59,17 +59,16 @@ public class Graph {
 
         while (!priorityQueue.isEmpty() && !isFound) {
 
-            String vertex = priorityQueue.poll().getCityVertex();
+            String vertex = priorityQueue.poll().getAdjacentCity().getCityName();
             Vertex current = this.hashMap.get(vertex);
 
-            if (table.get(current.getCity().getCityName()).isKnown()) {
+            if (table.get(current.getCity().getCityName()).isVisited()) {
                 continue;
             } else {
-                table.get(current.getCity().getCityName()).setKnown(true);
+                table.get(current.getCity().getCityName()).setVisited(true);
             }
 
             for (Adjacent adjacent : current.getAdjacent()) {
-
 
                 currentDistance = table.get(current.getCity().getCityName()).getDistance();
                 // adjacent.getDistance(): between current vertex and his adjacent
@@ -79,12 +78,9 @@ public class Graph {
                 if (newDistance < adjacentInTable) {
                     table.get(adjacent.getAdjacentCity().getCityName()).setDistance(newDistance);
                     table.get(adjacent.getAdjacentCity().getCityName()).setPath(current.getCity().getCityName());
-                    priorityQueue.add(new DijkstraTable(adjacent.getAdjacentCity().getCityName(), newDistance));
-                    if (adjacent.getAdjacentCity().getCityName().equals(destinationCity)) {
-                        isFound = true;
-                        break;
-                    }
+                    priorityQueue.add(new Adjacent(new City(adjacent.getAdjacentCity().getCityName()), newDistance));
                 }
+
             }
         }
 

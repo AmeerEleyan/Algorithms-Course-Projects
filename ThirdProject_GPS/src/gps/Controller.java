@@ -116,11 +116,12 @@ public class Controller implements Initializable {
                                 Message.displayMessage("Warning", " Invalid format in line # " + line + " in file " + cities.getName() + "\n Neighbors are the same");
                             }
                         }
-                        line++; // increment the line by one
 
                     } catch (Exception ex) {
                         // the record in the file has a problem
                         Message.displayMessage("Warning", " Invalid format in line # " + line + " in file " + cities.getName() + "  ");
+                    }finally {
+                        line++;// increment the line by one
                     }
                 }
                 input.close(); // prevent(close) scanner to read data
