@@ -56,14 +56,14 @@ public class Controller implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        this.readBabyRecordFromFile();
+        this.readCitiesRecordFromFile();
         this.loadCitiesNameToComboBox();
     }
 
     /**
      * Methode to read data from file iteratively
      */
-    private void readBabyRecordFromFile() {
+    private void readCitiesRecordFromFile() {
         File cities = new File("Cities.txt");
         int numberOfCities = 0;
         try {
@@ -110,9 +110,9 @@ public class Controller implements Initializable {
                         } else {
                             // Add the adjacent
                             data = lineOfData.split(" ");
-                            if(!data[0].equals(data[1])){
+                            if (!data[0].equals(data[1])) {
                                 this.graphCities.addAdjacent(data[0], data[1]);
-                            }else{
+                            } else {
                                 Message.displayMessage("Warning", " Invalid format in line # " + line + " in file " + cities.getName() + "\n Neighbors are the same");
                             }
                         }
@@ -120,7 +120,7 @@ public class Controller implements Initializable {
                     } catch (Exception ex) {
                         // the record in the file has a problem
                         Message.displayMessage("Warning", " Invalid format in line # " + line + " in file " + cities.getName() + "  ");
-                    }finally {
+                    } finally {
                         line++;// increment the line by one
                     }
                 }

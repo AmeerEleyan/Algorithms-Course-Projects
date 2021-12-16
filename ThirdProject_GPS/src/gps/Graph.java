@@ -5,6 +5,8 @@
  */
 package gps;
 
+import javafx.util.Pair;
+
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
@@ -49,8 +51,8 @@ public class Graph {
         // change distance of the source city to zero; because the pat with itself zero
         table.get(sourceCity.trim()).setDistance(0);
 
-        PriorityQueue<Adjacent> priorityQueue = new PriorityQueue<>();
-        priorityQueue.add(new Adjacent(new City(sourceCity),0));
+        PriorityQueue<Pair<String, Float>> priorityQueue = new PriorityQueue<>((o1, o2) -> Float.compare(o1.getValue(), o2.getValue()));
+        priorityQueue.add(new Pair<>(sourceCity, 0f));
 
         float currentDistance; // distance for current vertex in  dijkstra table
         float newDistance; // summation for the above two variable
@@ -59,7 +61,7 @@ public class Graph {
 
         while (!priorityQueue.isEmpty() && !isFound) {
 
-            String vertex = priorityQueue.poll().getAdjacentCity().getCityName();
+            String vertex = priorityQueue.poll().getKey();
             Vertex current = this.hashMap.get(vertex);
 
             if (table.get(current.getCity().getCityName()).isVisited()) {
@@ -78,14 +80,18 @@ public class Graph {
                 if (newDistance < adjacentInTable) {
                     table.get(adjacent.getAdjacentCity().getCityName()).setDistance(newDistance);
                     table.get(adjacent.getAdjacentCity().getCityName()).setPath(current.getCity().getCityName());
-                    priorityQueue.add(new Adjacent(new City(adjacent.getAdjacentCity().getCityName()), newDistance));
+                    priorityQueue.add(new Pair<>(adjacent.getAdjacentCity().getCityName(), newDistance));
                 }
 
             }
         }
+        if (table.get(destinationCity).getPath() == null) { // there is no path to destination city
+            return null;
+        }
 
         // get total distance from source to destination
         float totalDistance = table.get(destinationCity).getDistance();
+
         // get the cities in the path from source to destination
         LinkedList<City> citiesInThePath = new LinkedList<>();
 

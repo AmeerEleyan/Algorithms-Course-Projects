@@ -21,11 +21,13 @@ public class CreateCityInTheMap {
         this.cityPosition.setStroke(Color.BLACK);
         this.cityPosition.setFill(Color.RED);
         this.cityPosition.setStrokeType(StrokeType.INSIDE);
+        this.cityPosition.toFront(); // Clickable
 
         this.cityName = new Label(cityName);
         this.cityName.setLayoutX(this.cityPosition.getLayoutX() - 15);
         this.cityName.setLayoutY(this.cityPosition.getLayoutY() + 3);
         this.cityName.setStyle("-fx-text-fill: #000000;");
+        this.cityName.toBack();
 
         // To change the design of the circle when placing a mouse arrow on it
         this.cityPosition.setOnMouseEntered(e -> {
