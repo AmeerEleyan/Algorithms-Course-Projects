@@ -1,5 +1,7 @@
 package fourth_project;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -25,10 +27,12 @@ public class Controller implements Initializable {
     private AnchorPane anchorPane;
 
     @FXML
-    private ComboBox<String> comboLevel;
+    private ComboBox<String> comboScenario;
 
     @FXML
     private ComboBox<String> comboType;
+
+    private ObservableList<Node> movements;
 
     @FXML
     private Rectangle rectangle00, rectangle01, rectangle02,
@@ -38,27 +42,75 @@ public class Controller implements Initializable {
     @FXML
     private TextField txtResult;
 
+    // type true: X
+    // type false: O
+    private boolean[][] matrix;
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        this.comboScenario.getItems().addAll("Easy Level", "With Your Friend", "Hard Level");
+        this.comboType.getItems().addAll("X", "O");
+        this.matrix = new boolean[3][3];
+        this.movements = FXCollections.observableArrayList(); // all movements in the path;
+    }
+
 
     public void handleRestartButton() {
+        this.reset();
+    }
 
+    // Restart game
+    private void reset() {
+        this.matrix = new boolean[3][3];
+        this.anchorPane.getChildren().removeAll(this.movements);
+        this.movements = FXCollections.observableArrayList(); // all movements in the path;
     }
 
     @FXML
     void handleMouseEvent(MouseEvent event) {
+        if (this.comboScenario.getValue() == null) {
+            Message.displayMessage("Warning", "Plese select the scenario");
+            return;
+        }
+        if (this.comboType.getValue() == null) {
+            Message.displayMessage("Warning", "Please select your type");
+            return;
+        }
         Node node = event.getPickResult().getIntersectedNode();
-
+        boolean playerType = this.comboType.getValue().equals("X");
         if (node instanceof Rectangle) {
             if (event.getButton() == MouseButton.PRIMARY) {
-                this.anchorPane.getChildren().addAll(this.drawX(node.getLayoutX(), node.getLayoutY()));
+                Node n;
+                if (node.getId().equals("rectangle00")) {
+                    this.matrix[0][0] = playerType;
+                }else if(node.getId().equals("rectangle01")){
+                    this.matrix[0][1] = playerType;
+                }else if(node.getId().equals("rectangle02")){
+                    this.matrix[0][2] = playerType;
+                }else if(node.getId().equals("rectangle10")){
+                    this.matrix[1][0] = playerType;
+                }else if(node.getId().equals("rectangle11")){
+                    this.matrix[1][1] = playerType;
+                }else if(node.getId().equals("rectangle12")){
+                    this.matrix[1][2] = playerType;
+                }else if(node.getId().equals("rectangle20")){
+                    this.matrix[2][0] = playerType;
+                }else if(node.getId().equals("rectangle21")){
+                    this.matrix[2][1] = playerType;
+                }else{
+                    this.matrix[2][2] = playerType;
+                }
+                if(playerType){
+                    n =  this.drawX(node.getLayoutX(), node.getLayoutY());
+                }else{
+                    n = this.drawO(node.getLayoutX(), node.getLayoutY());
+                }
+                this.movements.add(n);
+                this.anchorPane.getChildren().add(n);
             }
         }
     }
 
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
-        this.comboLevel.getItems().addAll("Easy Level", "With Your Friend", "Hard Level");
-        this.comboType.getItems().addAll("X", "O");
-    }
 
     private Circle drawO(double layout_X, double layout_Y) {
         Circle circle = new Circle(60);
@@ -96,5 +148,50 @@ public class Controller implements Initializable {
         Group group = new Group();
         group.getChildren().addAll(line, line2);
         return group;
+    }
+
+    private byte isWin(boolean type) {
+        // type true: X
+        // type false: O
+
+        // 1-3: represent rows
+        // 4-6: represent columns
+        // 7: right diagonal
+        // 8: left diagonal
+
+
+        // check rows
+        for (int i = 0; i < 3; ++i) {
+            if (type) {
+                if (this.matrix[i][0] && this.matrix[i][1] && this.matrix[i][2]) return (byte) (i + 1);
+            } else {
+                if (!this.matrix[i][0] && !this.matrix[i][1] && !this.matrix[i][2]) return (byte) (i + 1);
+            }
+        }
+
+        // check columns
+        for (int j = 0; j < 3; ++j) {
+            if (type) {
+                if (this.matrix[0][j] && this.matrix[1][j] && this.matrix[2][j]) return (byte) (j + 4);
+            } else {
+                if (!this.matrix[0][j] && !this.matrix[1][j] && !this.matrix[2][j]) return (byte) (j + 4);
+            }
+        }
+
+        // right diagonal
+        if (type) {
+            if (this.matrix[0][0] && this.matrix[1][1] && this.matrix[2][2]) return 7;
+        } else {
+            if (!this.matrix[0][0] && !this.matrix[1][1] && !this.matrix[2][2]) return 7;
+        }
+
+        // left diagonal
+        if (type) {
+            if (this.matrix[0][2] && this.matrix[1][1] && this.matrix[2][0]) return 8;
+        } else {
+            if (!this.matrix[0][2] && !this.matrix[1][1] && !this.matrix[2][0]) return 8;
+        }
+
+        return -1;
     }
 }

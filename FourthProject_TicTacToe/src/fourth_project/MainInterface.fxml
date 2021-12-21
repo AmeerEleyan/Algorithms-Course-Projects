@@ -12,7 +12,7 @@
    <children>
       <Line endX="-26.0" endY="440.60003662109375" layoutX="483.0" layoutY="142.0" startX="-26.0" startY="-47.0" strokeWidth="11.0" />
       <Line endX="-26.000015258789062" endY="439.800048828125" layoutX="273.0" layoutY="142.0" startX="-26.0" startY="-47.0" strokeWidth="10.0" />
-      <ComboBox fx:id="comboLevel" layoutX="724.0" layoutY="88.0" prefHeight="42.0" prefWidth="250.0" promptText="Select the level" styleClass="comboBox" stylesheets="@style.css" />
+      <ComboBox fx:id="comboScenario" layoutX="724.0" layoutY="88.0" prefHeight="42.0" prefWidth="250.0" promptText="Select the scenario:" styleClass="comboBox" stylesheets="@style.css" />
       <ComboBox fx:id="comboType" layoutX="724.0" layoutY="212.0" prefHeight="42.0" prefWidth="250.0" promptText="Select your type" styleClass="comboBox" stylesheets="@style.css" />
       <Button fx:id="btRestart" layoutX="791.0" layoutY="318.0" mnemonicParsing="false" onAction="#handleRestartButton" prefHeight="42.0" prefWidth="91.0" style="-fx-border-radius: 35; -fx-background-radius: 35;" stylesheets="@style.css" text="Restart" />
       <TextField fx:id="txtResult" alignment="CENTER" editable="false" layoutX="195.0" layoutY="45.0" prefHeight="34.0" prefWidth="314.0" style="-fx-background-color: #ffffff; -fx-border-color: #FF4C29; -fx-border-width: 0px0px2px0px;" visible="false">
@@ -20,15 +20,15 @@
             <Font name="System Bold" size="15.0" />
          </font>
       </TextField>
-      <Rectangle fx:id="rectangle00" arcHeight="5.0" arcWidth="5.0" fill="#00ffe1" height="166.0" layoutX="47.0" layoutY="89.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="3.0" width="200.0" />
+      <Rectangle fx:id="rectangle00" arcHeight="5.0" arcWidth="5.0" fill="#00ffe1" height="166.0" layoutX="47.0" layoutY="90.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="3.0" width="200.0" />
       <Rectangle fx:id="rectangle01" arcHeight="5.0" arcWidth="5.0" fill="#00ffe1" height="166.0" layoutX="252.0" layoutY="90.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="3.0" width="200.0" />
       <Rectangle fx:id="rectangle02" arcHeight="5.0" arcWidth="5.0" fill="#00ffe1" height="166.0" layoutX="457.0" layoutY="90.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="3.0" width="200.0" />
-      <Rectangle fx:id="rectangle10" arcHeight="5.0" arcWidth="5.0" fill="#00ffe1" height="166.0" layoutX="47.0" layoutY="255.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="3.0" width="200.0" />
+      <Rectangle fx:id="rectangle10" arcHeight="5.0" arcWidth="5.0" fill="#00ffe1" height="166.0" layoutX="47.0" layoutY="256.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="3.0" width="200.0" />
       <Rectangle fx:id="rectangle11" arcHeight="5.0" arcWidth="5.0" fill="#00ffe1" height="166.0" layoutX="252.0" layoutY="256.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="3.0" width="200.0" />
       <Rectangle fx:id="rectangle12" arcHeight="5.0" arcWidth="5.0" fill="#00ffe1" height="166.0" layoutX="457.0" layoutY="256.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="3.0" width="200.0" />
-      <Rectangle fx:id="rectangle22" arcHeight="5.0" arcWidth="5.0" fill="#00ffe1" height="166.0" layoutX="457.0" layoutY="422.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="3.0" width="200.0" />
-      <Rectangle fx:id="rectangle21" arcHeight="5.0" arcWidth="5.0" fill="#00ffe1" height="166.0" layoutX="252.0" layoutY="422.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="3.0" width="200.0" />
-      <Rectangle fx:id="rectangle20" arcHeight="5.0" arcWidth="5.0" fill="#00ffe1" height="166.0" layoutX="47.0" layoutY="421.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="3.0" width="200.0" />
+      <Rectangle fx:id="rectangle22" arcHeight="5.0" arcWidth="5.0" fill="#00ffe1" height="166.0" layoutX="457.0" layoutY="420.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="3.0" width="200.0" />
+      <Rectangle fx:id="rectangle21" arcHeight="5.0" arcWidth="5.0" fill="#00ffe1" height="166.0" layoutX="252.0" layoutY="420.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="3.0" width="200.0" />
+      <Rectangle fx:id="rectangle20" arcHeight="5.0" arcWidth="5.0" fill="#00ffe1" height="166.0" layoutX="47.0" layoutY="420.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="3.0" width="200.0" />
       <Line endX="-26.000015258789062" endY="439.800048828125" layoutX="682.0" layoutY="141.0" startX="-26.0" startY="-47.0" stroke="WHITE" strokeWidth="10.0" />
       <Line endX="-26.000015258789062" endY="439.800048828125" layoutX="72.0" layoutY="142.0" startX="-26.0" startY="-47.0" stroke="WHITE" strokeWidth="10.0" />
       <Line endX="-26.000015258789062" endY="439.800048828125" layoutX="375.0" layoutY="-50.0" rotate="90.0" startX="-27.907732009887695" startY="-162.3043212890625" stroke="WHITE" strokeWidth="10.0" />
