@@ -47,8 +47,8 @@ public class Controller implements Initializable {
     // x, o, -:empty
     private char[][] board;
     private byte numberOfMovements = 0;
-    private char playerType;
-    private boolean isFinish;
+    private char player, opponent;
+    private boolean isFinish, whoseMove = true;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -65,6 +65,7 @@ public class Controller implements Initializable {
 
     // Restart game
     private void reset() {
+        this.whoseMove = true;
         this.isFinish = false;
         this.numberOfMovements = 0;
         this.comboScenario.setDisable(false);
@@ -105,94 +106,33 @@ public class Controller implements Initializable {
             this.comboType.setDisable(true);
         }
 
-        this.playerType = 'o';
-        if (this.comboType.getValue().equals("X")) this.playerType = 'x';
+        if (this.comboType.getValue().equals("X")) {
+            this.player = 'x';
+            this.opponent = 'o';
+        } else {
+            this.player = 'o';
+            this.opponent = 'x';
+        }
 
         String scenario = this.comboScenario.getValue();
 
         if (event.getButton() == MouseButton.PRIMARY) {
-            if (node.getId().equals("rectangle00")) {
-
-                if (this.board[0][0] == '-') this.board[0][0] = this.playerType;
-                else return;
-
-            } else if (node.getId().equals("rectangle01")) {
-
-                if (this.board[0][1] == '-') this.board[0][1] = this.playerType;
-                else return;
-
-            } else if (node.getId().equals("rectangle02")) {
-
-                if (this.board[0][2] == '-') this.board[0][2] = this.playerType;
-                else return;
-
-            } else if (node.getId().equals("rectangle10")) {
-
-                if (this.board[1][0] == '-') this.board[1][0] = this.playerType;
-                else return;
-
-            } else if (node.getId().equals("rectangle11")) {
-
-                if (this.board[1][1] == '-') this.board[1][1] = this.playerType;
-                else return;
-
-            } else if (node.getId().equals("rectangle12")) {
-
-                if (this.board[1][2] == '-') this.board[1][2] = this.playerType;
-                else return;
-
-            } else if (node.getId().equals("rectangle20")) {
-
-                if (this.board[2][0] == '-') this.board[2][0] = this.playerType;
-                else return;
-
-            } else if (node.getId().equals("rectangle21")) {
-
-                if (this.board[2][1] == '-') this.board[2][1] = this.playerType;
-                else return;
-
-            } else {
-
-                if (this.board[2][2] == '-') this.board[2][2] = this.playerType;
-                else return;
-
-            }
-            Node n;
-            if (this.playerType == 'x') {
-                n = this.drawX(node.getLayoutX(), node.getLayoutY());
-            } else {
-                n = this.drawO(node.getLayoutX(), node.getLayoutY());
-            }
-            this.movements.add(n);
-            this.anchorPane.getChildren().add(n);
-
-            this.numberOfMovements++;
-
-            if (this.numberOfMovements > 2 && this.numberOfMovements <= 5) {
-                byte win = this.isWin(this.playerType);
-
-                if (win == '\0' && this.numberOfMovements == 5) {
-                    this.txtResult.setVisible(true);
-                    this.txtResult.setText("GameOver 😒😥");
-                    this.isFinish = true;
-                    return;
-                } else if (win != '\0') {
-                    this.txtResult.setVisible(true);
-                    this.displayAnswerLine(win);
-                    this.txtResult.setText("Congratulations!! 🤝 You Win 💪");
-                    this.isFinish = true;
-                    return;
-                }
-            }
             // check senario
             if (scenario.equals("Easy Level")) {
-                this.easySenario();
+                this.easySenario(node);
             } else if (scenario.equals("With Your Friend")) {
-                this.twoPlayerSenario();
-            } else {
-                this.hardSenario();
-            }
 
+                if (this.whoseMove) {
+                    this.twoPlayerSenario(node, this.player, true);
+                    this.whoseMove = false;
+                } else {
+                    this.twoPlayerSenario(node, this.opponent, false);
+                    this.whoseMove = true;
+                }
+
+            } else {
+                this.hardSenario(node);
+            }
         }
 
     }
@@ -212,8 +152,75 @@ public class Controller implements Initializable {
         return new int[]{row, columns};
     }
 
-    private void easySenario() {
+    private boolean isLegalMove(Node node, char whichPlayer) {
+        if (node.getId().equals("rectangle00")) {
 
+            if (this.board[0][0] == '-') this.board[0][0] = whichPlayer;
+            else return false;
+
+        } else if (node.getId().equals("rectangle01")) {
+
+            if (this.board[0][1] == '-') this.board[0][1] = whichPlayer;
+            else return false;
+
+        } else if (node.getId().equals("rectangle02")) {
+
+            if (this.board[0][2] == '-') this.board[0][2] = whichPlayer;
+            else return false;
+
+        } else if (node.getId().equals("rectangle10")) {
+
+            if (this.board[1][0] == '-') this.board[1][0] = whichPlayer;
+            else return false;
+
+        } else if (node.getId().equals("rectangle11")) {
+
+            if (this.board[1][1] == '-') this.board[1][1] = whichPlayer;
+            else return false;
+
+        } else if (node.getId().equals("rectangle12")) {
+
+            if (this.board[1][2] == '-') this.board[1][2] = whichPlayer;
+            else return false;
+
+        } else if (node.getId().equals("rectangle20")) {
+
+            if (this.board[2][0] == '-') this.board[2][0] = whichPlayer;
+            else return false;
+
+        } else if (node.getId().equals("rectangle21")) {
+
+            if (this.board[2][1] == '-') this.board[2][1] = whichPlayer;
+            else return false;
+
+        } else {
+
+            if (this.board[2][2] == '-') this.board[2][2] = whichPlayer;
+            else return false;
+
+        }
+        Node n;
+        if (whichPlayer == 'x') {
+            n = this.drawX(node.getLayoutX(), node.getLayoutY());
+        } else {
+            n = this.drawO(node.getLayoutX(), node.getLayoutY());
+        }
+        this.movements.add(n);
+        this.anchorPane.getChildren().add(n);
+
+        return true;
+    }
+
+    private void easySenario(Node node) {
+
+        if (!this.isLegalMove(node, this.player)) {
+            return;
+        } else if (!this.status()) {
+            return;
+
+        }
+
+        // opponent move
         int[] random_AI = this.random_AI();
         int row = random_AI[0];
         int columns = random_AI[1];
@@ -239,51 +246,78 @@ public class Controller implements Initializable {
             n = this.rectangle22;
         }
         Node nodeType;
-        if (this.playerType == 'x') {
-            nodeType = this.drawO(n.getLayoutX(), n.getLayoutY());
-        } else {
+        if (this.opponent == 'x') {
             nodeType = this.drawX(n.getLayoutX(), n.getLayoutY());
+        } else {
+            nodeType = this.drawO(n.getLayoutX(), n.getLayoutY());
         }
+
         this.movements.add(nodeType);
         this.anchorPane.getChildren().add(nodeType);
 
-        //change matrix answer and check if wins
-
-        if (this.playerType == 'x') {
-            this.board[row][columns] = 'o';
-        } else {
-            this.board[row][columns] = 'x';
-        }
+        this.board[row][columns] = this.opponent;
 
         if (this.numberOfMovements > 2) {
-
-            byte win;
-            if (this.playerType == 'x') {
-                win = this.isWin('o');
-            } else {
-                win = this.isWin('x');
-            }
+            byte win = this.status(this.opponent);
             if (win != '\0') {
                 this.txtResult.setVisible(true);
                 this.displayAnswerLine(win);
-                this.txtResult.setText("GameOver 😒😥");
+                this.txtResult.setText("You Lose");
                 this.isFinish = true;
             }
         }
 
+    }
+
+    private void twoPlayerSenario(Node node, char whichPlayer, boolean whoseMove) {
+
+        if (this.isLegalMove(node, whichPlayer)) {
+            // whoseMove: true: you
+            // whoseMove: false :opponent
+            if (whoseMove) {
+                this.status();
+            } else {
+                if (this.numberOfMovements > 2 && this.numberOfMovements <= 5) {
+                    byte win = this.status(this.opponent);
+                    if (win != '\0') {
+                        this.txtResult.setVisible(true);
+                        this.displayAnswerLine(win);
+                        this.txtResult.setText("You Lose");
+                        this.isFinish = true;
+                    }
+                }
+            }
+
+        }
 
     }
 
-    private void twoPlayerSenario() {
+    private void hardSenario(Node node) {
 
     }
 
-    private void hardSenario() {
+    private boolean status() {
+        this.numberOfMovements++;
+        if (this.numberOfMovements > 2 && this.numberOfMovements <= 5) {
+            byte win = this.status(this.player);
 
+            if (win == '\0' && this.numberOfMovements == 5) {
+                this.txtResult.setVisible(true);
+                this.txtResult.setText("Draw");
+                this.isFinish = true;
+                return false;
+            } else if (win != '\0') {
+                this.txtResult.setVisible(true);
+                this.displayAnswerLine(win);
+                this.txtResult.setText("Congratulations!! 🤝 You Win 💪");
+                this.isFinish = true;
+                return false;
+            }
+        }
+        return true;
     }
 
-
-    private byte isWin(char type) {
+    private byte status(char type) {
 
         // 1-3: represent rows
         // 4-6: represent columns
