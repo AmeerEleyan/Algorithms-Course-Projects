@@ -2,7 +2,6 @@ package fourth_project;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Group;
@@ -18,6 +17,7 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 
 import java.net.URL;
+import java.util.Random;
 import java.util.ResourceBundle;
 
 
@@ -45,14 +45,16 @@ public class Controller implements Initializable {
     private Line lineAnswer;
 
     // x, o, -:empty
-    private char[][] matrix;
+    private char[][] board;
     private byte numberOfMovements = 0;
+    private char playerType;
+    private boolean isFinish;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         this.comboScenario.getItems().addAll("Easy Level", "With Your Friend", "Hard Level");
         this.comboType.getItems().addAll("X", "O");
-        this.matrix = new char[][]{{'-', '-', '-'}, {'-', '-', '-'}, {'-', '-', '-'}};
+        this.board = new char[][]{{'-', '-', '-'}, {'-', '-', '-'}, {'-', '-', '-'}};
         this.movements = FXCollections.observableArrayList(); // all movements in the path;
     }
 
@@ -63,10 +65,12 @@ public class Controller implements Initializable {
 
     // Restart game
     private void reset() {
+        this.isFinish = false;
         this.numberOfMovements = 0;
         this.comboScenario.setDisable(false);
         this.comboType.setDisable(false);
-        this.matrix = new char[][]{{'-', '-', '-'}, {'-', '-', '-'}, {'-', '-', '-'}};
+        this.txtResult.setVisible(false);
+        this.board = new char[][]{{'-', '-', '-'}, {'-', '-', '-'}, {'-', '-', '-'}};
         this.anchorPane.getChildren().removeAll(this.movements);
         this.anchorPane.getChildren().remove(this.lineAnswer);
         this.lineAnswer = null;
@@ -75,6 +79,18 @@ public class Controller implements Initializable {
 
     @FXML
     void handleMouseEvent(MouseEvent event) {
+
+        // Check if the game is finish
+        if (this.isFinish) {
+            return;
+        }
+
+        Node node = event.getPickResult().getIntersectedNode();
+        // the clicked node not a rectangle
+        if (!(node instanceof Rectangle)) {
+            return;
+        }
+
         if (this.comboScenario.getValue() == null) {
             Message.displayMessage("Warning", "Plese select the scenario");
             return;
@@ -84,61 +100,177 @@ public class Controller implements Initializable {
             return;
         }
 
-        this.comboScenario.setDisable(true);
-        this.comboType.setDisable(true);
+        if (this.numberOfMovements == 0) {
+            this.comboScenario.setDisable(true);
+            this.comboType.setDisable(true);
+        }
 
-        Node node = event.getPickResult().getIntersectedNode();
-        char playerType = 'o';
-        if (this.comboType.getValue().equals("X")) playerType = 'x';
+        this.playerType = 'o';
+        if (this.comboType.getValue().equals("X")) this.playerType = 'x';
 
         String scenario = this.comboScenario.getValue();
 
-        if (node instanceof Rectangle) {
+        if (event.getButton() == MouseButton.PRIMARY) {
+            if (node.getId().equals("rectangle00")) {
 
-            if (event.getButton() == MouseButton.PRIMARY) {
-                Node n;
-                if (node.getId().equals("rectangle00")) {
-                    this.matrix[0][0] = playerType;
-                } else if (node.getId().equals("rectangle01")) {
-                    this.matrix[0][1] = playerType;
-                } else if (node.getId().equals("rectangle02")) {
-                    this.matrix[0][2] = playerType;
-                } else if (node.getId().equals("rectangle10")) {
-                    this.matrix[1][0] = playerType;
-                } else if (node.getId().equals("rectangle11")) {
-                    this.matrix[1][1] = playerType;
-                } else if (node.getId().equals("rectangle12")) {
-                    this.matrix[1][2] = playerType;
-                } else if (node.getId().equals("rectangle20")) {
-                    this.matrix[2][0] = playerType;
-                } else if (node.getId().equals("rectangle21")) {
-                    this.matrix[2][1] = playerType;
-                } else {
-                    this.matrix[2][2] = playerType;
-                }
-                if (playerType == 'x') {
-                    n = this.drawX(node.getLayoutX(), node.getLayoutY());
-                } else {
-                    n = this.drawO(node.getLayoutX(), node.getLayoutY());
-                }
-                this.movements.add(n);
-                this.anchorPane.getChildren().add(n);
+                if (this.board[0][0] == '-') this.board[0][0] = this.playerType;
+                else return;
 
-                // check senario
-                if (scenario.equals("Easy Level")) {
-                    this.easySenario();
-                } else if (scenario.equals("With Your Friend")) {
-                    this.twoPlayerSenario();
-                } else {
-                    this.hardSenario();
-                }
-                this.numberOfMovements++;
+            } else if (node.getId().equals("rectangle01")) {
+
+                if (this.board[0][1] == '-') this.board[0][1] = this.playerType;
+                else return;
+
+            } else if (node.getId().equals("rectangle02")) {
+
+                if (this.board[0][2] == '-') this.board[0][2] = this.playerType;
+                else return;
+
+            } else if (node.getId().equals("rectangle10")) {
+
+                if (this.board[1][0] == '-') this.board[1][0] = this.playerType;
+                else return;
+
+            } else if (node.getId().equals("rectangle11")) {
+
+                if (this.board[1][1] == '-') this.board[1][1] = this.playerType;
+                else return;
+
+            } else if (node.getId().equals("rectangle12")) {
+
+                if (this.board[1][2] == '-') this.board[1][2] = this.playerType;
+                else return;
+
+            } else if (node.getId().equals("rectangle20")) {
+
+                if (this.board[2][0] == '-') this.board[2][0] = this.playerType;
+                else return;
+
+            } else if (node.getId().equals("rectangle21")) {
+
+                if (this.board[2][1] == '-') this.board[2][1] = this.playerType;
+                else return;
+
+            } else {
+
+                if (this.board[2][2] == '-') this.board[2][2] = this.playerType;
+                else return;
+
             }
+            Node n;
+            if (this.playerType == 'x') {
+                n = this.drawX(node.getLayoutX(), node.getLayoutY());
+            } else {
+                n = this.drawO(node.getLayoutX(), node.getLayoutY());
+            }
+            this.movements.add(n);
+            this.anchorPane.getChildren().add(n);
+
+            this.numberOfMovements++;
+
+            if (this.numberOfMovements > 2 && this.numberOfMovements <= 5) {
+                byte win = this.isWin(this.playerType);
+
+                if (win == '\0' && this.numberOfMovements == 5) {
+                    this.txtResult.setVisible(true);
+                    this.txtResult.setText("GameOver 😒😥");
+                    this.isFinish = true;
+                    return;
+                } else if (win != '\0') {
+                    this.txtResult.setVisible(true);
+                    this.displayAnswerLine(win);
+                    this.txtResult.setText("Congratulations!! 🤝 You Win 💪");
+                    this.isFinish = true;
+                    return;
+                }
+            }
+            // check senario
+            if (scenario.equals("Easy Level")) {
+                this.easySenario();
+            } else if (scenario.equals("With Your Friend")) {
+                this.twoPlayerSenario();
+            } else {
+                this.hardSenario();
+            }
+
         }
+
     }
 
+    // Get a legal move on the board
+    private int[] random_AI() {
+        Random random = new Random();
+
+        int row = random.nextInt(0, 3);
+        int columns = random.nextInt(0, 3);
+
+        while (this.board[row][columns] != '-') {
+            row = random.nextInt(0, 3);
+            columns = random.nextInt(0, 3);
+        }
+
+        return new int[]{row, columns};
+    }
 
     private void easySenario() {
+
+        int[] random_AI = this.random_AI();
+        int row = random_AI[0];
+        int columns = random_AI[1];
+
+        Node n;
+        if (row == 0 && columns == 0) {
+            n = this.rectangle00;
+        } else if (row == 0 && columns == 1) {
+            n = this.rectangle01;
+        } else if (row == 0 && columns == 2) {
+            n = this.rectangle02;
+        } else if (row == 1 && columns == 0) {
+            n = this.rectangle10;
+        } else if (row == 1 && columns == 1) {
+            n = this.rectangle11;
+        } else if (row == 1 && columns == 2) {
+            n = this.rectangle12;
+        } else if (row == 2 && columns == 0) {
+            n = this.rectangle20;
+        } else if (row == 2 && columns == 1) {
+            n = this.rectangle21;
+        } else {
+            n = this.rectangle22;
+        }
+        Node nodeType;
+        if (this.playerType == 'x') {
+            nodeType = this.drawO(n.getLayoutX(), n.getLayoutY());
+        } else {
+            nodeType = this.drawX(n.getLayoutX(), n.getLayoutY());
+        }
+        this.movements.add(nodeType);
+        this.anchorPane.getChildren().add(nodeType);
+
+        //change matrix answer and check if wins
+
+        if (this.playerType == 'x') {
+            this.board[row][columns] = 'o';
+        } else {
+            this.board[row][columns] = 'x';
+        }
+
+        if (this.numberOfMovements > 2) {
+
+            byte win;
+            if (this.playerType == 'x') {
+                win = this.isWin('o');
+            } else {
+                win = this.isWin('x');
+            }
+            if (win != '\0') {
+                this.txtResult.setVisible(true);
+                this.displayAnswerLine(win);
+                this.txtResult.setText("GameOver 😒😥");
+                this.isFinish = true;
+            }
+        }
+
 
     }
 
@@ -150,75 +282,6 @@ public class Controller implements Initializable {
 
     }
 
-    private byte random_AI() {
-        return 0;
-    }
-
-    private void displayAnswerLine(byte isWin) {
-        // find answer lineAnswer and draw it
-        this.lineAnswer = new Line();
-        this.lineAnswer.setStrokeWidth(5);
-        this.lineAnswer.setStroke(Color.BLACK);
-        switch (isWin) {
-            case 1 -> {
-                // answer in first row
-                this.lineAnswer.setStartX(this.rectangle00.getArcWidth() / 2);
-                this.lineAnswer.setStartY(this.rectangle00.getHeight() / 2);
-                this.lineAnswer.setEndX(this.rectangle02.getArcWidth() / 2);
-                this.lineAnswer.setEndY(this.rectangle02.getHeight() / 2);
-            }
-            case 2 -> {
-                // answer in second row
-                this.lineAnswer.setStartX(this.rectangle10.getArcWidth() / 2);
-                this.lineAnswer.setStartY(this.rectangle10.getHeight() / 2);
-                this.lineAnswer.setEndX(this.rectangle12.getArcWidth() / 2);
-                this.lineAnswer.setEndY(this.rectangle12.getHeight() / 2);
-            }
-            case 3 -> {
-                // answer in third row
-                this.lineAnswer.setStartX(this.rectangle20.getArcWidth() / 2);
-                this.lineAnswer.setStartY(this.rectangle20.getHeight() / 2);
-                this.lineAnswer.setEndX(this.rectangle22.getArcWidth() / 2);
-                this.lineAnswer.setEndY(this.rectangle22.getHeight() / 2);
-            }
-            case 4 -> {
-                // answer in first columns
-                this.lineAnswer.setStartX(this.rectangle00.getArcWidth() / 2);
-                this.lineAnswer.setStartY(this.rectangle00.getHeight() / 2);
-                this.lineAnswer.setEndX(this.rectangle20.getArcWidth() / 2);
-                this.lineAnswer.setEndY(this.rectangle20.getHeight() / 2);
-            }
-            case 5 -> {
-                // answer in first row
-                this.lineAnswer.setStartX(this.rectangle01.getArcWidth() / 2);
-                this.lineAnswer.setStartY(this.rectangle01.getHeight() / 2);
-                this.lineAnswer.setEndX(this.rectangle21.getArcWidth() / 2);
-                this.lineAnswer.setEndY(this.rectangle21.getHeight() / 2);
-            }
-            case 6 -> {
-                // answer in first row
-                this.lineAnswer.setStartX(this.rectangle02.getArcWidth() / 2);
-                this.lineAnswer.setStartY(this.rectangle02.getHeight() / 2);
-                this.lineAnswer.setEndX(this.rectangle22.getArcWidth() / 2);
-                this.lineAnswer.setEndY(this.rectangle22.getHeight() / 2);
-            }
-            case 7 -> {
-                // answer in right diagonal
-                this.lineAnswer.setStartX(this.rectangle00.getArcWidth() / 2);
-                this.lineAnswer.setStartY(this.rectangle00.getHeight() / 2);
-                this.lineAnswer.setEndX(this.rectangle22.getArcWidth() / 2);
-                this.lineAnswer.setEndY(this.rectangle22.getHeight() / 2);
-            }
-            case 8 -> {
-                // answer in left diagonal
-                this.lineAnswer.setStartX(this.rectangle02.getArcWidth() / 2);
-                this.lineAnswer.setStartY(this.rectangle02.getHeight() / 2);
-                this.lineAnswer.setEndX(this.rectangle20.getArcWidth() / 2);
-                this.lineAnswer.setEndY(this.rectangle20.getHeight() / 2);
-            }
-        }
-        this.anchorPane.getChildren().add(lineAnswer);
-    }
 
     private byte isWin(char type) {
 
@@ -227,14 +290,13 @@ public class Controller implements Initializable {
         // 7: right diagonal
         // 8: left diagonal
 
-
         // check rows
         for (int i = 0; i < 3; ++i) {
             if (type == 'x') {
-                if (this.matrix[i][0] == 'x' && this.matrix[i][1] == 'x' && this.matrix[i][2] == 'x')
+                if (this.board[i][0] == 'x' && this.board[i][1] == 'x' && this.board[i][2] == 'x')
                     return (byte) (i + 1);
             } else {
-                if (this.matrix[i][0] == 'o' && this.matrix[i][1] == 'o' && this.matrix[i][2] == 'o')
+                if (this.board[i][0] == 'o' && this.board[i][1] == 'o' && this.board[i][2] == 'o')
                     return (byte) (i + 1);
             }
         }
@@ -242,29 +304,88 @@ public class Controller implements Initializable {
         // check columns
         for (int j = 0; j < 3; ++j) {
             if (type == 'x') {
-                if (this.matrix[0][j] == 'x' && this.matrix[1][j] == 'x' && this.matrix[2][j] == 'x')
+                if (this.board[0][j] == 'x' && this.board[1][j] == 'x' && this.board[2][j] == 'x')
                     return (byte) (j + 4);
             } else {
-                if (this.matrix[0][j] == 'o' && this.matrix[1][j] == 'o' && this.matrix[2][j] == 'o')
+                if (this.board[0][j] == 'o' && this.board[1][j] == 'o' && this.board[2][j] == 'o')
                     return (byte) (j + 4);
             }
         }
 
         // right diagonal
         if (type == 'x') {
-            if (this.matrix[0][0] == 'x' && this.matrix[1][1] == 'x' && this.matrix[2][2] == 'x') return 7;
+            if (this.board[0][0] == 'x' && this.board[1][1] == 'x' && this.board[2][2] == 'x') return 7;
         } else {
-            if (this.matrix[0][0] == 'o' && this.matrix[1][1] == 'o' && this.matrix[2][2] == 'o') return 7;
+            if (this.board[0][0] == 'o' && this.board[1][1] == 'o' && this.board[2][2] == 'o') return 7;
         }
 
         // left diagonal
         if (type == 'x') {
-            if (this.matrix[0][2] == 'x' && this.matrix[1][1] == 'x' && this.matrix[2][0] == 'x') return 8;
+            if (this.board[0][2] == 'x' && this.board[1][1] == 'x' && this.board[2][0] == 'x') return 8;
         } else {
-            if (this.matrix[0][2] == 'o' && this.matrix[1][1] == 'o' && this.matrix[2][0] == 'o') return 8;
+            if (this.board[0][2] == 'o' && this.board[1][1] == 'o' && this.board[2][0] == 'o') return 8;
         }
 
         return '\0';
+    }
+
+    private void displayAnswerLine(byte isWin) {
+        // find answer lineAnswer and draw it
+        this.lineAnswer = this.drawAnswerLine(isWin);
+        this.anchorPane.getChildren().add(lineAnswer);
+    }
+
+    private Line drawAnswerLine(byte isWin) {
+        Line line = new Line();
+        line.setStrokeWidth(5);
+        line.setStroke(Color.RED);
+        if (isWin < 4) {
+            line.setStartX(-297);
+            line.setStartY(0);
+            line.setEndX(297);
+            line.setEndY(0);
+            if (isWin == 1) {
+                line.setLayoutX(350);
+                line.setLayoutY(170);
+            } else if (isWin == 2) {
+                line.setLayoutX(350);
+                line.setLayoutY(340);
+            } else {
+                line.setLayoutX(350);
+                line.setLayoutY(500);
+            }
+        } else if (isWin < 7) {
+            line.setStartX(195);
+            line.setStartY(0);
+            line.setEndX(195);
+            line.setEndY(480);
+            if (isWin == 4) {
+                line.setLayoutX(-43);
+                line.setLayoutY(100);
+            } else if (isWin == 5) {
+                line.setLayoutX(154);
+                line.setLayoutY(100);
+            } else {
+                line.setLayoutX(354);
+                line.setLayoutY(100);
+            }
+
+        } else if (isWin == 7) {
+            line.setStartX(310);
+            line.setStartY(420);
+            line.setEndX(-278);
+            line.setEndY(-55);
+            line.setLayoutX(335);
+            line.setLayoutY(155);
+        } else {
+            line.setStartX(-278);
+            line.setStartY(425);
+            line.setEndX(305);
+            line.setEndY(-55);
+            line.setLayoutX(335);
+            line.setLayoutY(155);
+        }
+        return line;
     }
 
     private Circle drawO(double layout_X, double layout_Y) {
