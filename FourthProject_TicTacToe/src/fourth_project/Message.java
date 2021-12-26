@@ -31,13 +31,12 @@ public abstract class Message {
 
         // Style for buttons
         String styleBt = "-fx-background-color:  #ffffff; -fx-background-radius:35; -fx-border-radius: 35;" +
-                "-fx-font-size:18; -fx-border-width: 2; -fx-border-color: #FF4C29;" +
-                "-fx-text-fill: #000000; -fx-font-family: 'Times New Roman';  ";
+                "-fx-font-size:18; -fx-text-fill: #000000; -fx-border-color: #FF4C29;" +
+                "-fx-border-width: 2; -fx-font-family: 'Times New Roman';  ";
 
         // Style for hover buttons
         String styleHoverBt = "-fx-background-color: #FF4C29; -fx-background-radius:35; -fx-border-radius: 35;"
-                + "-fx-font-size:18; -fx-border-width: 2; -fx-border-color: #000000;" +
-                "-fx-text-fill: #ffffff; -fx-font-family: 'Times New Roman'; ";
+                + "-fx-font-size:18; -fx-text-fill: #ffffff; -fx-font-family: 'Times New Roman'; ";
 
 
         // label for display massage
@@ -63,13 +62,9 @@ public abstract class Message {
         closeButton.setStyle(styleBt);
 
         // To change the design of the button when placing a mouse arrow on it
-        closeButton.setOnMouseEntered(e -> {
-            closeButton.setStyle(styleHoverBt);
-        });
+        closeButton.setOnMouseEntered(e -> closeButton.setStyle(styleHoverBt));
         // To change the design of the button when the mouse arrow is removed from it
-        closeButton.setOnMouseExited(e -> {
-            closeButton.setStyle(styleBt);
-        });
+        closeButton.setOnMouseExited(e -> closeButton.setStyle(styleBt));
         closeButton.setOnAction(e -> window.close());
 
         // VBox

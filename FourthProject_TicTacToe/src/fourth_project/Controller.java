@@ -17,8 +17,7 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 
 import java.net.URL;
-import java.util.Random;
-import java.util.ResourceBundle;
+import java.util.*;
 
 
 public class Controller implements Initializable {
@@ -42,13 +41,12 @@ public class Controller implements Initializable {
     @FXML
     private TextField txtResult;
 
-    private Line lineAnswer;
-
     // x, o, -:empty
     private char[][] board;
     private byte numberOfMovements = 0;
     private char player, opponent;
     private boolean isFinish, whoseMove = true;
+
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -56,11 +54,17 @@ public class Controller implements Initializable {
         this.comboType.getItems().addAll("X", "O");
         this.board = new char[][]{{'-', '-', '-'}, {'-', '-', '-'}, {'-', '-', '-'}};
         this.movements = FXCollections.observableArrayList(); // all movements in the path;
+
     }
 
 
     public void handleRestartButton() {
+
         this.reset();
+    }
+
+    public void handleExitButton() {
+        System.exit(0);
     }
 
     // Restart game
@@ -73,8 +77,7 @@ public class Controller implements Initializable {
         this.txtResult.setVisible(false);
         this.board = new char[][]{{'-', '-', '-'}, {'-', '-', '-'}, {'-', '-', '-'}};
         this.anchorPane.getChildren().removeAll(this.movements);
-        this.anchorPane.getChildren().remove(this.lineAnswer);
-        this.lineAnswer = null;
+        this.resetRectangleColor();
         this.movements = FXCollections.observableArrayList(); // all movements in the path;
     }
 
@@ -138,7 +141,7 @@ public class Controller implements Initializable {
     }
 
     // Get a legal move on the board
-    private int[] random_AI() {
+    private void random_AI() {
         Random random = new Random();
 
         int row = random.nextInt(0, 3);
@@ -149,8 +152,21 @@ public class Controller implements Initializable {
             columns = random.nextInt(0, 3);
         }
 
-        return new int[]{row, columns};
+        Node n = this.wichRectangleNode(row, columns);
+        Node nodeType;
+        if (this.opponent == 'x') {
+            nodeType = this.drawX(n.getLayoutX(), n.getLayoutY());
+        } else {
+            nodeType = this.drawO(n.getLayoutX(), n.getLayoutY());
+        }
+
+        this.movements.add(nodeType);
+        this.anchorPane.getChildren().add(nodeType);
+
+        this.board[row][columns] = this.opponent;
+
     }
+
 
     private boolean isLegalMove(Node node, char whichPlayer) {
         if (node.getId().equals("rectangle00")) {
@@ -215,58 +231,27 @@ public class Controller implements Initializable {
 
         if (!this.isLegalMove(node, this.player)) {
             return;
-        } else if (!this.status()) {
+        }
+        if (!this.status()) {
             return;
-
         }
 
         // opponent move
-        int[] random_AI = this.random_AI();
-        int row = random_AI[0];
-        int columns = random_AI[1];
-
-        Node n;
-        if (row == 0 && columns == 0) {
-            n = this.rectangle00;
-        } else if (row == 0 && columns == 1) {
-            n = this.rectangle01;
-        } else if (row == 0 && columns == 2) {
-            n = this.rectangle02;
-        } else if (row == 1 && columns == 0) {
-            n = this.rectangle10;
-        } else if (row == 1 && columns == 1) {
-            n = this.rectangle11;
-        } else if (row == 1 && columns == 2) {
-            n = this.rectangle12;
-        } else if (row == 2 && columns == 0) {
-            n = this.rectangle20;
-        } else if (row == 2 && columns == 1) {
-            n = this.rectangle21;
-        } else {
-            n = this.rectangle22;
-        }
-        Node nodeType;
-        if (this.opponent == 'x') {
-            nodeType = this.drawX(n.getLayoutX(), n.getLayoutY());
-        } else {
-            nodeType = this.drawO(n.getLayoutX(), n.getLayoutY());
-        }
-
-        this.movements.add(nodeType);
-        this.anchorPane.getChildren().add(nodeType);
-
-        this.board[row][columns] = this.opponent;
+        this.random_AI();
 
         if (this.numberOfMovements > 2) {
-            byte win = this.status(this.opponent);
-            if (win != '\0') {
-                this.txtResult.setVisible(true);
-                this.displayAnswerLine(win);
-                this.txtResult.setText("You Lose");
-                this.isFinish = true;
-            }
+            this.isTheOpponentIsTheWinner();
         }
+    }
 
+    private void isTheOpponentIsTheWinner() {
+        byte win = this.status(this.opponent);
+        if (win != '\0') {
+            this.txtResult.setVisible(true);
+            this.displayAnswerLine(win);
+            this.txtResult.setText(Character.toUpperCase(this.player) + " is the loser!!");
+            this.isFinish = true;
+        }
     }
 
     private void twoPlayerSenario(Node node, char whichPlayer, boolean whoseMove) {
@@ -277,24 +262,204 @@ public class Controller implements Initializable {
             if (whoseMove) {
                 this.status();
             } else {
-                if (this.numberOfMovements > 2 && this.numberOfMovements <= 5) {
-                    byte win = this.status(this.opponent);
-                    if (win != '\0') {
-                        this.txtResult.setVisible(true);
-                        this.displayAnswerLine(win);
-                        this.txtResult.setText("You Lose");
-                        this.isFinish = true;
-                    }
+                if (this.numberOfMovements > 2) {
+                    this.isTheOpponentIsTheWinner();
                 }
             }
+        }
+    }
 
+    private void hardSenario(Node node) {
+        if (!this.isLegalMove(node, this.player)) {
+            return;
+        } else {
+            this.numberOfMovements++;
+        }
+        
+        int[] bestMove = this.findBestMove(this.board);
+        if (bestMove[0] == -1) {
+
+            if (this.numberOfMovements == 5) {
+                this.txtResult.setVisible(true);
+                this.txtResult.setText("Draw");
+                this.isFinish = true;
+                return;
+            }
+
+            this.isTheOpponentIsTheWinner();
+
+        } else {
+            this.board[bestMove[0]][bestMove[1]] = this.opponent;
+            Node n = this.wichRectangleNode(bestMove[0], bestMove[1]);
+            Node temp;
+            if (this.opponent == 'x') {
+                temp = this.drawX(n.getLayoutX(), n.getLayoutY());
+            } else {
+                temp = this.drawO(n.getLayoutX(), n.getLayoutY());
+            }
+            this.movements.add(temp);
+            this.anchorPane.getChildren().add(temp);
+            this.isTheOpponentIsTheWinner();
         }
 
     }
 
-    private void hardSenario(Node node) {
 
+    // This will return the best possible
+    // move for the player
+    private int[] findBestMove(char[][] board) {
+        int bestVal = -1000;
+
+        int row = -1, column = -1;
+
+        // Traverse all cells, evaluate minimax function
+        // for all empty cells. And return the cell
+        // with optimal value.
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                // Check if cell is empty
+                if (board[i][j] == '-') {
+                    // Make the move
+                    board[i][j] = this.opponent;
+
+                    // compute evaluation function for this move.
+                    int moveVal = minimax(board, 0, false);
+
+                    // Undo the move
+                    board[i][j] = '-';
+
+                    // If the value of the current move is
+                    // more than the best value, then update best
+                    if (moveVal > bestVal) {
+                        row = i;
+                        column = j;
+                        bestVal = moveVal;
+                    }
+                }
+            }
+        }
+        return new int[]{row, column};
     }
+
+    boolean isMovesLeft(char[][] board) {
+        for (int i = 0; i < 3; i++)
+            for (int j = 0; j < 3; j++)
+                if (board[i][j] == '-')
+                    return true;
+        return false;
+    }
+
+    // This is the minimax function. It considers all
+    // the possible ways the game can go and returns
+    // the value of the board
+    int minimax(char[][] board, int depth, boolean isMax) {
+
+        int score = evaluate(board);
+
+        // If Maximizer has won the game
+        // return his/her evaluated score
+        if (score == 10)
+            return score;
+
+        // If Minimizer has won the game
+        // return his/her evaluated score
+        if (score == -10)
+            return score;
+
+        // If there are no more moves and
+        // no winner then it is a tie
+        if (!isMovesLeft(board))
+            return 0;
+
+        // If this maximizer's move
+        int best;
+        if (isMax) {
+            best = -1000;
+
+            // Traverse all cells
+            for (int i = 0; i < 3; i++) {
+                for (int j = 0; j < 3; j++) {
+                    // Check if cell is empty
+                    if (board[i][j] == '-') {
+                        // Make the move
+                        board[i][j] = this.opponent;
+
+                        // Call minimax recursively and choose
+                        // the maximum value
+                        best = Math.max(best, minimax(board, depth + 1, false));
+
+                        // Undo the move
+                        board[i][j] = '-';
+                    }
+                }
+            }
+        }
+        // If this minimizer's move
+        else {
+            best = 1000;
+
+            // Traverse all cells
+            for (int i = 0; i < 3; i++) {
+                for (int j = 0; j < 3; j++) {
+                    // Check if cell is empty
+                    if (board[i][j] == '-') {
+                        // Make the move
+                        board[i][j] = this.player;
+
+                        // Call minimax recursively and choose
+                        // the minimum value
+                        best = Math.min(best, minimax(board, depth + 1, true));
+
+                        // Undo the move
+                        board[i][j] = '-';
+                    }
+                }
+            }
+        }
+        return best;
+    }
+
+    private int evaluate(char[][] b) {
+        // Checking for Rows for X or O victory.
+        for (int row = 0; row < 3; row++) {
+            if (b[row][0] == b[row][1] && b[row][1] == b[row][2]) {
+                if (b[row][0] == this.opponent)
+                    return +10;
+                else if (b[row][0] == this.player)
+                    return -10;
+            }
+        }
+
+        // Checking for Columns for X or O victory.
+        for (int col = 0; col < 3; col++) {
+            if (b[0][col] == b[1][col] && b[1][col] == b[2][col]) {
+                if (b[0][col] == this.opponent)
+                    return +10;
+
+                else if (b[0][col] == this.player)
+                    return -10;
+            }
+        }
+
+        // Checking for Diagonals for X or O victory.
+        if (b[0][0] == b[1][1] && b[1][1] == b[2][2]) {
+            if (b[0][0] == this.opponent)
+                return +10;
+            else if (b[0][0] == this.player)
+                return -10;
+        }
+
+        if (b[0][2] == b[1][1] && b[1][1] == b[2][0]) {
+            if (b[0][2] == this.opponent)
+                return +10;
+            else if (b[0][2] == this.player)
+                return -10;
+        }
+
+        // Else if none of them have won then return 0
+        return 0;
+    }
+
 
     private boolean status() {
         this.numberOfMovements++;
@@ -309,7 +474,7 @@ public class Controller implements Initializable {
             } else if (win != '\0') {
                 this.txtResult.setVisible(true);
                 this.displayAnswerLine(win);
-                this.txtResult.setText("Congratulations!! 🤝 You Win 💪");
+                this.txtResult.setText("Congratulations You Win");
                 this.isFinish = true;
                 return false;
             }
@@ -363,97 +528,124 @@ public class Controller implements Initializable {
         return '\0';
     }
 
-    private void displayAnswerLine(byte isWin) {
-        // find answer lineAnswer and draw it
-        this.lineAnswer = this.drawAnswerLine(isWin);
-        this.anchorPane.getChildren().add(lineAnswer);
+    private Node wichRectangleNode(int row, int columns) {
+        if (row == 0 && columns == 0) {
+            return this.rectangle00;
+        } else if (row == 0 && columns == 1) {
+            return this.rectangle01;
+        } else if (row == 0 && columns == 2) {
+            return this.rectangle02;
+        } else if (row == 1 && columns == 0) {
+            return this.rectangle10;
+        } else if (row == 1 && columns == 1) {
+            return this.rectangle11;
+        } else if (row == 1 && columns == 2) {
+            return this.rectangle12;
+        } else if (row == 2 && columns == 0) {
+            return this.rectangle20;
+        } else if (row == 2 && columns == 1) {
+            return this.rectangle21;
+        } else {
+            return this.rectangle22;
+        }
     }
 
-    private Line drawAnswerLine(byte isWin) {
-        Line line = new Line();
-        line.setStrokeWidth(5);
-        line.setStroke(Color.RED);
-        if (isWin < 4) {
-            line.setStartX(-297);
-            line.setStartY(0);
-            line.setEndX(297);
-            line.setEndY(0);
-            if (isWin == 1) {
-                line.setLayoutX(350);
-                line.setLayoutY(170);
-            } else if (isWin == 2) {
-                line.setLayoutX(350);
-                line.setLayoutY(340);
-            } else {
-                line.setLayoutX(350);
-                line.setLayoutY(500);
-            }
-        } else if (isWin < 7) {
-            line.setStartX(195);
-            line.setStartY(0);
-            line.setEndX(195);
-            line.setEndY(480);
-            if (isWin == 4) {
-                line.setLayoutX(-43);
-                line.setLayoutY(100);
-            } else if (isWin == 5) {
-                line.setLayoutX(154);
-                line.setLayoutY(100);
-            } else {
-                line.setLayoutX(354);
-                line.setLayoutY(100);
-            }
+    private void resetRectangleColor() {
+        this.rectangle00.setFill(Color.BLACK);
+        this.rectangle01.setFill(Color.BLACK);
+        this.rectangle02.setFill(Color.BLACK);
+        this.rectangle10.setFill(Color.BLACK);
+        this.rectangle11.setFill(Color.BLACK);
+        this.rectangle12.setFill(Color.BLACK);
+        this.rectangle20.setFill(Color.BLACK);
+        this.rectangle21.setFill(Color.BLACK);
+        this.rectangle22.setFill(Color.BLACK);
+    }
 
-        } else if (isWin == 7) {
-            line.setStartX(310);
-            line.setStartY(420);
-            line.setEndX(-278);
-            line.setEndY(-55);
-            line.setLayoutX(335);
-            line.setLayoutY(155);
-        } else {
-            line.setStartX(-278);
-            line.setStartY(425);
-            line.setEndX(305);
-            line.setEndY(-55);
-            line.setLayoutX(335);
-            line.setLayoutY(155);
+    private void displayAnswerLine(byte isWin) {
+
+        switch (isWin) {
+            case 1 -> {
+                this.rectangle00.setFill(Color.RED);
+                this.rectangle01.setFill(Color.RED);
+                this.rectangle02.setFill(Color.RED);
+            }
+            case 2 -> {
+                this.rectangle10.setFill(Color.RED);
+                this.rectangle11.setFill(Color.RED);
+                this.rectangle12.setFill(Color.RED);
+            }
+            case 3 -> {
+                this.rectangle20.setFill(Color.RED);
+                this.rectangle21.setFill(Color.RED);
+                this.rectangle22.setFill(Color.RED);
+            }
+            case 4 -> {
+                this.rectangle00.setFill(Color.RED);
+                this.rectangle10.setFill(Color.RED);
+                this.rectangle20.setFill(Color.RED);
+            }
+            case 5 -> {
+                this.rectangle01.setFill(Color.RED);
+                this.rectangle11.setFill(Color.RED);
+                this.rectangle21.setFill(Color.RED);
+            }
+            case 6 -> {
+                this.rectangle02.setFill(Color.RED);
+                this.rectangle12.setFill(Color.RED);
+                this.rectangle22.setFill(Color.RED);
+            }
+            case 7 -> {
+                this.rectangle00.setFill(Color.RED);
+                this.rectangle11.setFill(Color.RED);
+                this.rectangle22.setFill(Color.RED);
+            }
+            case 8 -> {
+                this.rectangle02.setFill(Color.RED);
+                this.rectangle11.setFill(Color.RED);
+                this.rectangle20.setFill(Color.RED);
+            }
         }
-        return line;
     }
 
     private Circle drawO(double layout_X, double layout_Y) {
-        Circle circle = new Circle(60);
+        Circle circle = new Circle(70);
         circle.setFill(Color.TRANSPARENT);
-        circle.setStroke(Color.BLACK);
-        circle.setStrokeWidth(4);
-        circle.setLayoutX(layout_X + 100);
-        circle.setLayoutY(layout_Y + 83);
+        circle.setStroke(Color.WHITE);
+        circle.setStrokeWidth(6);
+        circle.setLayoutX(layout_X + 140);
+        circle.setLayoutY(layout_Y + 165);
         return circle;
     }
 
     private Group drawX(double layout_X, double layout_Y) {
         Line line = new Line();
+
         line.setRotate(45);
+        line.setStrokeWidth(6);
+
         line.setStartX(-100);
         line.setStartY(0);
         line.setEndX(100);
         line.setEndY(0);
-        line.setStrokeWidth(4);
-        line.setStroke(Color.BLACK);
-        line.setLayoutX(layout_X + 100);
-        line.setLayoutY(layout_Y + 83);
+
+        line.setStroke(Color.GREENYELLOW);
+        line.setLayoutX(layout_X + 140);
+        line.setLayoutY(layout_Y + 165);
 
         Line line2 = new Line();
+
         line2.setRotate(-45);
-        line2.setStrokeWidth(4);
+        line2.setStrokeWidth(6);
+
         line2.setStartX(-100);
         line2.setStartY(0);
         line2.setEndX(100);
         line2.setEndY(0);
-        line2.setStroke(Color.BLACK);
-        line2.setLayoutX(layout_X + 100);
-        line2.setLayoutY(layout_Y + 83);
+
+        line2.setStroke(Color.GREENYELLOW);
+        line2.setLayoutX(layout_X + 140);
+        line2.setLayoutY(layout_Y + 165);
 
         Group group = new Group();
         group.getChildren().addAll(line, line2);
