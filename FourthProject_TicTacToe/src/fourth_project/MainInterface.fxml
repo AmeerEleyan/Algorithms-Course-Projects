@@ -14,7 +14,7 @@
     <ComboBox fx:id="comboScenario" layoutX="714.0" layoutY="80.0" prefHeight="42.0" prefWidth="250.0" promptText="Select the scenario:" style="-fx-background-radius: 35; -fx-border-radius: 35;" styleClass="comboBox" stylesheets="@InterfaceStyle.css" />
     <ComboBox fx:id="comboType" layoutX="714.0" layoutY="200.0" prefHeight="42.0" prefWidth="250.0" promptText="Select your type" style="-fx-border-radius: 35; -fx-background-radius: 35;" styleClass="comboBox" stylesheets="@InterfaceStyle.css" />
     <Button layoutX="723.0" layoutY="332.0" mnemonicParsing="false" onAction="#handleRestartButton" prefHeight="42.0" prefWidth="115.0" style="-fx-border-radius: 35; -fx-background-radius: 35;" stylesheets="@InterfaceStyle.css" text="Restart" />
-    <TextField fx:id="txtResult" alignment="CENTER" editable="false" layoutX="725.0" layoutY="425.0" prefHeight="42.0" prefWidth="250.0" style="-fx-background-color: #ffffff; -fx-background-radius: 35;" visible="false">
+    <TextField fx:id="txtResult" alignment="CENTER" editable="false" layoutX="217.0" layoutY="27.0" prefHeight="42.0" prefWidth="250.0" style="-fx-background-color: #ffffff; -fx-background-radius: 35; -fx-text-fill: #000000;" visible="false">
         <font>
             <Font name="Times New Roman Bold" size="20.0" />
         </font>

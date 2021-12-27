@@ -1,3 +1,8 @@
+/**
+ * @author: Amir Eleyan
+ * ID: 1191076
+ * At: 27/12/2021    4:11 AM
+ */
 package fourth_project;
 
 import javafx.collections.FXCollections;
@@ -41,12 +46,12 @@ public class Controller implements Initializable {
     @FXML
     private TextField txtResult;
 
-    // x, o, -:empty
+    // TicTacToe board (X, O, -)
     private char[][] board;
-    private byte numberOfMovements = 0;
+    private byte numberOfMovements;
     private char player, opponent;
-    private boolean isFinish, whoseMove = true;
-
+    private boolean isFinish, whoseMove;
+    private String scenario;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -54,15 +59,17 @@ public class Controller implements Initializable {
         this.comboType.getItems().addAll("X", "O");
         this.board = new char[][]{{'-', '-', '-'}, {'-', '-', '-'}, {'-', '-', '-'}};
         this.movements = FXCollections.observableArrayList(); // all movements in the path;
+        this.numberOfMovements = 0;
+        this.whoseMove = true;
 
     }
 
-
+    // Handle restart button, to return the game to default status
     public void handleRestartButton() {
-
         this.reset();
     }
 
+    // To exit from the game
     public void handleExitButton() {
         System.exit(0);
     }
@@ -81,6 +88,7 @@ public class Controller implements Initializable {
         this.movements = FXCollections.observableArrayList(); // all movements in the path;
     }
 
+    // Handle when user select the rectangle to put his answer
     @FXML
     void handleMouseEvent(MouseEvent event) {
 
@@ -89,41 +97,50 @@ public class Controller implements Initializable {
             return;
         }
 
+        // Get the node that selected by user
         Node node = event.getPickResult().getIntersectedNode();
-        // the clicked node not a rectangle
+
+        // check the type of clicked node
         if (!(node instanceof Rectangle)) {
             return;
         }
 
-        if (this.comboScenario.getValue() == null) {
-            Message.displayMessage("Warning", "Plese select the scenario");
-            return;
-        }
-        if (this.comboType.getValue() == null) {
-            Message.displayMessage("Warning", "Please select your type");
-            return;
-        }
-
         if (this.numberOfMovements == 0) {
+
+            // Check the scenario type if selected
+            if (this.comboScenario.getValue() == null) {
+                Message.displayMessage("Warning", "Plese select the scenario");
+                return;
+            }
+            // Check the player type if selected
+            if (this.comboType.getValue() == null) {
+                Message.displayMessage("Warning", "Please select your type");
+                return;
+            }
+
+            // determine the player and the opponent
+            if (this.comboType.getValue().equals("X")) {
+                this.player = 'x';
+                this.opponent = 'o';
+            } else {
+                this.player = 'o';
+                this.opponent = 'x';
+            }
+
+            // Hide comboBox senario and player type after first move
             this.comboScenario.setDisable(true);
             this.comboType.setDisable(true);
+            this.scenario = this.comboScenario.getValue();
         }
 
-        if (this.comboType.getValue().equals("X")) {
-            this.player = 'x';
-            this.opponent = 'o';
-        } else {
-            this.player = 'o';
-            this.opponent = 'x';
-        }
-
-        String scenario = this.comboScenario.getValue();
-
+        // Check if LeftMouseButton Clicked
         if (event.getButton() == MouseButton.PRIMARY) {
-            // check senario
-            if (scenario.equals("Easy Level")) {
+            // check senario type
+            if (this.scenario.equals("Easy Level")) {
+
                 this.easySenario(node);
-            } else if (scenario.equals("With Your Friend")) {
+
+            } else if (this.scenario.equals("With Your Friend")) {
 
                 if (this.whoseMove) {
                     this.twoPlayerSenario(node, this.player, true);
@@ -140,155 +157,69 @@ public class Controller implements Initializable {
 
     }
 
-    // Get a legal move on the board
-    private void random_AI() {
-        Random random = new Random();
-
-        int row = random.nextInt(0, 3);
-        int columns = random.nextInt(0, 3);
-
-        while (this.board[row][columns] != '-') {
-            row = random.nextInt(0, 3);
-            columns = random.nextInt(0, 3);
-        }
-
-        Node n = this.wichRectangleNode(row, columns);
-        Node nodeType;
-        if (this.opponent == 'x') {
-            nodeType = this.drawX(n.getLayoutX(), n.getLayoutY());
-        } else {
-            nodeType = this.drawO(n.getLayoutX(), n.getLayoutY());
-        }
-
-        this.movements.add(nodeType);
-        this.anchorPane.getChildren().add(nodeType);
-
-        this.board[row][columns] = this.opponent;
-
-    }
-
-
-    private boolean isLegalMove(Node node, char whichPlayer) {
-        if (node.getId().equals("rectangle00")) {
-
-            if (this.board[0][0] == '-') this.board[0][0] = whichPlayer;
-            else return false;
-
-        } else if (node.getId().equals("rectangle01")) {
-
-            if (this.board[0][1] == '-') this.board[0][1] = whichPlayer;
-            else return false;
-
-        } else if (node.getId().equals("rectangle02")) {
-
-            if (this.board[0][2] == '-') this.board[0][2] = whichPlayer;
-            else return false;
-
-        } else if (node.getId().equals("rectangle10")) {
-
-            if (this.board[1][0] == '-') this.board[1][0] = whichPlayer;
-            else return false;
-
-        } else if (node.getId().equals("rectangle11")) {
-
-            if (this.board[1][1] == '-') this.board[1][1] = whichPlayer;
-            else return false;
-
-        } else if (node.getId().equals("rectangle12")) {
-
-            if (this.board[1][2] == '-') this.board[1][2] = whichPlayer;
-            else return false;
-
-        } else if (node.getId().equals("rectangle20")) {
-
-            if (this.board[2][0] == '-') this.board[2][0] = whichPlayer;
-            else return false;
-
-        } else if (node.getId().equals("rectangle21")) {
-
-            if (this.board[2][1] == '-') this.board[2][1] = whichPlayer;
-            else return false;
-
-        } else {
-
-            if (this.board[2][2] == '-') this.board[2][2] = whichPlayer;
-            else return false;
-
-        }
-        Node n;
-        if (whichPlayer == 'x') {
-            n = this.drawX(node.getLayoutX(), node.getLayoutY());
-        } else {
-            n = this.drawO(node.getLayoutX(), node.getLayoutY());
-        }
-        this.movements.add(n);
-        this.anchorPane.getChildren().add(n);
-
-        return true;
-    }
-
+    // Process the easy senario with random move by computer
     private void easySenario(Node node) {
 
+        // check if the player(user) can do this move
         if (!this.isLegalMove(node, this.player)) {
             return;
-        }
-        if (!this.status()) {
+        } else this.numberOfMovements++;
+
+        // check if the game was finished by the user
+        if (this.isGameFinished_ByUser()) {
             return;
         }
 
-        // opponent move
+        // opponent(computer) random move
         this.random_AI();
 
+        // check if the game was finished by the opponent(computer) after the second move
         if (this.numberOfMovements > 2) {
-            this.isTheOpponentIsTheWinner();
+            this.checkIfTheOpponentIsWinner();
         }
     }
 
-    private void isTheOpponentIsTheWinner() {
-        byte win = this.status(this.opponent);
-        if (win != '\0') {
-            this.txtResult.setVisible(true);
-            this.displayAnswerLine(win);
-            this.txtResult.setText(Character.toUpperCase(this.player) + " is the loser!!");
-            this.isFinish = true;
-        }
-    }
-
+    // Process the two player senario
     private void twoPlayerSenario(Node node, char whichPlayer, boolean whoseMove) {
 
+        // check if the player or his friend can do this move
         if (this.isLegalMove(node, whichPlayer)) {
             // whoseMove: true: you
-            // whoseMove: false :opponent
+            // whoseMove: false :opponent(your friend)
             if (whoseMove) {
-                this.status();
+                this.numberOfMovements++;
+                // check if the game was finished by the user
+                this.isGameFinished_ByUser();
             } else {
+                // check if the game was finished by the opponent(computer) after the second move
                 if (this.numberOfMovements > 2) {
-                    this.isTheOpponentIsTheWinner();
+                    this.checkIfTheOpponentIsWinner();
                 }
             }
         }
     }
 
+    // Process the advanced scenario with the intelligent move by the computer
     private void hardSenario(Node node) {
+        // check if the player(user) can do this move
         if (!this.isLegalMove(node, this.player)) {
             return;
         } else {
             this.numberOfMovements++;
         }
-        
+
+        // Find the best move
         int[] bestMove = this.findBestMove(this.board);
-        if (bestMove[0] == -1) {
 
-            if (this.numberOfMovements == 5) {
-                this.txtResult.setVisible(true);
-                this.txtResult.setText("Draw");
-                this.isFinish = true;
-                return;
-            }
+        // There are no moves( the game finished with draw)
+        if (bestMove == null) {
 
-            this.isTheOpponentIsTheWinner();
+            this.txtResult.setVisible(true);
+            this.txtResult.setText("Draw");
+            this.isFinish = true;
 
         } else {
+            // set the best move for the opponent (computer), and fill it type in the cell
             this.board[bestMove[0]][bestMove[1]] = this.opponent;
             Node n = this.wichRectangleNode(bestMove[0], bestMove[1]);
             Node temp;
@@ -299,7 +230,9 @@ public class Controller implements Initializable {
             }
             this.movements.add(temp);
             this.anchorPane.getChildren().add(temp);
-            this.isTheOpponentIsTheWinner();
+
+            // check if the computer win after this move
+            this.checkIfTheOpponentIsWinner();
         }
 
     }
@@ -308,13 +241,16 @@ public class Controller implements Initializable {
     // This will return the best possible
     // move for the player
     private int[] findBestMove(char[][] board) {
-        int bestVal = -1000;
+
+        // Game finished
+        if (this.numberOfMovements == 5) return null;
+
+        int bestVal = Integer.MIN_VALUE;
 
         int row = -1, column = -1;
 
         // Traverse all cells, evaluate minimax function
-        // for all empty cells. And return the cell
-        // with optimal value.
+        // for all empty cells. And return the cell with optimal value
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 // Check if cell is empty
@@ -323,47 +259,40 @@ public class Controller implements Initializable {
                     board[i][j] = this.opponent;
 
                     // compute evaluation function for this move.
-                    int moveVal = minimax(board, 0, false);
+                    int moveValue = minimax(board, 0, false);
 
                     // Undo the move
                     board[i][j] = '-';
 
                     // If the value of the current move is
                     // more than the best value, then update best
-                    if (moveVal > bestVal) {
+                    if (moveValue > bestVal) {
                         row = i;
                         column = j;
-                        bestVal = moveVal;
+                        bestVal = moveValue;
                     }
                 }
             }
         }
+        // return the index of the best move in the board
         return new int[]{row, column};
     }
 
-    boolean isMovesLeft(char[][] board) {
-        for (int i = 0; i < 3; i++)
-            for (int j = 0; j < 3; j++)
-                if (board[i][j] == '-')
-                    return true;
-        return false;
-    }
 
-    // This is the minimax function. It considers all
-    // the possible ways the game can go and returns
-    // the value of the board
-    int minimax(char[][] board, int depth, boolean isMax) {
+    // All the possible ways the game can go and returns
+    // the best value of the board
+    private int minimax(char[][] board, int depth, boolean isMax) {
 
-        int score = evaluate(board);
+        int score = checkIfThereIsAWinner(board);
 
         // If Maximizer has won the game
         // return his/her evaluated score
-        if (score == 10)
+        if (score == 1)
             return score;
 
         // If Minimizer has won the game
         // return his/her evaluated score
-        if (score == -10)
+        if (score == -1)
             return score;
 
         // If there are no more moves and
@@ -374,7 +303,7 @@ public class Controller implements Initializable {
         // If this maximizer's move
         int best;
         if (isMax) {
-            best = -1000;
+            best = Integer.MIN_VALUE;
 
             // Traverse all cells
             for (int i = 0; i < 3; i++) {
@@ -396,7 +325,7 @@ public class Controller implements Initializable {
         }
         // If this minimizer's move
         else {
-            best = 1000;
+            best = Integer.MAX_VALUE;
 
             // Traverse all cells
             for (int i = 0; i < 3; i++) {
@@ -419,41 +348,43 @@ public class Controller implements Initializable {
         return best;
     }
 
-    private int evaluate(char[][] b) {
-        // Checking for Rows for X or O victory.
+    // Check if there is a winner in the board
+    private int checkIfThereIsAWinner(char[][] b) {
+        // Checking for Rows for X or O .
         for (int row = 0; row < 3; row++) {
             if (b[row][0] == b[row][1] && b[row][1] == b[row][2]) {
                 if (b[row][0] == this.opponent)
-                    return +10;
+                    return +1;
                 else if (b[row][0] == this.player)
-                    return -10;
+                    return -1;
             }
         }
 
-        // Checking for Columns for X or O victory.
+        // Checking for Columns for X or O.
         for (int col = 0; col < 3; col++) {
             if (b[0][col] == b[1][col] && b[1][col] == b[2][col]) {
                 if (b[0][col] == this.opponent)
-                    return +10;
+                    return +1;
 
                 else if (b[0][col] == this.player)
-                    return -10;
+                    return -1;
             }
         }
 
-        // Checking for Diagonals for X or O victory.
+        // Checking for right diagonals for X or O victory.
         if (b[0][0] == b[1][1] && b[1][1] == b[2][2]) {
             if (b[0][0] == this.opponent)
-                return +10;
+                return +1;
             else if (b[0][0] == this.player)
-                return -10;
+                return -1;
         }
 
+        // Checking for left diagonals for X or O victory.
         if (b[0][2] == b[1][1] && b[1][1] == b[2][0]) {
             if (b[0][2] == this.opponent)
-                return +10;
+                return +1;
             else if (b[0][2] == this.player)
-                return -10;
+                return -1;
         }
 
         // Else if none of them have won then return 0
@@ -461,28 +392,29 @@ public class Controller implements Initializable {
     }
 
 
-    private boolean status() {
-        this.numberOfMovements++;
+    // Check the status of the game that was finished by user(draw or win)
+    private boolean isGameFinished_ByUser() {
+
         if (this.numberOfMovements > 2 && this.numberOfMovements <= 5) {
-            byte win = this.status(this.player);
+            byte win = this.isGameFinished_ByUser(this.player);
 
             if (win == '\0' && this.numberOfMovements == 5) {
                 this.txtResult.setVisible(true);
                 this.txtResult.setText("Draw");
                 this.isFinish = true;
-                return false;
+                return true;
             } else if (win != '\0') {
                 this.txtResult.setVisible(true);
                 this.displayAnswerLine(win);
-                this.txtResult.setText("Congratulations You Win");
+                this.txtResult.setText("Congratulations. You Win");
                 this.isFinish = true;
-                return false;
+                return true;
             }
         }
-        return true;
+        return false;
     }
 
-    private byte status(char type) {
+    private byte isGameFinished_ByUser(char type) {
 
         // 1-3: represent rows
         // 4-6: represent columns
@@ -525,9 +457,128 @@ public class Controller implements Initializable {
             if (this.board[0][2] == 'o' && this.board[1][1] == 'o' && this.board[2][0] == 'o') return 8;
         }
 
+        // No Winner
         return '\0';
     }
 
+    // Random move in the board
+    private void random_AI() {
+
+        Random random = new Random();
+        int row = random.nextInt(0, 3);
+        int columns = random.nextInt(0, 3);
+
+        // Get empty cell randomly
+        while (this.board[row][columns] != '-') {
+            row = random.nextInt(0, 3);
+            columns = random.nextInt(0, 3);
+        }
+
+        // get the node that was obtained it randomly, and draw on it
+        Node n = this.wichRectangleNode(row, columns);
+        Node nodeType;
+        if (this.opponent == 'x') {
+            nodeType = this.drawX(n.getLayoutX(), n.getLayoutY());
+        } else {
+            nodeType = this.drawO(n.getLayoutX(), n.getLayoutY());
+        }
+
+        this.movements.add(nodeType);
+        this.anchorPane.getChildren().add(nodeType);
+
+        // set the random opponent move in the board
+        this.board[row][columns] = this.opponent;
+
+    }
+
+
+    // Check wich cell selected ,
+    // and fill it if empty with player type
+    private boolean isLegalMove(Node node, char whichPlayer) {
+
+        // Check the cell ID
+        if (node.getId().equals("rectangle00")) {
+
+            if (this.board[0][0] == '-') this.board[0][0] = whichPlayer;
+            else return false;// the cell was filled
+
+        } else if (node.getId().equals("rectangle01")) {
+
+            if (this.board[0][1] == '-') this.board[0][1] = whichPlayer;
+            else return false;
+
+        } else if (node.getId().equals("rectangle02")) {
+
+            if (this.board[0][2] == '-') this.board[0][2] = whichPlayer;
+            else return false;
+
+        } else if (node.getId().equals("rectangle10")) {
+
+            if (this.board[1][0] == '-') this.board[1][0] = whichPlayer;
+            else return false;
+
+        } else if (node.getId().equals("rectangle11")) {
+
+            if (this.board[1][1] == '-') this.board[1][1] = whichPlayer;
+            else return false;
+
+        } else if (node.getId().equals("rectangle12")) {
+
+            if (this.board[1][2] == '-') this.board[1][2] = whichPlayer;
+            else return false;
+
+        } else if (node.getId().equals("rectangle20")) {
+
+            if (this.board[2][0] == '-') this.board[2][0] = whichPlayer;
+            else return false;
+
+        } else if (node.getId().equals("rectangle21")) {
+
+            if (this.board[2][1] == '-') this.board[2][1] = whichPlayer;
+            else return false;
+
+        } else {
+
+            if (this.board[2][2] == '-') this.board[2][2] = whichPlayer;
+            else return false;
+
+        }
+        // Draw the player in the selected cell
+        Node n;
+        if (whichPlayer == 'x') {
+            n = this.drawX(node.getLayoutX(), node.getLayoutY());
+        } else {
+            n = this.drawO(node.getLayoutX(), node.getLayoutY());
+        }
+        // add this move to the list, to be able to remove it when restarting
+        this.movements.add(n);
+
+        this.anchorPane.getChildren().add(n);
+        // the move is legal
+        return true;
+    }
+
+    // Check if the board has empty cell
+    boolean isMovesLeft(char[][] board) {
+        for (int i = 0; i < 3; i++)
+            for (int j = 0; j < 3; j++)
+                if (board[i][j] == '-')
+                    return true;
+        return false;
+    }
+
+    // Check if the player lost in the game
+    private void checkIfTheOpponentIsWinner() {
+        byte win = this.isGameFinished_ByUser(this.opponent);
+        if (win != '\0') {
+            this.txtResult.setVisible(true);
+            this.displayAnswerLine(win);
+            this.txtResult.setText(Character.toUpperCase(this.player) + " is the loser!!");
+            this.isFinish = true;
+        }
+    }
+
+    // Get the rectangle node by it index
     private Node wichRectangleNode(int row, int columns) {
         if (row == 0 && columns == 0) {
             return this.rectangle00;
@@ -550,6 +601,7 @@ public class Controller implements Initializable {
         }
     }
 
+    // ReSet rectangle color to black when restart the game
     private void resetRectangleColor() {
         this.rectangle00.setFill(Color.BLACK);
         this.rectangle01.setFill(Color.BLACK);
@@ -562,6 +614,7 @@ public class Controller implements Initializable {
         this.rectangle22.setFill(Color.BLACK);
     }
 
+    // Fill the cell that has the answer line by red color
     private void displayAnswerLine(byte isWin) {
 
         switch (isWin) {
@@ -608,6 +661,7 @@ public class Controller implements Initializable {
         }
     }
 
+    // Get The O char as circle
     private Circle drawO(double layout_X, double layout_Y) {
         Circle circle = new Circle(70);
         circle.setFill(Color.TRANSPARENT);
@@ -618,6 +672,7 @@ public class Controller implements Initializable {
         return circle;
     }
 
+    // Get the X char as a group of two line
     private Group drawX(double layout_X, double layout_Y) {
         Line line = new Line();
 
