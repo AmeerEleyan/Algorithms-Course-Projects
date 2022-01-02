@@ -1,7 +1,7 @@
 /**
  * @author: Amir Eleyan
  * ID: 1191076
- * At: 11/12/2021    4:07 AM
+ * At: 12/1/2022   11:13 PM
  */
 package gps;
 
@@ -15,11 +15,14 @@ public class Graph {
 
     private final HashMap<String, Vertex> hashMap;
     private final int numberOfCities;
-
+    private final HashMap<String, DijkstraTable> table;
+    private LinkedList<String> visitedCityInPreviousPath;
 
     public Graph(int numberOfCities) {
         this.hashMap = new HashMap<>();
         this.numberOfCities = numberOfCities;
+        this.table = new HashMap<>();
+        this.visitedCityInPreviousPath = new LinkedList<>();
     }
 
     public void addNewCities(City city) {
@@ -28,6 +31,7 @@ public class Graph {
                 Message.displayMessage("Warning", city.getCityName() + " is already existing");
             } else {
                 this.hashMap.put(city.getCityName(), new Vertex(city));
+                this.table.put(city.getCityName(), new DijkstraTable());
             }
         } else {
             Message.displayMessage("Warning", "You have exceeded the number of cities allowed to be added\nso " + city.getCityName() + " will not be added");
@@ -42,55 +46,63 @@ public class Graph {
             return null;
         }
 
-        // Initialize the hash map
-        // Key: city name, Value: dijkstra table(city name, isKnown, distance, path)
-        HashMap<String, DijkstraTable> table = new HashMap<>();
-        for (Vertex city : this.hashMap.values()) {
-            table.put(city.getCity().getCityName(), new DijkstraTable(city.getCity().getCityName()));
-        }
-        // change distance of the source city to zero; because the pat with itself zero
-        table.get(sourceCity.trim()).setDistance(0);
 
+        // reset the hash map to default values
+        if (this.visitedCityInPreviousPath.size() != 0) {
+            for (String city : this.visitedCityInPreviousPath) {
+                this.table.get(city).reSetValue();
+            }
+        }
+
+        // change distance of the source city to zero; because the pat with itself zero
+        this.table.get(sourceCity.trim()).setDistance(0);
+        this.visitedCityInPreviousPath = new LinkedList<>();
         PriorityQueue<Pair<String, Float>> priorityQueue = new PriorityQueue<>((o1, o2) -> Float.compare(o1.getValue(), o2.getValue()));
         priorityQueue.add(new Pair<>(sourceCity, 0f));
 
         float currentDistance; // distance for current vertex in  dijkstra table
         float newDistance; // summation for the above two variable
         float adjacentInTable; // distance for the adjacent in dijkstra table
-        boolean isFound = false;
 
-        while (!priorityQueue.isEmpty() && !isFound) {
+        while (!priorityQueue.isEmpty()) {
 
             String vertex = priorityQueue.poll().getKey();
             Vertex current = this.hashMap.get(vertex);
 
-            if (table.get(current.getCity().getCityName()).isVisited()) {
+            if (this.table.get(current.getCity().getCityName()).isVisited()) {
                 continue;
             } else {
-                table.get(current.getCity().getCityName()).setVisited(true);
+                this.table.get(current.getCity().getCityName()).setVisited(true);
+                if (this.table.get(current.getCity().getCityName()).getPath() == null)
+                    this.visitedCityInPreviousPath.addFirst(current.getCity().getCityName());
             }
 
             for (Adjacent adjacent : current.getAdjacent()) {
 
-                currentDistance = table.get(current.getCity().getCityName()).getDistance();
+                currentDistance = this.table.get(current.getCity().getCityName()).getDistance();
                 // adjacent.getDistance(): between current vertex and his adjacent
                 newDistance = adjacent.getDistance() + currentDistance;
-                adjacentInTable = table.get(adjacent.getAdjacentCity().getCityName()).getDistance();
+                adjacentInTable = this.table.get(adjacent.getAdjacentCity().getCityName()).getDistance();
 
                 if (newDistance < adjacentInTable) {
-                    table.get(adjacent.getAdjacentCity().getCityName()).setDistance(newDistance);
-                    table.get(adjacent.getAdjacentCity().getCityName()).setPath(current.getCity().getCityName());
+                    this.table.get(adjacent.getAdjacentCity().getCityName()).setDistance(newDistance);
+                    this.table.get(adjacent.getAdjacentCity().getCityName()).setPath(current.getCity().getCityName());
+                    if (!this.table.get(adjacent.getAdjacentCity().getCityName()).isVisited())
+                        this.visitedCityInPreviousPath.addFirst(adjacent.getAdjacentCity().getCityName());
                     priorityQueue.add(new Pair<>(adjacent.getAdjacentCity().getCityName(), newDistance));
                 }
-
+            }
+            // check if destination is current(the best path)
+            if (destinationCity.equals(current.getCity().getCityName())) {
+               break;
             }
         }
-        if (table.get(destinationCity).getPath() == null) { // there is no path to destination city
+        if (this.table.get(destinationCity).getPath() == null) { // there is no path to destination city
             return null;
         }
 
         // get total distance from source to destination
-        float totalDistance = table.get(destinationCity).getDistance();
+        float totalDistance = this.table.get(destinationCity).getDistance();
 
         // get the cities in the path from source to destination
         LinkedList<City> citiesInThePath = new LinkedList<>();
@@ -98,8 +110,9 @@ public class Graph {
         String path = this.hashMap.get(destinationCity).getCity().getCityName();
         while (path != null) {
             citiesInThePath.addFirst(this.hashMap.get(path).getCity());
-            path = table.get(path).getPath();
+            path = this.table.get(path).getPath();
         }
+
         return new ShortestPath(totalDistance, citiesInThePath);
 
     }
@@ -107,14 +120,14 @@ public class Graph {
     // Add adjacent to each other, because the road is two direction
     public void addAdjacent(String parentName, String adjacentName) {
         //Check them if they are in the hash
-        if (hashMap.get(parentName.trim()) != null && hashMap.get(adjacentName.trim()) != null) {
-            City city = hashMap.get(parentName.trim()).getCity();
-            City adjacent = hashMap.get(adjacentName.trim()).getCity();
-            if (hashMap.get(parentName.trim()).getAdjacent().contains(new Adjacent(adjacent))) {
+        if (this.hashMap.get(parentName.trim()) != null && this.hashMap.get(adjacentName.trim()) != null) {
+            City city = this.hashMap.get(parentName.trim()).getCity();
+            City adjacent = this.hashMap.get(adjacentName.trim()).getCity();
+            if (this.hashMap.get(parentName.trim()).getAdjacent().contains(new Adjacent(adjacent))) {
                 Message.displayMessage("Warning", parentName + " and " + adjacentName + " is already existing as neighbors");
             } else {
-                hashMap.get(city.getCityName()).addAdjacent(adjacent);
-                hashMap.get(adjacent.getCityName()).addAdjacent(city);
+                this.hashMap.get(city.getCityName()).addAdjacent(adjacent);
+                this.hashMap.get(adjacent.getCityName()).addAdjacent(city);
             }
         }
 

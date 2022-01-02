@@ -7,14 +7,9 @@ package gps;
 
 public class DijkstraTable {
 
-    private final String cityVertex;
     private boolean visited;
     private float distance = Integer.MAX_VALUE;
     private String path;
-
-    public DijkstraTable(String cityVertex) {
-        this.cityVertex = cityVertex;
-    }
 
     public boolean isVisited() {
         return visited;
@@ -40,10 +35,15 @@ public class DijkstraTable {
         this.path = path;
     }
 
+    public void reSetValue(){
+        this.visited = false;
+        this.distance = Integer.MAX_VALUE;
+        this.path = null;
+    }
+
     @Override
     public String toString() {
         return "DijkstraTable{" +
-                "cityVertexName: " + cityVertex +
                 ", known: " + visited +
                 ", distance: " + distance +
                 ", path: " + path +

@@ -32,7 +32,7 @@ public class Test {
         gps.addAdjacent("Nablus","Birzeit");
         gps.addAdjacent("y","Jericho");
 
-       ShortestPath s = gps.findShortestPath("Birzeit","xx");
+       ShortestPath s = gps.findShortestPath("Birzeit","Beitunia");
 
 
     }

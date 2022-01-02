@@ -1,5 +1,5 @@
 50
-Jerusalem,35.2137,31.7683,408,345
+Jerusalem,35.2137,31.7683,409,346
 Bethlehem,35.2024,31.7054,367,383
 Ashdod,34.6553,31.8044,251,347
 Haifa,34.9896,32.7940,313,150
@@ -57,6 +57,7 @@ Al-Bireh Jerusalem
 Bethlehem AlAzaria
 Bethlehem Halhul
 Bethlehem BeitSafafa
+BeitSafafa AlAzaria
 Hebron Halhul
 BaytUla Halhul
 BaytUla Tarqumiyah
@@ -96,6 +97,7 @@ Na'ura Beisan
 Tabrya Beisan
 Beisan Tubas
 Ashdod Lod
+Lod Jaffa
 Ashdod Ramla
 Jenin Tubas
 Jenin Burqin
@@ -115,7 +117,6 @@ BeitHanina Jerusalem
 Birzeit Ramallah
 AlAzaria Jericho
 Modi'in Ramla
-Modi'in Lod
 Lod Ramla
 Qabatiya Jenin
 Ashdod Asaklan

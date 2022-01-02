@@ -96,17 +96,17 @@ public class Controller implements Initializable {
                             cityName = data[0].trim();
                             longitude = Float.parseFloat(data[1].trim());
                             latitude = Float.parseFloat(data[2].trim());
-                            layout_X_Map = Short.parseShort(data[3].trim());
-                            layout_Y_Map = Short.parseShort(data[4].trim());
+                            layout_X_Map = Short.parseShort(data[3].trim());// can stop
+                            layout_Y_Map = Short.parseShort(data[4].trim());// can stop
                             city = new City(cityName, longitude, latitude, layout_X_Map, layout_Y_Map);
                             this.graphCities.addNewCities(city);
                             this.citiesNames[indexCitiesName++] = cityName;
 
                             // add this city in the map and store in hash to access it later
-                            CreateCityInTheMap cityMap = new CreateCityInTheMap(cityName, layout_X_Map, layout_Y_Map);
+                            CreateCityInTheMap cityInMap = new CreateCityInTheMap(cityName, layout_X_Map, layout_Y_Map);// can call get methode
                             cityPosition = layout_X_Map + " " + layout_Y_Map;
-                            this.citiesInMap.put(cityPosition, cityMap);
-                            this.anchorPane.getChildren().addAll(cityMap.getCityName(), cityMap.getCityPosition());
+                            this.citiesInMap.put(cityPosition, cityInMap);
+                            this.anchorPane.getChildren().addAll(cityInMap.getCityName(), cityInMap.getCityPosition());
                         } else {
                             // Add the adjacent
                             data = lineOfData.split(" ");
@@ -143,6 +143,7 @@ public class Controller implements Initializable {
 
 
     public void handleBtGo() {
+        this.handleBtAnotherPath();
         // The source city not selected
         if (this.combSourceCity.getValue() == null) {
             Message.displayMessage("Warning", "Please select the source city");
