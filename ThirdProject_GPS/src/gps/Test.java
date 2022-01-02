@@ -28,11 +28,9 @@ public class Test {
         gps.addAdjacent("Jericho","Beitunia");
         gps.addAdjacent("Ramla","Ashdod");
         gps.addAdjacent("Ashdod","Lod");
-        gps.addAdjacent("Ramla","Birzeit");
-        gps.addAdjacent("Nablus","Birzeit");
-        gps.addAdjacent("y","Jericho");
+        gps.addAdjacent("Ramla","Nablus");
 
-       ShortestPath s = gps.findShortestPath("Birzeit","Beitunia");
+       ShortestPath s = gps.findShortestPath("Birzeit","Jericho");
 
 
     }
