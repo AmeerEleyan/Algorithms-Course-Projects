@@ -18,7 +18,7 @@ public class Graph {
     private final int numberOfCities;
     private final HashMap<String, DijkstraTable> table;
 
-    //Using LinkedHashSet we can prevent insertion of duplicate elements
+    // Using LinkedHashSet we can prevent insertion of duplicate elements
     // as it implements the Set interface
     private LinkedHashSet<String> visitedCityInPreviousPath;
 
@@ -77,7 +77,7 @@ public class Graph {
                 continue;
             } else {
                 this.table.get(current.getCity().getCityName()).setVisited(true);
-                // add this city(that was changed its values in table) to list that 
+                // add this city(that was changed its values in table) to list that
                 if (this.table.get(current.getCity().getCityName()).getPath() == null)
                     this.visitedCityInPreviousPath.add(current.getCity().getCityName());
             }
