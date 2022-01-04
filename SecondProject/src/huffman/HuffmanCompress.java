@@ -43,6 +43,7 @@ public class HuffmanCompress {
     private Node root;
     private String fullHeaderAsString = "";
     private short numberOfNodes = 0;
+    private static final int NoOfBytes = 1024;
 
 
     public void compress(final File sourceFile) {
@@ -68,7 +69,7 @@ public class HuffmanCompress {
         try {
             FileInputStream reader = new FileInputStream(sourceFile);
 
-            byte[] buffer = new byte[1024]; // number of bytes can be read
+            byte[] buffer = new byte[NoOfBytes]; // number of bytes can be read
 
             // remaining is the number of bytes to read to fill the buffer
             short remaining = (short) buffer.length;
@@ -113,7 +114,10 @@ public class HuffmanCompress {
                     numberOfNodes++;
                 }
             }
-
+            if (priorityQueue.size() == 1) { // if the file has only one byte
+                Node left = priorityQueue.poll();
+                return new Node((byte) '\0', left.getFrequency(), left, null);
+            }
             // O(nlogn)
             while (priorityQueue.size() > 1) { // > 1, to for the ability to poll twice from queue
                 Node left = priorityQueue.poll();
@@ -200,12 +204,12 @@ public class HuffmanCompress {
 
             InputStream fis = new FileInputStream(sourceFile);
 
-            byte[] buffer = new byte[1024]; // number of bytes can be read
+            byte[] buffer = new byte[NoOfBytes]; // number of bytes can be read
 
             // remaining is the number of bytes to read to fill the buffer
             short remaining = (short) buffer.length;
 
-            byte[] huffmanBuffer = new byte[1024];
+            byte[] huffmanBuffer = new byte[NoOfBytes];
             short index = 0, read;
             StringBuilder remainingBits = new StringBuilder();
             String huffmanBits;
@@ -222,8 +226,8 @@ public class HuffmanCompress {
                                 // to store the bits above than index 7
                                 remainingBits = new StringBuilder(huffmanBits.substring(8));
                                 huffmanBuffer[index++] = Utility.stringToByte(huffmanBits.substring(0, 8));
-                                if (index == 1024) {
-                                    writer.write(huffmanBuffer, 0, 1024);
+                                if (index == NoOfBytes) {
+                                    writer.write(huffmanBuffer, 0, NoOfBytes);
                                     index = 0;
                                 }
                             } else {
@@ -243,8 +247,8 @@ public class HuffmanCompress {
                         if (huffmanBits.length() >= 8) {
                             remainingBits = new StringBuilder(huffmanBits.substring(8)); // to store bit above than index 7
                             huffmanBuffer[index++] = Utility.stringToByte(huffmanBits.substring(0, 8));
-                            if (index == 1024) { // maybe the huffmanBuffer code for these bytes when grouped reach 1024 byte
-                                writer.write(huffmanBuffer, 0, 1024);
+                            if (index == NoOfBytes) { // maybe the huffmanBuffer code for these bytes when grouped reach 1024 byte
+                                writer.write(huffmanBuffer, 0, NoOfBytes);
                                 index = 0;
                             }
                         } else {
@@ -264,8 +268,8 @@ public class HuffmanCompress {
                             remainingBits = new StringBuilder(remainingBits.substring(0, 8));
                         }
                         huffmanBuffer[index++] = Utility.stringToByte(remainingBits.toString());
-                        if (index == 1024) {
-                            writer.write(huffmanBuffer, 0, 1024);
+                        if (index == NoOfBytes) {
+                            writer.write(huffmanBuffer, 0, NoOfBytes);
                             index = 0;
                         }
                         remainingBits = new StringBuilder(temp);
@@ -278,6 +282,7 @@ public class HuffmanCompress {
             }
             fis.close();
             writer.close();
+            Message.displayMessage("Successfully", sourceFile.getName() + " was compress successfully");
         } catch (IOException e) {
             Message.displayMessage("Warning", e.getMessage());
         }
@@ -361,6 +366,7 @@ public class HuffmanCompress {
         root = null;
         fullHeaderAsString = "";
         numberOfNodes = 0;
+        System.gc();
     }
 
     // Get the 2D array as sting to display it in the TextArea

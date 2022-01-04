@@ -1,3 +1,8 @@
+/**
+ * @author: Ameer Eleyan
+ * ID: 1191076
+ * At: 11/1/2021   5:30 PM
+ */
 package huffman;
 
 
@@ -10,6 +15,9 @@ public class ReadFileToDecompress {
 
     private byte[] huffmanLengths;
     private byte[] huffmanRepresentationBytes;
+
+    private static int remainingIndex = 0;
+    private static int remainingSize = 0;
 
     public int getStartIndexOfHuffmanCode(final byte[] buffer, StringBuilder fileExtension) {
         int beginning = decompress(buffer, fileExtension);
@@ -127,11 +135,28 @@ public class ReadFileToDecompress {
         byte b2 = buffer[++i];
         String sHr = Utility.byteToString(b1) + Utility.byteToString(b2);
         hrSize = Integer.parseInt(sHr, 2);
+        int remaining = 1024 - i;
         this.huffmanRepresentationBytes = new byte[hrSize];
         for (int hrIndex = 0; hrIndex < hrSize; hrIndex++) {
             this.huffmanRepresentationBytes[hrIndex] = buffer[++i];
         }
-        return i + 1;
+        // rem= 516
+        // hr = 500,,, 520
+        // i = 1012
+        if (hrSize <= remaining) {
+            return i + 1;
+        } else {
+            remainingSize = hrSize - remaining;
+            remainingIndex = i;
+            return -1;
+        }
+    }
+
+    public short addToOldArray(final byte[] buffer) {
+        for (int i = remainingIndex; i < remainingSize; ++i) {
+            this.huffmanRepresentationBytes[remainingIndex++] = buffer[i];
+        }
+        return (short) (remainingIndex +1);
     }
 
     private String getHuffmanRepresentationBytesAsSting() {

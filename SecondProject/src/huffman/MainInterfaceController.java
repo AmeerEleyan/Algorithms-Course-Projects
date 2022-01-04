@@ -105,7 +105,7 @@ public class MainInterfaceController implements Initializable {
                         Message.displayMessage("Warning", "This file is already compressed");
                         return;
                     }
-                    
+
                     this.header = new HuffmanCompress();
                     this.header.compress(sourceFile); // encoding the file and print it encoded(compressed) to huf file
                     this.lblHeader.setDisable(false);
@@ -114,10 +114,8 @@ public class MainInterfaceController implements Initializable {
                     this.txtHeader.setDisable(false);
                     this.txtHeader.setText(this.header.getFullHeaderAsString()); // display the header of the huf file after encoded
                     this.fillStatisticsTable(); // display the statistic table in the window
-                    Message.displayMessage("Successfully", sourceFile.getName() + " was compress successfully");
                 } else {
                     HuffmanDecompress.decompress(sourceFile);
-                    Message.displayMessage("Successfully", sourceFile.getName() + " was decompress successfully");
                 }
                 this.comboBox.setDisable(true); // hide
                 this.btAnotherFile.setDisable(false); // display
