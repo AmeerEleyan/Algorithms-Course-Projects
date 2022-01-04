@@ -1,7 +1,7 @@
 /**
- *      @author: Ameer Eleyan
- *      ID: 1191076
- *      At: 10/30/2021   1:00 AM
+ * @author: Ameer Eleyan
+ * ID: 1191076
+ * At: 10/30/2021   1:00 AM
  */
 package lcs;
 
@@ -32,4 +32,5 @@ public class GUI extends Application {
         window.setResizable(false);
         window.show();
     }
+
 }

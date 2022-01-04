@@ -12,14 +12,10 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
 
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.ResourceBundle;
-import java.util.Scanner;
+import java.util.*;
 
 public class Driver implements Initializable {
 
@@ -33,14 +29,8 @@ public class Driver implements Initializable {
     @FXML // fx:id="HBoxSet"
     private HBox HBoxSet; // Value injected by FXMLLoader
 
-    @FXML // fx:id="btAdd"
-    private Button btAdd; // Value injected by FXMLLoader
-
     @FXML // fx:id="btTryAnotherData"
     private Button btTryAnotherData; // Value injected by FXMLLoader
-
-    @FXML // fx:id="btSet"
-    private Button btSet; // Value injected by FXMLLoader
 
     @FXML // fx:id="btUploadData"
     private Button btUploadData; // Value injected by FXMLLoader
@@ -50,12 +40,6 @@ public class Driver implements Initializable {
 
     @FXML // fx:id="comboBox"
     private ComboBox<String> comboBox; // Value injected by FXMLLoader
-
-    @FXML // fx:id="lblData"
-    private Label lblLedNo; // Value injected by FXMLLoader
-
-    @FXML // fx:id="lblDataSize"
-    private Label lblNoOfLed; // Value injected by FXMLLoader
 
     @FXML // fx:id="textAreaForData"
     private TextArea textAreaForData; // Value injected by FXMLLoader
@@ -74,6 +58,8 @@ public class Driver implements Initializable {
 
     @FXML // fx:id="txtDataSize"
     private TextField txtDataSize; // Value injected by FXMLLoader
+
+    private String strRes="";
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -150,7 +136,7 @@ public class Driver implements Initializable {
         this.uploadFiles();
     }
 
-    // upload files using a browser
+    // upload files using a browser8
     private void uploadFiles() {
 
         // File Chooser
@@ -183,12 +169,21 @@ public class Driver implements Initializable {
                             firstValue = false;
                         } else { // The size of the data was specified, thus starting read them
                             int data = input.nextInt();
-                            if (data <= this.size) { // To validate value
-                                this.LEDs[this.index] = data;
-                                this.textAreaForData.appendText(" \nLed #" + this.LEDs[this.index] + "\t\tPower-" + (this.index + 1) + "\n");
-                                this.index++;
-                            } else {
-                                Message.displayMessage("Warning", data + " is invalid");
+                            if(index < this.size){
+                                if (data <= this.size) { // To validate value
+                                   if(!isFound(this.LEDs, data)){
+                                       this.LEDs[this.index] = data;
+                                       this.textAreaForData.appendText(" \nLed #" + this.LEDs[this.index] + "\t\tPower-" + (this.index + 1) + "\n");
+                                       this.index++;
+                                   }else{
+                                       Message.displayMessage("Warning", data+" Is already exit");
+                                   }
+
+                                } else {
+                                    Message.displayMessage("Warning", data + " is invalid");
+                                }
+                            }else{
+                                Message.displayMessage("Warning","The number leds larger than it's size\nSo we take the first "+index+" LEds");
                             }
 
                         }
@@ -213,6 +208,7 @@ public class Driver implements Initializable {
         this.btTryAnotherData.setDisable(false);
         this.btFind.setDisable(true);
     }
+
 
     // Handle try another data button
     public void handleBtTryAnotherData() {
@@ -336,7 +332,6 @@ public class Driver implements Initializable {
 
         // To store all unique LCS pairs
         LinkedList<String> allLCS = new LinkedList<>();
-        boolean notFound;
         // To visit through column rows that contain LCS number
         while (costForLCS[row][column] == costForLCS[i][j]) { // To check if the current number in the costForLCS matrix equal the LCS length
 
@@ -354,6 +349,9 @@ public class Driver implements Initializable {
 
                 while (tempRow != 0 && tempColumn != 0) { // To visit the path that represent LCS pairs
                     if (b[tempRow][tempColumn] == 1) {
+                        if(strRes.length()<costForLCS[costForLCS.length-1][costForLCS.length-1]){
+                            this.strRes = tempRow + strRes;
+                        }
                         pairs = "{Power-" + tempRow + ", Led-" + tempRow + "}\n" + pairs;
                         tempRow--; // to move the previous row
                         tempColumn--; // to move the previous column
@@ -378,4 +376,57 @@ public class Driver implements Initializable {
 
     }
 
+    // Another DP Algorithm the longest increasing substance
+    private String lengthOfLIS(int[] leds) {
+
+        if (leds.length == 0) return null;
+
+        // for the longest increasing
+        int[] lis = new int[leds.length];
+
+        // used to print the all LIS
+        int[] indices = new int[leds.length];
+
+        // longest increasing sub-sequence having just one element has length 1
+        Arrays.fill(lis, 1);
+        Arrays.fill(indices, -1);
+
+        // start from second element in the array
+        for (int i = 1; i < leds.length; i++) {
+
+            // do for each element in sub-array leds[0..i-1]
+            for (int j = 0; j < i; j++) {
+                if (leds[i] > leds[j] && lis[i] < lis[j] + 1) {
+                    lis[i] = lis[j] + 1;
+                    // store what index helped to extend lis[i]
+                    indices[i] = j;
+                }
+            }
+        }
+        // find the maximum from lis array and it's index
+        int max = lis[0], maxIndex = 0;
+        for (int i = 1; i < leds.length; i++) {
+            if (max <= lis[i]) {
+                max = lis[i];
+                maxIndex = i;
+            }
+        }
+
+        //starting from index of max-length LIS traverse back
+        //using indices array populated earlier
+        String str = "";
+        while (maxIndex >= 0) {
+            str = "{Power-" + leds[maxIndex] + ", Led-" + leds[maxIndex] + "}\n" + str;
+
+            maxIndex = indices[maxIndex];
+        }
+        return str;
+    }
+
+    private static boolean isFound(int [] array, int num){
+        for (int j : array) {
+            if (j == num) return true;
+        }
+        return false;
+    }
 }
