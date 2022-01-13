@@ -324,6 +324,7 @@ public class Controller implements Initializable {
             }
         }
         // If this minimizer's move
+
         else {
             best = Integer.MAX_VALUE;
 
